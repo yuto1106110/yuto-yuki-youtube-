@@ -12,7 +12,7 @@
 .sidebar {
   position: fixed;
   /* left: 0; */
-  left: 0px; /* checkboxを実装するとき */
+  left: -250px; /* checkboxを実装するとき */
   background: rgb(0, 0, 0);
   width: 250px;
   height: 100%;
@@ -23,7 +23,7 @@
   font-size: 22px;
   color: #fff;
   text-align: center;
-  line-height: -70px;
+  line-height: 70px;
   background: rgb(0, 0, 0);
   user-select: none;
 }
@@ -32,7 +32,7 @@
   display: block;
   height: 100%;
   width: 100%;
-  line-height: 50px;
+  line-height: 65px;
   font-size: 20px;
   color: #fff;
   padding-left: 40px;
