@@ -23,7 +23,7 @@
   font-size: 22px;
   color: #fff;
   text-align: center;
-  line-height: 0px;
+  line-height: -70px;
   background: rgb(0, 0, 0);
   user-select: none;
 }
@@ -32,7 +32,7 @@
   display: block;
   height: 100%;
   width: 100%;
-  line-height: 0px;
+  line-height: 65px;
   font-size: 20px;
   color: #fff;
   padding-left: 40px;
