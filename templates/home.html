@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="/css/grids-responsive-min.css">
         <link rel="stylesheet" href="/css/ionicons.min.css">
         <link rel="stylesheet" href="/css/default.css">
-	<link rel="stylesheet" href="/css/menu.css">
+	<link rel="stylesheet" href="/css/style.css">
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
         
         <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -43,33 +43,56 @@
     <div class="spinner horizontal"></div>
     <div class="spinner diagonal part-2"></div>
   </label>
-<div id="sidebarMenu">
-	<ul class="sidebarMenuInner">
-		<li>~Menu~
-		<li><a href="javascript:location.replace('/bbs')">Yuki BBS</a></li>
-		<li><a href="javascript:location.replace('/chat')">Sand smoke 公式chat</a></li>
-		<li><a href="javascript:location.replace('/rammerhead')">rammerhead</a></li>
-		<li><a href="javascript:location.replace('/shadow')">shadow</a></li>
-	</ul>
-            
-            <div class="pure-u-1-4"></div>
-        </div>
-        <script>
-            $('#searchbox').autocomplete({
-                source: function (request, response) {
-                    {
-                        var url = "/suggest?keyword=" + request.term
-                        var xhr = new XMLHttpRequest();
-                        xhr.open("GET", url);
-                        xhr.onload = function() {
-                            response(JSON.parse(xhr.responseText));
-                        }
-                        xhr.send();
-                    }
-                },delay:300
-            });
-        </script>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Google</title>
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+		integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+</head>
+
+<body>
+	<!-- toggle section -->
+	<input type="checkbox" id="check" />
+	<label for="check">
+      <i class="fas fa-bars" id="btn"></i>
+      <i class="fas fa-times" id="cancel"></i>
+    </label>
+	<!-- sidebar section -->
+	<div class="sidebar">
+		<header>〜 メニュー 〜</header>
+		<ul>
+			<li>
+				<a href="javascript:location.replace('/')" class="pure-menu-heading"><i class="fa-solid fa-house"></i>ホーム</a>
+			</li>
+			<li>
+				<a href="javascript:location.replace('/bbs')"><i class="fa-solid fa-comment"></i>Yuki BBS</a>
+			</li>
+			<li>
+				<a href="javascript:location.replace('/chat')"><i class="fa-solid fa-comment"></i>Sand 公式chat</a>
+			</li>
+			<li>
+				<a href="javascript:location.replace('/rammerhead')"><i class="fa-solid fa-cloud"></i>rammerhead</a>
+			</li>
+			<li>
+				<a href="javascript:location.replace('/shadow')"><i class="fa-solid fa-cloud"></i>shadow</a>
+			</li>
+			<li>
+				<a href="javascript:location.replace('/help')"><i class="fas fa-envelope"></i>お問い合わせ</a>
+			</li>
+		</ul>
 	</div>
+
+	<section></section>
+</body>
+
+</html>
+<script src="https://kit.fontawesome.com/fbb95e2ade.js" crossorigin="anonymous"></script>
 		
 	</body>
 </html>
