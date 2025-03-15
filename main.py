@@ -580,6 +580,15 @@ def list_page(response: Response, request: Request):
 @app.get("/help", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("help.html", {"request": request})
+@app.get("/proxy", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("proxy.html", {"request": request})
+@app.get("/rammerhead-2", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("rammerhead-2.html", {"request": request})
+@app.get("/shadow-2", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("shadow-2.html", {"request": request})
 
 
 @app.exception_handler(500)
