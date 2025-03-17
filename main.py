@@ -567,7 +567,7 @@ def toggleVideoCheck():
     invidious_api.check_video = not invidious_api.check_video
     return f'{not invidious_api.check_video} to {invidious_api.check_video}'
   
-@app.get("()", response_class=HTMLResponse)
+@app.get("/shadow", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("shadow.html", {"request": request})
       
