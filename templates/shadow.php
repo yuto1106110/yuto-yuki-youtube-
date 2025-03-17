@@ -1,6 +1,6 @@
 <?php
 
-header('Access-Control-Allow-Origin: '); // この部分を追記。
+header('Access-Control-Allow-Origin: https://shadow-1.myclarevision.com/'); // この部分を追記。
 /* 直接アクセス禁止設定 */
 if($_SERVER["REQUEST_METHOD"] === 'POST'){
 	/* <!DOCTYPE html>
