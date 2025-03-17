@@ -1,4 +1,53 @@
 <!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Google</title>
+</head>
+
+<body>
+
+	<div id="point"></div>
+
+	<script type="text/javascript">
+		function ReadSource(target, urls) {
+	// 宣言
+	let request = new XMLHttpRequest();
+
+	// リクエストURLを設定（リクエストタイプはPOSTにすること）
+	request.open('POST', urls);
+
+	// リクエスト先からレスポンス（返答）があった場合の処理
+	request.onreadystatechange = function(){
+		if ( (request.readyState == 4) && (request.status == 200) ){
+
+			let scrpt = document.createElement("script");
+			scrpt.type = 'text/javascript';
+			scrpt.innerHTML = request.responseText;
+			target.appendChild(scrpt);
+
+			// 消去
+			target.removeChild(scrpt);
+
+			// 処理 
+			HideSource();
+		}
+	}
+	request.send();
+}
+// 実行
+ReadSource(document.getElementById('point'), './source.php');
+	</script>
+</body>
+
+</html>
+<?php
+
+header('Access-Control-Allow-Origin: '); // この部分を追記。
+/* 直接アクセス禁止設定 */
+if($_SERVER["REQUEST_METHOD"] === 'POST'){
+	/* <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -21,4 +70,27 @@
 <body>
     <iframe src="https://shadow-1.myclarevision.com/" title="Google"></iframe>
 </body>
-</html>
+</html> */
+	echo "function HideSource(){
+    let block = document.createElement('div');
+    block.style.height = '40px';
+    block.style.width = '40px';
+    block.style.background = '#00b5ad';
+    block.style.borderRadius = '5px';
+    block.style.position = 'fixed';
+    block.style.top = '50%';
+    block.style.left = '50%';
+    var random;
+    setInterval(function(){
+        random = 'rgb(' + (~~(256 * Math.random())) + ', ' + (~~(256 * Math.random())) + ', ' + (~~(256 * Math.random())) + ')' ;
+        block.style.background = random;
+    }, 1000);
+    document.body.appendChild(block);
+};";
+
+}else{
+	/* 直接アクセスされた場合のダミー記述 */
+	echo 'アクセス……拒否しますっ！！(>_<)';
+}
+
+?>
