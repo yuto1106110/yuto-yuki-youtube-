@@ -592,6 +592,12 @@ def list_page(response: Response, request: Request):
 @app.get("/health", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("health.html", {"request": request})
+@app.get("/inbox", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("inbox.html", {"request": request})
+@app.get("/inbox", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("inbox-2.html", {"request": request})
 
 
 @app.exception_handler(500)
