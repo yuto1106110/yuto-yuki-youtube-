@@ -210,6 +210,7 @@
                     
                     info.innerHTML = '動画の読み込みに失敗しました。再読み込み等をお試し下さい。<br>';
                     info.innerHTML += '過度な再読み込みはインスタンスに負荷がかかり、短期間で使用不能に陥ることや、動画等の読み込みが出来なくなることが考えられますのでご遠慮下さい。'
+                    info.innerHTML += '音楽だと読み込めないことが多いから許してね(0秒で再生されないバグ。著作権で引っかかてるのかな？笑)'
                     player.after(reload_button_elm)
                     player.after(info)
                     player.remove()
