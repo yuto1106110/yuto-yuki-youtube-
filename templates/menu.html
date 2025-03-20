@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Google</title>
+	<style>
+		body {
+			font-family: 'Arial', sans-serif;
+			background-color: #fdf2f4;
+			color: #333;
+			margin: 0;
+			padding: 0;
+			line-height: 1.6;
+		}
+
+		header {
+			background-color: #4CAF50;
+			color: #fdf2f4;
+			padding: 20px;
+			text-align: center;
+		}
+
+		header h1 {
+			margin: 0;
+			font-size: 2.5em;
+		}
+
+		.blog-list {
+			display: flex;
+			justify-content: center;
+			flex-wrap: wrap;
+			margin-top: 30px;
+		}
+
+		.blog-item {
+			background-color: #fff;
+			width: 200px;
+			margin: 15px;
+			padding: 15px;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			text-align: center;
+			transition: transform 0.2s;
+		}
+
+		.blog-item:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+		}
+
+		.blog-item h2 {
+			font-size: 1.3em;
+			margin-bottom: 10px;
+			color: #4CAF50;
+		}
+
+		.blog-item p {
+			font-size: 0.9em;
+			color: #555;
+			margin-bottom: 15px;
+		}
+
+		.blog-item a {
+			display: inline-block;
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 15px;
+			border-radius: 5px;
+			text-decoration: none;
+		}
+
+		.blog-item a:hover {
+			background-color: #45a049;
+		}
+
+		footer {
+			background-color: #333;
+			color: white;
+			text-align: center;
+			padding: 20px;
+			margin-top: 40px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<header>
+		<h1>機能一覧</h1>
+		<p>このサイトの機能全てです
+		</p>
+	</header>
+
+
+	<div class="blog-list">
+
+		<div class="blog-item">
+			<h2>Yuki BBS</h2>
+			<p>BBSをみれます(最近動かん)</p>
+			<a href="/bbs">Go!</a>
+		</div>
+
+		<div class="blog-item">
+			<h2>Sand Smoke 公式chat</h2>
+			<p>sandのチャットです(全く動かない...助けて)</p>
+			<a href="/chat">Go!</a>
+		</div>
+
+		<div class="blog-item">
+			<h2>proxy一覧</h2>
+			<p>proxyをサイト内で使えます</p>
+			<a href="/proxy">Go!</a>
+		</div>
+
+		<div class="blog-item">
+			<h2>health/API診断</h2>
+			<p>APIが稼働しているかチェックできます</p>
+			<a href="/health">Go!</a>
+		</div>
+
+		<div class="blog-item">
+			<h2>お問い合わせ</h2>
+			<p>バグとか更新、増やしてほしいサイトがあったら送ってね</p>
+			<a href="/help">Go!</a>
+		</div>
+<div class="blog-item">
+	<h2>urlから動画を視聴</h2>
+	<p>YouTubeのurlから視聴できます</p>
+	<a href="/url">Go!</a>
+</div>
+	</div>
+
+	<footer>
+		<p>&copy; 2025 yuto_110. All rights reserved.</p>
+	</footer>
+
+</body>
+
+</html>
