@@ -38,7 +38,31 @@
             if (action === 'watch') {
                 window.location.href = `/watch?v={videoId}`;
             } else if (action === 'comment') {
-                window.location.href = `/tool/n/comment/${videoId}`;
+                <script>
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", "/comments?v=" + getQueryValue('v'));
+            xhr.onload = function () {      
+                if (xhr.status == 200) {
+                    const comments_div = document.getElementById('comments');
+                    comments_div.innerHTML = xhr.responseText;
+
+                    const comments_a_tags = comments_div.getElementsByTagName('a');
+
+                    for(let i = 0; i < comments_a_tags.length; i++) {
+                        const jump_time = comments_a_tags[i].getAttribute('data-jump-time')
+
+                        if(jump_time) {
+                            comments_a_tags[i].addEventListener('click', function(e) {
+                                e.preventDefault()
+                                player.currentTime = jump_time;
+                            })
+                        }
+                    }
+                } else { 
+                    document.getElementById('comments').innerHTML = "コメントの読み込みに失敗しました。再読み込み等をお試し下さい。"; 
+                }
+            };
+            xhr.send();
             } else {
                 alert('Invalid action type');
             }
