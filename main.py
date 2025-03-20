@@ -597,7 +597,7 @@ def list_page(response: Response, request: Request):
     return proxy("inbox.html", {"request": request})
 @app.get("/inbox", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return templatesproxy("inbox-2.html", {"request": request})
+    return proxy("inbox-2.html", {"request": request})
 
 
 @app.exception_handler(500)
