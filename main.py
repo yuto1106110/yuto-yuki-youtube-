@@ -601,6 +601,9 @@ def list_page(response: Response, request: Request):
 @app.get("/url", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("url.html", {"request": request})
+@app.get("/menu", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("menu.html", {"request": request})
 
 
 @app.exception_handler(500)
