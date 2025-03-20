@@ -29,7 +29,7 @@
                     <div class="pure-u-1 pure-u-md-12-24 searchbar">
                         <a href="javascript:location.replace('/')">ホーム</a><br>
                         <a href="javascript:location.replace('/bbs')">掲示板</a>
-                    
+                    <button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">問い合わせ</button>
                         <form class="pure-form" action="/search" method="get">
                             <fieldset>
                                 <input id="searchbox" name="q" type="search" placeholder="検索" value="" title="検索" autocomplete="on" autocorrect="on" autocapitalize="none" spellcheck="false" >
@@ -60,7 +60,6 @@
                         <a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
                         <button onclick="location.replace(location.href)">Reload / リロード</button>
                         <button id="high-quality-btn" onclick="fetchHighQualityVideo()">高画質化</button>
-                        <button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">問い合わせ</button>
                         <hr>
                     </div>
                     <div class="pure-u-1 pure-u-lg-3-5">
