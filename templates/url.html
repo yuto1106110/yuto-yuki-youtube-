@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>ふりかけ</title>
+	<title>absolute</title>
 	<link rel="stylesheet" href="/css/font.css">
 	<link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -48,7 +48,7 @@
 				}
             const action = event.submitter.value;
             if (action === 'watch') {
-                window.location.href = `/w/${videoId}`;
+                window.location.href = `/watch?v={videoId}`;
             } else if (action === 'comment') {
                 window.location.href = `/tool/n/comment/${videoId}`;
             } else {
