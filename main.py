@@ -569,35 +569,35 @@ def toggleVideoCheck():
   
 @app.get("/shadow", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("shadow.html", {"request": request})
+    return proxy("shadow.html", {"request": request})
       
 @app.get("/rammerhead", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("rammerhead.html", {"request": request})
+    return proxy("rammerhead.html", {"request": request})
 @app.get("/chat", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("chat.html", {"request": request})
 @app.get("/help", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("help.html", {"request": request})
+    return tool("help.html", {"request": request})
 @app.get("/proxy", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("proxy.html", {"request": request})
 @app.get("/rammerhead-2", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("rammerhead-2.html", {"request": request})
+    return proxy("rammerhead-2.html", {"request": request})
 @app.get("/shadow-2", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("shadow-2.html", {"request": request})
+    return proxy("shadow-2.html", {"request": request})
 @app.get("/health", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("health.html", {"request": request})
+    return tool("health.html", {"request": request})
 @app.get("/inbox", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("inbox.html", {"request": request})
+    return proxy("inbox.html", {"request": request})
 @app.get("/inbox", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("inbox-2.html", {"request": request})
+    return proxy("inbox-2.html", {"request": request})
 
 
 @app.exception_handler(500)
