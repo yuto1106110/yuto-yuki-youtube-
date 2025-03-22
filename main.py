@@ -607,6 +607,9 @@ def list_page(response: Response, request: Request):
 @app.get("/api-tokutei", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("api-tokutei.html", {"request": request})
+@app.get("/thumbnail", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("thumbnail.html", {"request": request})
 
 
 @app.get("/ping-pong", response_class=HTMLResponse)
