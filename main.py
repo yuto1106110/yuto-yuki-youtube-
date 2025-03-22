@@ -611,7 +611,7 @@ def list_page(response: Response, request: Request):
 
 @app.get("/othello", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return game("othello.html", {"request": request})
+    return template("othello.html", {"request": request})
 @app.exception_handler(500)
 def error500(request: Request, __):
     return template("error.html", {"request": request, "context": '500 Internal Server Error'}, status_code=500)
