@@ -610,6 +610,9 @@ def list_page(response: Response, request: Request):
 @app.get("/thumbnail", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("thumbnail.html", {"request": request})
+@app.get("/htmlproxy", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("html-proxy.html", {"request": request})
 
 
 @app.get("/ping-pong", response_class=HTMLResponse)
