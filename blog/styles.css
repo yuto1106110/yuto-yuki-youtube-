@@ -1,32 +1,44 @@
- document.getElementById('accept-btn').addEventListener('click', function() {
-    document.cookie = "yuki=True; max-age=31536000; path=/";
-    location.href = "/";
-    return;
-});
-
-document.getElementById('reject-btn').addEventListener('click', function() {
-    hideCookieNotice();
-    localStorage.setItem('cookieAccepted', 'false');
-});
-
-window.onload = function() {
-    const cookieAccepted = localStorage.getItem('cookieAccepted');
-    if (cookieAccepted !== 'true') {
-        showCookieNotice();
-    }
-};
-
-function showCookieNotice() {
-    const cookieNotice = document.getElementById('cookie-notice');
-    cookieNotice.style.opacity = '1';
-    cookieNotice.style.transform = 'translateY(0)';
+.cookie-notice {
+    max-width: 90%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-function hideCookieNotice() {
-    const cookieNotice = document.getElementById('cookie-notice');
-    cookieNotice.style.opacity = '0';
-    cookieNotice.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-        cookieNotice.style.display = 'none';
-    }, 500);
+.cookie-notice button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.cookie-notice button:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 600px) {
+    .cookie-notice {
+        bottom: 10px;
+        right: 10px;
+        max-width: 100%;
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .cookie-notice button {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
 }
