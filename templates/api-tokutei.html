@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
 
+<head>
+	<a href="javascript:location.replace('/')">ホーム</a><br>
+  <button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">お問い合わせ</button>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Google</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 20px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+		}
+
+		th {
+			background-color: #f2f2f2;
+		}
+
+		#loading {
+			display: none;
+			font-size: 20px;
+			margin-bottom: 20px;
+		}
+
+		.error {
+			color: red;
+		}
+	</style>
+</head>
+
+<body>
+
+	<h1>Health Checker</h1>
+  <p>個々API診断!!
+  <p>正直言ってここで0%でもつかえる...笑
+	<div id="loading">取得中...</div>
+	<table>
+		<thead>
+			<tr>
+				<th>API 名称</th>
+				<th>応答時間 (ms)</th>
+				<th>ステータス</th>
+				<th>エラーメッセージ</th>
+			</tr>
+		</thead>
+		<tbody id="results">
+			<!-- 結果を追加するよお -->
+		</tbody>
+	</table>
+	<p id="healthStatus"></p>
+	<p id="advice" style="margin-top: 20px; font-weight: bold;"></p>
+
+	<script>
+		const apiUrls = [
+        { name: "api-1", url: "https://siawaseok-wakame-server2.glitch.me/" },
+        { name: "api-2", url: "https://lekker.gay/" },
+        { name: "api-3", url: "https://id.420129.xyz/" },
+        { name: "api-4", url: "https://invid-api.poketube.fun/" },
+        { name: "api-5", url: "https://eu-proxy.poketube.fun/" },
+        { name: "api-6", url: "https://id.420129.xyz/" },
+        { name: "api-7", url: "https://cal1.iv.ggtyler.dev/" },
+		{ name: "api-8", url: "https://pol1.iv.ggtyler.dev/" },
+		{ name: "api-9", url: "https://natural-voltaic-titanium.glitch.me" },
+		{ name: "api-10", url: "https://wtserver1.glitch.me" },
+	{ name: "api-11", url: "https://wtserver2.glitch.me" },
+	{ name: "api-12", url: "https://wtserver3.glitch.me" },
+	{ name: "api-13", url: "https://watawata8.glitch.me" },
+{ name: "api-14", url: "https://watawata7.glitch.me" },
+{ name: "api-15", url: "https://watawata37.glitch.me" },
+{ name: "api-16", url: "https://wataamee.glitch.me" },
+{ name: "api-17", url: "https://watawatawata.glitch.me" },
+{ name: "api-18", url: "https://amenable-charm-lute.glitch.me" },
+{ name: "api-19", url: "https://battle-deciduous-bear.glitch.me" },
+{ name: "api-20", url: "https://productive-noon-van.glitch.me" },
+{ name: "api-21", url: "https://balsam-secret-fine.glitch.me" },
+{ name: "api-22", url: "https://wataamee.glitch.me/topvideos/apiv2" },
+{ name: "api-19", url: "https://yewtu.be/" },
+{ name: "api-20", url: "https://redirect.invidious.io/" },
+{ name: "api-21", url: "https://invidious.io/" },
+{ name: "api-22", url: "https://api.invidious.io/" },
+{ name: "api-23", url: "https://wataamee.glitch.me/topvideos/api" },
+{ name: "api-24", url: "https://invidious.exma.de/" },
+{ name: "api-25", url: "https://invidious.f5.si/" },
+{ name: "api-26", url: "https://heddohondayo.glitch.me/" },
+{ name: "api-27", url: "https://youtube-googlevideo.glitch.me/" },
+{ name: "api-28", url: "https://wakamecomment.glitch.me/api/wakame/f6TytcA47rI" },
+    ];
+
+    async function checkApiHealth(api) {
+        const startTime = performance.now();
+        let errorMessage = '';
+        try {
+            const response = await fetch(api.url);
+            const endTime = performance.now();
+            const duration = Math.round(endTime - startTime);
+            const status = response.ok ? "正常" : "エラー";
+            if (!response.ok) {
+                errorMessage = `ステータスコード: ${response.status}`;
+            }
+            return { name: api.name, duration, status, errorMessage };
+        } catch (error) {
+            const endTime = performance.now();
+            const duration = Math.round(endTime - startTime);
+            errorMessage = error.message || 'ネットワークエラー';
+            return { name: api.name, duration, status: "エラー", errorMessage };
+        }
+    }
+
+    function generateAdvice(healthyCount) {
+        const totalApis = apiUrls.length;
+        const healthPercentage = Math.round((healthyCount / totalApis) * 100);
+
+        if (healthPercentage === 100) {
+            return "すべてのAPIが正常です！システムは問題なく動作しています。引き続き良好な状態を維持してください。";
+        } else if (healthPercentage >= 80) {
+            return "ほとんどのAPIが正常です。軽微な問題があるかもしれませんが、全体的には安定しています。";
+        } else if (healthPercentage >= 50) {
+            return "半数以上のAPIが正常ですが、いくつかのエラーが発生しています。微妙な動画の読み込み障害が起こります。";
+        } else {
+            return "多くのAPIがエラーを返しています。システムはほとんど機能しません。また後日お試しください";
+        }
+    }
+
+    async function checkAllApis() {
+        document.getElementById('loading').style.display = 'block';
+        let healthyCount = 0;
+
+        for (const api of apiUrls) {
+            const result = await checkApiHealth(api);
+            const { name, duration, status, errorMessage } = result;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${name}</td><td>${duration}</td><td>${status}</td><td class="${status === 'エラー' ? 'error' : ''}">${errorMessage || '-'}</td>`;
+            document.getElementById('results').appendChild(row);
+
+            if (status === "正常") healthyCount++;
+        }
+
+        document.getElementById('healthStatus').innerText = `API ヘルス: ${Math.round((healthyCount / apiUrls.length) * 100)}%`;
+        document.getElementById('advice').innerText = generateAdvice(healthyCount);
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    checkAllApis();
+	</script>
+
+</body>
+
+</html>
