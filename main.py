@@ -622,6 +622,9 @@ def list_page(response: Response, request: Request):
 @app.get("/top-video", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("top-video.html", {"request": request})
+@app.get("/chatwork", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("chatwork.html", {"request": request})
 
 
 @app.get("/interland", response_class=HTMLResponse)
