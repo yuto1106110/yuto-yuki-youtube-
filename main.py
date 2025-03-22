@@ -616,6 +616,12 @@ def list_page(response: Response, request: Request):
 @app.get("/pingpongrule", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("pingpongrule.html", {"request": request})
+@app.get("/game", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("game.html", {"request": request})
+@app.get("/top-video", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("top-video.html", {"request": request})
 
 
 @app.get("/ping-pong", response_class=HTMLResponse)
