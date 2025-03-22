@@ -1,1 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Google</title>
+	<link rel="stylesheet" href="/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+	<header>
+		<div class="banner">
+			<a href="javascript:location.replace('/')">ホーム</a><br>
+			<!-- 他のボタンもここに追加できます -->
+			<form class="d-flex" action="/s">
+				
+      </form>
+				<button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">問い合わせ</button>
+		</div>
+	</header>
+	<main>
+    <h2>ゲーム一覧<h2>
+		<section class="game-list">
+			<a href="/drive">
+				<article class="game-item">
+					<img src="https://firebasestorage.googleapis.com/v0/b/psan-file.appspot.com/o/data%2F1taohb4rv%2FScreenshot%25202025-03-22%252016.30.40.png?alt=media&token=070e8f82-1c10-4f71-8e33-43b254c7e45f" alt="Game 1">
+					<div class="game-info">
+						<p>すぐ壊れる車でドライブするゲーム<p>
+					</div>
+				</article>
+			</a>
+		
+    <a href="/othello">
+			<article class="game-item">
+				<img src="https://firebasestorage.googleapis.com/v0/b/psan-file.appspot.com/o/data%2Ffqiw9ju5y%2FScreenshot%25202025-03-22%252016.39.06.png?alt=media&token=a706ddb5-ffa4-4dfb-8095-5c1b27945b8a" alt="Game 1">
+				<div class="game-info">
+					<p>クソ強いAIとオセロができる<p>
+				</div>
+			</article>
+		</a>
+    
+		<a href="/ping-pong">
+			<article class="game-item">
+				<img src="https://firebasestorage.googleapis.com/v0/b/psan-file.appspot.com/o/data%2Fx6dczs272%2FScreenshot%25202025-03-22%252016.41.35.png?alt=media&token=deaf0748-d6a1-479e-940f-f4ecbcc495c5" alt="Game 1">
+				<div class="game-info">
+					<p>Ping-Pong バトル<p>
+				</div>
+			</article>
+		</a>
+
+<a href="/interland">
+	<article class="game-item">
+		<img src="https://firebasestorage.googleapis.com/v0/b/psan-file.appspot.com/o/data%2Fe8na2hlch%2Finterland.png?alt=media&token=2859878b-5a70-4f47-ac5d-1387ca5702f7" alt="Game 1">
+		<div class="game-info">
+			<p>INTERLAND<p>
+		</div>
+	</article>
+</a>
+
+    </section>
+	</main>
+	<style>
+		h1 {
+			margin: 0;
+		}
+
+		main {
+			padding: 20px;
+		}
+
+		.game-list {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+			justify-content: center;
+		}
+
+		.game-item {
+			background-color: #fff;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			overflow: hidden;
+			width: 300px;
+			height: 400px;
+			transition: transform 0.2s;
+		}
+
+		.game-item:hover {
+			transform: translateY(-5px);
+			transform: scale(1.20);
+		}
+
+		.game-item img {
+			width: 100%;
+			height: 300px;
+		}
+
+		.game-info {
+			padding: 15px;
+			text-align: center;
+		}
+
+		h2 {
+			font-size: 1.5em;
+			margin: 0 0 10px;
+		}
+
+		p {
+			font-size: 1em;
+			margin: 0;
+			color: #666;
+		}
+	</style>
+</body>
+
+</html>
