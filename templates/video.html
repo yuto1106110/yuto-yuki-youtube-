@@ -60,6 +60,8 @@
                        <a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
                      <button onclick="location.replace(location.href)">Reload / リロード</button>
                         <button id="high-quality-btn" onclick="fetchHighQualityVideo()">高画質化</button>
+                        <button id="youtube-btn" onclick="changeVideoSource('youtube')">YouTubeへ</button>
+<button id="invidious-btn" onclick="changeVideoSource('invidious')">invidious serverに切り替える</button>
                         <hr>
                     </div>   
                     <div class="pure-u-1 pure-u-lg-3-5">
@@ -104,6 +106,29 @@
         <div class="pure-u-1 pure-u-md-2-24"></div>
         
         <script>
+
+<button id="youtube-btn" onclick="changeVideoSource('youtube')">YouTubeへ</button>
+<button id="invidious-btn" onclick="changeVideoSource('invidious')">invidious serverに切り替える</button>
+
+
+
+function changeVideoSource(source) {
+const player = document.getElementById('player');
+const videoSource = document.createElement('source');
+let url;
+
+if (source === 'youtube') {
+url = "{{ videourls[0] }}"; // YouTubeの元のURL
+} else if (source === 'invidious') {
+url = "https://invidious.io/watch?v=" + videoId; // InvidiousのURL
+}
+
+videoSource.src = url;
+player.innerHTML = '';
+player.appendChild(videoSource);
+player.load();
+}
+            
             const highinvidiousapis ='https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati';
 async function highfetchVideoInfoParallel(videoId) {
   const startTime = Date.now();
