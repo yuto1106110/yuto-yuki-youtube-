@@ -188,10 +188,10 @@ let url;
 
 if (source === 'youtube') {
 url = "{{ videourls[0] }}"; // YouTubeの元のURL
-if (source === 'invidious') {
-url = "https://invidious.io/watch?v=" + videoId;// InvidiousのURL
-if (source === 'wakame') {
-url = "https://watawatawata.glitch.me/watch?v=" + videoId;
+} else if (source === 'invidious') {
+url = "https://invidious.io/watch?v=" + {videoId};// InvidiousのURL
+} else if (source === 'wakame') {
+url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
 }
 
 videoSource.src = url;
