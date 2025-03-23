@@ -188,7 +188,9 @@ let url;
 if (source === 'youtube') {
 url = "{{ videourls[0] }}"; // YouTubeの元のURL
 } else if (source === 'invidious') {
-url = "https://invidious.io/watch?v=" + videoId; // InvidiousのURL
+url = "https://invidious.io/watch?v=" + videoId;// InvidiousのURL
+url = "https://yewtu.be/watch?v=" + videoId;
+url = "https://redirect.invidious.io/watch?v=" + videoId;
 }
 
 videoSource.src = url;
