@@ -327,51 +327,6 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 
-@app.get('/watch?v=$:id', async (req, res) => {
-const videoId = req.params.id;
-const server = req.query.server || '0';
-const serverUrls = {
-'0': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati',
-'1': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-1',
-'2': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-2',
-'3': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-1',
-'4': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-2',
-'5': 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/google-script',
-};
-
-let baseUrl;
-if (server === '0') {
-const randomIndex = Math.floor(Math.random() * serverUrls['0'].length);
-baseUrl = serverUrls['0'][randomIndex];
-} else {
-baseUrl = serverUrls[server] || 'https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati';
-}
-
-if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
-return res.status(400).send('videoIDが正しくありません');
-}
-
-const cookies = parseCookies(req);
-const wakames = cookies.wakametubeumekomi === 'true';
-if (wakames) {
-return res.redirect(`/umekomi/${videoId}`);
-}
-try {
-console.log(baseUrl);
-const response = await axios.get(`${baseUrl}/api/${videoId}`);
-const videoData = response.data;
-console.log(videoData);
-
-res.render('infowatch', { videoData, videoId, baseUrl });
-} catch (error) {
-res.status(500).render('mattev', {
-videoId, baseUrl,
-error: '動画を取得できません',
-details: error.message
-});
-}
-});
-
 
 
 
