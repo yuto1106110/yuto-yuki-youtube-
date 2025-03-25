@@ -186,9 +186,8 @@ const player = document.getElementById('player');
 const videoSource = document.createElement('source');
 let url;
 
-if (source === 'youtube') {
-url = "{{ videourls[0] }}"; // YouTubeの元のURL
-} else if (source === 'invidious') {
+
+if (source === 'invidious') {
 url = "https://invidious.io/watch?v=" + {videoId};// InvidiousのURL
 } else if (source === 'wakame') {
 url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
