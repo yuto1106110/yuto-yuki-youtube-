@@ -327,7 +327,7 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 
-@app.get('/w/:id', async (req, res) => {
+@app.get('/watch?v=$:id', async (req, res) => {
 const videoId = req.params.id;
 const server = req.query.server || '0';
 const serverUrls = {
