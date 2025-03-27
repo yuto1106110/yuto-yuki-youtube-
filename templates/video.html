@@ -246,6 +246,14 @@ player.load();
             }
         
             window.addEventListener('keydown', keydown);
+
+
+            function shareVideo(videoId) {
+                    const shareUrl = `https://youtube.com/watch?v=${videoId}`;
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        alert('リンクがクリップボードにコピーされました！');
+                    });
+                }
         
 
             const description_a_tags = document.getElementById('descriptionWrapper').getElementsByTagName('a');
