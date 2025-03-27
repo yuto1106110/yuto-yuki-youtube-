@@ -638,6 +638,9 @@ def list_page(response: Response, request: Request):
 @app.get("/setting", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("setting.html", {"request": request})
+@app.get("/umekomi", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("umekomi.html", {"request": request})
 
 
 @app.get("/interland", response_class=HTMLResponse)
