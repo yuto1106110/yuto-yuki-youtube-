@@ -1,20 +1,71 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="robots" content="noindex,nofollow">
-        
-        <title>Google</title>
-        <link rel="icon" href="/img/logo/favicon/ico">
-    </head>
-    <body>
-        <h1>読み込み中</h1>
-        <h3>Load Faild / Timeout</h3>
-        <p>最近アクセス多いのでサーバーついていけてないかも殴))　healthチェックしてみてください!</p>
-        <p>⚠永遠にリロードしている場合はこのタブを消して再度入り直してみてください⚠️<p>
-        <p>自動リロードがされない場合ここを押してください→
-        <button onclick="location.replace(location.href)">Reload / リロード</button>
-        <button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">お問い合わせ</button>
-    <script>setTimeout(function(){location.reload();},1000);</script>
-    </body>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Google</title>
+	<style>
+		*
+
+		body {
+			font-family: 'Helvetica Neue', Arial, sans-serif;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			background: linear-gradient(to bottom right, #f0f4f8, #c9d6e9);
+			color: #333;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+
+		#message {
+			font-size: 24px;
+			font-weight: 500;
+			margin-bottom: 20px;
+			animation: fadeIn 0.4s ease-in-out;
+		}
+
+	
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+			}
+
+			to {
+				opacity: 1;
+			}
+		}
+	</style>
+</head>
+
+<h1>読み込み中です...(すべてのAPIを稼働させています)
+
+<body>
+	<div id="message">読み込み中です...(すべてのAPIを稼働させています)</div>
+	<canvas id="loadingCanvas"></canvas>
+<p><button onclick="location.replace(location.href)">手動でリロード</button>
+	<script>
+		// ランダムメッセージの配列
+        const messages = [
+            "しばらくお待ちください...",
+            "apiが固まっている場合どう仕様も無いです",
+            "永遠に読み込めない場合は一度戻り再度進行してください"
+        ];
+
+        // ランダムなメッセージを表示する
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        document.getElementById("message").innerText = randomMessage;
+
+        // 2秒後にリダイレクト
+        setTimeout(function() {
+            location.reload();
+        }, 2000);
+	</script>
+<script>
+	setTimeout(function(){location.reload();},2000);
+</script>
+</body>
+
 </html>
