@@ -249,7 +249,7 @@ player.load();
 
 
             function shareVideo(videoId) {
-                    const shareUrl = `https://youtube.com/watch?v=${videoId}`;
+                    const shareUrl = `https://youtube.com/watch?v=?${videoId}`;
                     navigator.clipboard.writeText(shareUrl).then(() => {
                         alert('リンクがクリップボードにコピーされました！');
                     });
