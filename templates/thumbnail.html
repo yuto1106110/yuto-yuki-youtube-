@@ -4,78 +4,50 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Google</title>
-	<style>
-		body {
-			font-family: 'Arial', sans-serif;
-			background-color: #f4f4f4;
-			color: #333;
-			text-align: center;
-			padding: 20px;
-		}
-
-		.nyuuryokuwakame {
-			background-color: #ececec;
-			border-radius: 10px;
-			padding: 25px;
-			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-			max-width: 600px;
-			margin: 0 auto;
-		}
-
-		h1 {
-			font-size: 2.2rem;
-			color: #4a4a4a;
-			margin-bottom: 20px;
-		}
-
-		#goButton {
-			background-color: #6b705c;
-			color: white;
-			padding: 12px 25px;
-			border: none;
-			border-radius: 5px;
-			font-size: 1.1rem;
-			cursor: pointer;
-			transition: background-color 0.3s ease;
-		}
-
-		#goButton:hover {
-			background-color: #556b2f;
-		}
-
-		p {
-			font-size: 1rem;
-			color: #555;
-		}
-
-		br {
-			margin-top: 20px;
-		}
-	</style>
+	<link rel="icon" href="/img/logo/favicon.ico">
+	<link rel="stylesheet" href="/css/pure-min.css">
+	<link rel="stylesheet" href="/css/grids-responsive-min.css">
+	<link rel="stylesheet" href="/css/ionicons.min.css">
+	<link rel="stylesheet" href="/css/default.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=thumb_up" />
+	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="/js/utils/utils.js"></script>
 </head>
 
-<body>
-	<div class="nyuuryokuwakame">
-		<h1>YouTubeサムネ画像を取得</h1>
-		<button id="goButton">URLを入力！</button>
-		<p>動画のURLをコピーできたら、上のボタンを押して下さい。</p><br>
-  </div>
+
+			<p><a href="javascript:location.replace('/')">ホーム</a></p>
+	<button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">お問い合わせ</button>
+   </a>
+	</div>
+	<br><br>
+	<h1>サムネをurlから取得</h1>
+  <p>↓ここにYouTubeのurlを入力してください↓
+	<form id="urlForm2">
+		<input type="text" id="youtubeUrl" placeholder="YouTubeのURLを入力..." required>
+		<button type="submit" name="action" value="thumb">サムネを取得</button>
+		<br><br>
+</form>
+
 		<script>
-			document.getElementById('goButton').addEventListener('click', () => {
-      const url = prompt('URLを入力して下さい');
-
-      if (!url) {
-        alert('URLが入力されていません');
-        return;
-      }
-      
-      const videoId = extractVideoId(url);
-      
-      const redirectUrl = `/watch?v=${videoId}/maxresdefault.jpg`;
-
-      window.location.href = redirectUrl;
+			document.getElementById('urlForm2').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const url = document.getElementById('youtubeUrl').value;
+        const videoId = extractVideoId(url);
+        if (videoId) {
+            const action = event.submitter.value;
+            if (action === 'thumb') {
+                window.location.href = `/vi/${videoId}/maxresdefault.jpg`;
+            } else {
+                alert('Invalid action type');
+            }
+        } else {
+            alert('error urlの形式をもう一度見直してください');
+        }
     });
-    
+
     function extractVideoId(url) {
         const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = url.match(regExp);
