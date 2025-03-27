@@ -41,9 +41,6 @@
             const action = event.submitter.value;
             if (action === 'watch') {
                 window.location.href = `/watch?v=${videoId}`;
-if (action === 'thumb') {
-                window.location.href = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-		    
             } else {
                 alert('Invalid action type');
             }
