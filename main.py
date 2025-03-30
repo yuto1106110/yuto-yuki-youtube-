@@ -310,8 +310,6 @@ app.mount("/js", StaticFiles(directory="./statics/js"), name="static")
 app.mount("/css", StaticFiles(directory="./statics/css"), name="static")
 app.mount("/img", StaticFiles(directory="./statics/img"), name="static")
 app.mount("/genesis", StaticFiles(directory="./blog", html=True), name="static")
-app.mount("/ai", StaticFiles(directory="./ai", html=True), name="static")
-app.mount("/helios", StaticFiles(directory="./helios", html=True), name="static")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 from fastapi.templating import Jinja2Templates
