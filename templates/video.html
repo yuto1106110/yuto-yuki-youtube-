@@ -67,6 +67,36 @@
                         <button id="share-btn" onclick="Videoid('{{ g_videoid }}')">ビデオIDを取得</button>
                         <p><a href="javascript:location.replace('/umekomi')">埋め込みで再生(めんどくさい)</a>
                         <p><a href="javascript:location.replace('/nocookie')">埋め込み</a>
+
+<details class="accordion-006">
+  <summary>ツール</summary>
+<p><a href="javascript:location.replace('/')"></i>ホーム</a>
+<p><a href="javascript:{navigator.share({title: '現時点の動画を共有', text: '{{ video_title }}', url: location.origin + '/watch?v={{ videoid }}' + '&t=' + Math.floor(document.getElementById('player').currentTime)})}">現時点の動画を共有</a><br>
+<p><a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
+<p><a href="javascript:shareVideo('{{ g_videoid }}')">YouTubeのurlを取得</a><br>
+<p><a href="javascript:Videoid('{{ g_videoid }}')">ビデオIDを取得</a><br>
+
+<details class="accordion-006">
+	<summary>埋め込み再生</summary>
+	<p><a href="javascript:location.replace('')"></i>デフォルト再生</a>
+	<p><a href="javascript:location.replace('')"></i>embed再生(公式)</a>
+<p><a href="javascript:location.replace('')"></i>no-cookie再生</a>
+<p><a href="javascript:location.replace('/umekomi')"></i>YouTube Player Demo再生</a>
+</details>
+
+<details class="accordion-006">
+	<summary>サーバーを切り替え</summary>
+  <p>※今後実装予定
+	<p>Default server
+  <p>Eviter server
+  <p>Invidious server-1
+  <p>Invidious server-2
+  <p>Wakame server-1
+  <p>Wakame server-2
+</details>
+<section></section>
+</body>
+				
                         <hr>
                     </div>   
                     <div class="pure-u-1 pure-u-lg-3-5">			    
