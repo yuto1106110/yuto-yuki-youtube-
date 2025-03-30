@@ -73,7 +73,7 @@ label #btn {
 label #cancel {
   z-index: 10;
   /* left: 195px; 見やすいように最初はこれ*/
-  left: -195px;
+  left: 195px;
   top: 17px;
   font-size: 30px;
   color: #fff;
