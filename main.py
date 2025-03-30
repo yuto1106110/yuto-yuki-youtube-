@@ -383,7 +383,7 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
         "proxy":proxy
     })
 
-@app.get('/nocookie/{{ videoid }}', response_class=HTMLResponse)
+@app.get('/nocookie', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
     if not(checkCookie(yuki)):
