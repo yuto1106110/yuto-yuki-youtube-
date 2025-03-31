@@ -433,7 +433,6 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
     })
 
 
-
 @app.get("/search", response_class=HTMLResponse)
 def search(q:str, response: Response, request: Request, page:Union[int, None]=1, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     if not(checkCookie(yuki)):
