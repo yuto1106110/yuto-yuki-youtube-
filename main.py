@@ -309,8 +309,6 @@ function changeVideoSource(source) {
 const player = document.getElementById('player');
 const videoSource = document.createElement('source');
 let url;
-
-
 if (source === 'eviter') {
 url = "https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari."; // InvidiousのURL
 } else if (source === 'wakame') {
