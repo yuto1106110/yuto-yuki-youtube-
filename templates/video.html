@@ -287,7 +287,24 @@ const player = document.getElementById('player');
 const videoSource = document.createElement('source');
 let url;
 if (source === 'eviter') {
-url = "https://eu-proxy.poketube.fun/watch?v={videoId}";
+url = ["https://eu-proxy.poketube.fun/watch?v={videoId}"
+      "https://eviter-server.glitch.me/watch?v={videoId}",
+"https://eviter-server-2.glitch.me/watch?v={videoId}",
+	"https://youtube.mosesmang.com/watch?v={videoId}",
+	"https://youtube.privacyplz.org/watch?v={videoId}",
+	"https://invidious.materialio.us/watch?v={videoId}",
+	"https://inv.zzls.xyz/watch?v={videoId}",
+	"https://invidious.einfachzocken.eu/watch?v={videoId}",
+	"https://invidious.nietzospannend.nl/watch?v={videoId}",
+	"https://piped.video/watch?v={videoId}",
+	"https://cuddly.tube/watch?v={videoId}",
+	"https://safetwitch.darkness.services/watch?v={videoId}",
+	"https://piped.reallyaweso.me/watch?v={videoId}",
+	"https://invidious.f5.si/watch?v={videoId}",
+	"https://lekker.gay/watch?v={videoId}",
+	"https://id.420129.xyz/watch?v={videoId}",
+	"https://inv.nadeko.net/watch?v={videoId}"
+      ];
 } else if (source === 'wakame') {
 url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
 }
