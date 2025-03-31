@@ -305,25 +305,6 @@ from pydantic import BaseModel
 from typing import Union
 
 
-function changeVideoSource(source) {
-const player = document.getElementById('player');
-const videoSource = document.createElement('source');
-let url;
-if (source === 'eviter') {
-url = "https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari."; // InvidiousのURL
-} else if (source === 'wakame') {
-url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
-}
-
-videoSource.src = url;
-player.innerHTML = '';
-player.appendChild(videoSource);
-player.load();
-}
-
-
-
-
 
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
