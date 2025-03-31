@@ -51,15 +51,24 @@
                 </div><br>
                 <div class="pure-g">
                     <div class="pure-u-1 pure-u-lg-1-5">
-                        <a href="{{ videourls[0] }}" download="{{ video_title }}">ダウンロード</a><br>
-                        <a href="javascript:{navigator.share({title: '現時点の動画を共有', text: '{{ video_title }}', url: location.origin + '/watch?v={{ videoid }}' + '&t=' + Math.floor(document.getElementById('player').currentTime)})}">現時点の動画を共有</a><br>
-                       <a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
-                        <button id="share-btn" onclick="shareVideo('{{ g_videoid }}')">YouTubeのurlを取得</button>
-                        <button onclick="location.replace(location.href)">Reload / リロード</button>
-                        <button id="high-quality-btn" onclick="fetchHighQualityVideo()">高画質化</button>
-                        <button id="share-btn" onclick="Videoid('{{ g_videoid }}')">ビデオIDを取得</button>
-                        <p><a href="javascript:location.replace('/umekomi')">埋め込みで再生(めんどくさい)</a>
-                        <hr>
+
+<details class="accordion-006">
+  <summary>ツール</summary>
+<p><a href="javascript:location.replace('/')"></i>ホーム</a>
+<p><a href="javascript:{navigator.share({title: '現時点の動画を共有', text: '{{ video_title }}', url: location.origin + '/watch?v={{ videoid }}' + '&t=' + Math.floor(document.getElementById('player').currentTime)})}">現時点の動画を共有</a><br>
+<p><a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
+<p><a href="javascript:shareVideo('{{ g_videoid }}')">YouTubeのurlを取得</a><br>
+<p><a href="javascript:Videoid('{{ g_videoid }}')">ビデオIDを取得</a><br>
+<p><a href="javascript:location.replace('/thumbnail?v={{ videoid }}')"></i>サムネを取得</a>
+	
+<details class="accordion-006">
+	<summary>埋め込み再生</summary>
+	<p><a href="javascript:location.replace('/watch?v={{ videoid }}')"></i>デフォルト再生</a>
+	<p><a href="javascript:location.replace('/embed?v={{ videoid }}')"></i>embed再生(公式)</a>
+<p><a href="javascript:location.replace('/nocookie?v={{ videoid }}')"></i>no-cookie再生</a>
+<p><a href="javascript:location.replace('/umekomi')"></i>YouTube Player Demo再生</a>
+</details>
+<hr>
                     </div>   
                     <div class="pure-u-1 pure-u-lg-3-5">
                         
