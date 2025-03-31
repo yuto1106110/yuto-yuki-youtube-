@@ -216,23 +216,7 @@ async function fetchHighQualityVideo() {
             document.cookie = "yuki=True; path=/; max-age=10800;";
         
 
-function changeVideoSource(source) {
-const player = document.getElementById('player');
-const videoSource = document.createElement('source');
-let url;
 
-
-if (source === 'eviter') {
-url = "https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari."; // InvidiousのURL
-} else if (source === 'wakame') {
-url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
-}
-
-videoSource.src = url;
-player.innerHTML = '';
-player.appendChild(videoSource);
-player.load();
-}
 
             
             const haveLoopCookie = getCookie("loop") === 'true' ? true : false;
