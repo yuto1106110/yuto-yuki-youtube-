@@ -289,7 +289,7 @@ let url;
 
 
 if (source === 'eviter') {
-url = "https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari."; // InvidiousのURL
+self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari.', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
 } else if (source === 'wakame') {
 url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
 }
