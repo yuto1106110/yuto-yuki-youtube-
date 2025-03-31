@@ -42,7 +42,8 @@ def getRandomUserAgent():
 class InvidiousAPI:
     def __init__(self):
         self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
-        
+self.eviter = ast.literal_eval(requests.get('https://raw.githubusercontent.com/M-14-deep/Kari/refs/heads/main/Kari.', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
+      
         self.video = self.all['video']
         self.playlist = self.all['playlist']
         self.search = self.all['search']
@@ -326,6 +327,12 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
     return redirect("/genesis")
 
 
+@app.get("/eviter", response_class=HTMLResponse)
+def info(eviter):
+        return {
+            'API': self.eviter,
+            'checkVideo': self.check_video
+        }
 
 
 
