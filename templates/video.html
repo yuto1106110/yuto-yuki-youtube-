@@ -81,7 +81,7 @@
 	<summary>サーバーを切り替え</summary>
   <p>※今後実装予定
 	<p>Default server
-  <p><a href="javascript:changeVideoSource('eviter')"></i>Eviter server</a>
+  <p>Eviter server
   <p>Invidious server-1
   <p>Invidious server-2
   <p>Wakame server-1
@@ -282,41 +282,6 @@ async function fetchHighQualityVideo() {
                     });
                 }
         
-function changeVideoSource(source) {
-const player = document.getElementById('player');
-const videoSource = document.createElement('source');
-let url;
-if (source === 'eviter') {
-url = ["https://eu-proxy.poketube.fun/watch?v={videoId}"
-      "https://eviter-server.glitch.me/watch?v={videoId}",
-"https://eviter-server-2.glitch.me/watch?v={videoId}",
-	"https://youtube.mosesmang.com/watch?v={videoId}",
-	"https://youtube.privacyplz.org/watch?v={videoId}",
-	"https://invidious.materialio.us/watch?v={videoId}",
-	"https://inv.zzls.xyz/watch?v={videoId}",
-	"https://invidious.einfachzocken.eu/watch?v={videoId}",
-	"https://invidious.nietzospannend.nl/watch?v={videoId}",
-	"https://piped.video/watch?v={videoId}",
-	"https://cuddly.tube/watch?v={videoId}",
-	"https://safetwitch.darkness.services/watch?v={videoId}",
-	"https://piped.reallyaweso.me/watch?v={videoId}",
-	"https://invidious.f5.si/watch?v={videoId}",
-	"https://lekker.gay/watch?v={videoId}",
-	"https://id.420129.xyz/watch?v={videoId}",
-	"https://inv.nadeko.net/watch?v={videoId}"
-      ];
-} else if (source === 'wakame') {
-url = "https://watawatawata.glitch.me/watch?v=" + {videoId};
-}
-
-videoSource.src = url;
-player.innerHTML = '';
-player.appendChild(videoSource);
-player.load();
-}
-
-
-
 		    
             const description_a_tags = document.getElementById('descriptionWrapper').getElementsByTagName('a');
             for(let i = 0; i < description_a_tags.length; i++) {
