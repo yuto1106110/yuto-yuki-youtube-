@@ -42,6 +42,8 @@
                         </form>
                     </div>
                 </div>
+<a class="pagetop" href="#"><div class="pagetop__arrow"></div></a>
+		    
                 <div id="player-container" class="h-box">
                     <video id="player" class="on-video_player video-js player-style-invidious" loadedmetadata="settime()" controls="" playsinline="" loop="" style="outline:none;width:100%;background-color:#000;" poster="{% if proxy == "True" %}/thumbnail?v={{ videoid }}{% else %}https://img.youtube.com/vi/{{ videoid }}/0.jpg{% endif %}">
                         {% for videourl in videourls%}
@@ -134,8 +136,6 @@
             </div>
         </div>
         <div class="pure-u-1 pure-u-md-2-24"></div>
-
-	   <a class="pagetop" href="#"><div class="pagetop__arrow"></div></a>
 
 
 <div class="header"></div>
