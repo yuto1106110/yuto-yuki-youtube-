@@ -492,6 +492,11 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
     video_data = getVideoData(v)
+
+try {
+        const response = await axios.get(`https://eviter-server.glitch.me/api/${videoId}?token=wakameoishi`);
+        const videoData = response.data;
+  
     '''
     return [
         {
