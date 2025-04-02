@@ -485,7 +485,7 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
         "proxy":proxy
     })
 
-@app.get('/ume', response_class=HTMLResponse)
+@app.get('/highquo', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
     if not(checkCookie(yuki)):
@@ -519,7 +519,7 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
     ]
     '''
     response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
-    return template('ume.html', {
+    return template('highquo.html', {
         "request": request,
         "videoid": v,
         "videourls": video_data[0]['video_urls'],
