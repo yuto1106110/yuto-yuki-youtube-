@@ -347,20 +347,6 @@ async function fetchHighQualityVideo() {
                     }
                 }, delay: 300
             });
-        </script>
-
-ar shortcutList = {
-    13: play,                  // Enter
-    32: play,                  // space
-    75: play,                  // K
-    37: function(){skip(-10)}, // ←
-    39: function(){skip(10)},  // →
-    82: reload                 // R
-};
-
-$(window).on("keydown", function(e){
-    shortcutList[e.keyCode] && shortcutList[e.keyCode]();
-})
-	    
+        </script>	    
     </body>
 </html>
