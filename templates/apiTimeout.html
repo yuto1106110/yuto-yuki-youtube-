@@ -70,3 +70,123 @@
 </body>
 
 </html>
+
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 5px;
+			font-size: 5px;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+		}
+
+		th {
+			background-color: #f2f2f2;
+		}
+
+		#loading {
+			display: none;
+			font-size: 20px;
+			margin-bottom: 5px;
+		}
+
+		.error {
+			color: red;
+		}
+	</style>
+</head>
+
+<body>
+
+
+	<div id="loading">取得中...</div>
+	<table>
+		<thead>
+	
+		</thead>
+		<tbody id="results">
+			<!-- 結果を追加するよお -->
+		</tbody>
+	</table>
+	<p id="healthStatus"></p>
+	<p id="advice" style="margin-top: 1px; font-weight: ;"></p>
+
+	<script>
+		const apiUrls = [
+        { name: "総合apiサーバー", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati" },
+				{ name: "video apiサーバー", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/video-api" },
+				{ name: "comments apiサーバー", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/comments-api"
+				},
+    ];
+
+    async function checkApiHealth(api) {
+        const startTime = performance.now();
+        let errorMessage = '';
+        try {
+            const response = await fetch(api.url);
+            const endTime = performance.now();
+            const duration = Math.round(endTime - startTime);
+            const status = response.ok ? "正常" : "エラー";
+            if (!response.ok) {
+                errorMessage = `ステータスコード: ${response.status}`;
+            }
+            return { name: api.name, duration, status, errorMessage };
+        } catch (error) {
+            const endTime = performance.now();
+            const duration = Math.round(endTime - startTime);
+            errorMessage = error.message || 'ネットワークエラー';
+            return { name: api.name, duration, status: "エラー", errorMessage };
+        }
+    }
+
+    function generateAdvice(healthyCount) {
+        const totalApis = apiUrls.length;
+        const healthPercentage = Math.round((healthyCount / totalApis) * 100);
+
+        if (healthPercentage === 100) {
+            return "APIが正常に作動しています。お待ち下さい...";
+        } else if (healthPercentage >= 80) {
+            return "APIがほぼ正常に作動しています。大丈夫です";
+        } else if (healthPercentage >= 50) {
+            return "APIが落ちている可能性があります。最新の情報をご確認ください";
+        } else {
+            return "APIが作動していません。エラー文と共に問い合わせに報告してください";
+        }
+    }
+
+    async function checkAllApis() {
+        document.getElementById('loading').style.display = 'block';
+        let healthyCount = 0;
+
+        for (const api of apiUrls) {
+            const result = await checkApiHealth(api);
+            const { name, duration, status, errorMessage } = result;
+
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${name}</td><td>${duration}</td><td>${status}</td><td class="${status === 'エラー' ? 'error' : ''}">${errorMessage || '-'}</td>`;
+            document.getElementById('results').appendChild(row);
+
+            if (status === "正常") healthyCount++;
+        }
+
+        document.getElementById('healthStatus').innerText = `API ヘルス: ${Math.round((healthyCount / apiUrls.length) * 100)}%`;
+        document.getElementById('advice').innerText = generateAdvice(healthyCount);
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    checkAllApis();
+	</script>
+
+</body>
+
+</html>
