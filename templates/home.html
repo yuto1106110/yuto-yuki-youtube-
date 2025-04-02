@@ -30,7 +30,23 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<script>
+		// ランダムメッセージの配列
+        const messages = [
+"いつもご利用いただきありがとうございます!!",
+"読み込みが遅い場合は一度戻り、再度進行してみてください",
+"APIは復旧しました!"
+];
 
+        // ランダムなメッセージを表示する
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        document.getElementById("message").innerText = randomMessage;
+
+        // 2秒後にリダイレクト
+
+	</script>
+</body>
+	
         <div id="search-widget" class="pure-g h-box">
 		      <div class="pure-u-1-4"></div>
 		<script src="//accaii.com/yuto110/script.js" async></script><noscript><img src="//accaii.com/yuto110/script?guid=on"></noscript>
@@ -107,22 +123,7 @@
 </div>
 
 <body>
-	<script>
-		// ランダムメッセージの配列
-        const messages = [
-"いつもご利用いただきありがとうございます!!",
-"読み込みが遅い場合は一度戻り、再度進行してみてください",
-"APIは復旧しました!"
-];
-
-        // ランダムなメッセージを表示する
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        document.getElementById("message").innerText = randomMessage;
-
-        // 2秒後にリダイレクト
-
-	</script>
-</body>
+	
 	
 </html>
 <script src="https://kit.fontawesome.com/fbb95e2ade.js" crossorigin="anonymous"></script>
