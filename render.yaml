@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: gakkenonair.gakken
+    name: eviter-yuki
     env: python
     region: Oregon
     plan: free
