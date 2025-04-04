@@ -187,27 +187,32 @@
 		}
 	</style>
 	<script type="module">
-		// Firebaseの初期化
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-        import { getStorage } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBYO7lc3tTKdNlK1wLjTTpneQL-zkYU3uA",
-            authDomain: "chatapp-by-kbk.firebaseapp.com",
-            databaseURL: "https://chatapp-by-kbk-default-rtdb.firebaseio.com",
-            projectId: "chatapp-by-kbk",
-            storageBucket: "chatapp-by-kbk.appspot.com",
-            messagingSenderId: "254822225505",
-            appId: "1:254822225505:web:1d8121702659a448fa7c20",
-            measurementId: "G-ZPDHPNGVSN"
-        };
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
+    authDomain: "eviter-chat.firebaseapp.com",
+    projectId: "eviter-chat",
+    storageBucket: "eviter-chat.firebasestorage.app",
+    messagingSenderId: "838666832539",
+    appId: "1:838666832539:web:3471b7b5f83a140eda543e",
+    measurementId: "G-R5X3J61343"
+  };
 
-        const app = initializeApp(firebaseConfig);
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
         const auth = getAuth(app);
+	</script>
+
 
         document.addEventListener('DOMContentLoaded', () => {
             const blockedUsers = new Set();
