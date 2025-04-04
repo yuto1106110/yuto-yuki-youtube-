@@ -39,15 +39,22 @@
 <body>
 	<script>
 		// ランダムメッセージの配列
-        const messages = [
-"いつもご利用いただきありがとうございます!!",
-"読み込みが遅い場合は一度戻り、再度進行してみてください",
-"APIは復旧しました!"
-];
+<div id="infoContent">Dieu Éviterをご利用いただきありがとうございます!</div>
+</div>
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+    const infoContent = document.getElementById("infoContent");
+    let toggle = true;
+    
+    // 5秒ごとに「内容1」と「内容2」を交互に表示
+    setInterval(() => {
+      infoContent.textContent = toggle ? "caht機能を実装しました!" : "読み込みが遅い場合は一度戻り、再度進行してみてください!";
+      toggle = !toggle;
+    }, 5000);
+  });
+</script>
 
-        // ランダムなメッセージを表示する
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        document.getElementById("message").innerText = randomMessage;
+
 
         // 2秒後にリダイレクト
 
