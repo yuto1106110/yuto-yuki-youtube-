@@ -242,7 +242,7 @@
       const email     = generateEmailFromName(name);
       const forcedId  = generateForcedId();
       // 名前が「ねむい」の場合は強制IDを付けない
-      const fullName  = (name === "Yuto_110") ? name : `${name}#${forcedId}`;
+      const fullName  = (name === "Yuto-110") ? name : `${name}#${forcedId}`;
     
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -291,7 +291,7 @@
         return;
       }
 if (messageText.startsWith("/delete ")) {
-    if (user.displayName === "Yuto_110") {
+    if (user.displayName === "Yuto-110") {
       const parts = messageText.split(" ");
       if (parts.length < 2) {
         alert("使い方: /delete [ユーザー名]");
@@ -349,7 +349,7 @@ if (messageText.startsWith("/delete ")) {
       
       // 管理者（名前が「ねむい」）による全チャット削除コマンド
       if (messageText === CLEAR_CHAT_PASSWORD) {
-        if (user.displayName === "Yuto_110") {
+        if (user.displayName === "Yuto-110") {
           try {
             const chatCollection = collection(db, "chat");
             const snapshot = await getDocs(chatCollection);
@@ -413,7 +413,7 @@ if (messageText.startsWith("/delete ")) {
         }
         
         // 名前が「ねむい」の場合は虹色スタイル（固定）
-        if (namePart === "Yuto_110") {
+        if (namePart === "Yuto-110") {
           const nameSpan = document.createElement("span");
           nameSpan.className = "rainbow-name";
           nameSpan.textContent = namePart;
