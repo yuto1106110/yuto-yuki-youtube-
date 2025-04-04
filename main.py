@@ -759,6 +759,9 @@ def list_page(response: Response, request: Request):
 @app.get("/chat-proxy", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("chat-proxy.html", {"request": request})
+@app.get("/chat-web", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("chat-web.html", {"request": request})
 
 
 
