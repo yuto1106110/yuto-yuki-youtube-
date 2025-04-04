@@ -32,6 +32,63 @@ user_agents = [
   'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1'
 ]
 
+
+def gettingVideoData(videoid):
+    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+
+    if 'recommendedvideo' in t:
+        recommended_videos = t["recommendedvideo"]
+    elif 'recommendedVideos' in t:
+        recommended_videos = t["recommendedVideos"]
+    else:
+        recommended_videos = {
+            "videoId": "failed",
+            "title": "failed",
+            "authorId": "failed",
+            "author": "failed",
+            "lengthSeconds": 0,
+            "viewCountText": "Load Failed"
+        }
+
+    adaptive = t.get('adaptiveFormats', [])
+    streamUrls = [
+        {
+            'url': stream['url'],
+            'resolution': stream['resolution']
+        }
+        for stream in adaptive
+        if stream.get('container') == 'webm' and stream.get('resolution')
+    ]
+
+    return [
+        {
+            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
+            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
+            'title': t["title"],
+            'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"])),
+            'author_id': t["authorId"],
+            'author': t["author"],
+            'author_thumbnails_url': t["authorThumbnails"][-1]["url"],
+            'view_count': t["viewCount"],
+            'like_count': t["likeCount"],
+            'subscribers_count': t["subCountText"],
+            'streamUrls': streamUrls # ここに高画質ストリームが収納されます
+        },
+        [
+            {
+                "video_id": i["videoId"],
+                "title": i["title"],
+                "author_id": i["authorId"],
+                "author": i["author"],
+                "length_text": str(datetime.timedelta(seconds=i["lengthSeconds"])),
+                "view_count_text": i["viewCountText"]
+            } for i in recommended_videos
+        ]
+    ]
+
+
+
+
 def getRandomUserAgent():
   user_agent = user_agents[random.randint(0, len(user_agents) - 1)]
   print(user_agent)
@@ -481,6 +538,59 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
         "view_count": video_data[0]['view_count'],
         "like_count": video_data[0]['like_count'],
         "subscribers_count": video_data[0]['subscribers_count'],
+        "recommended_videos": video_data[1],
+        "proxy":proxy
+    })
+
+@app.get('/w', response_class=HTMLResponse)
+def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
+    # v: video_id
+    if not(checkCookie(yuki)):
+        return redirect("/")
+    response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
+    video_data = gettingVideoData(v) # gettingVideoDataを使用
+    '''
+    return [
+        {
+            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
+            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
+            'title': t["title"],
+            'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"]))
+            'author_id': t["authorId"],
+            'author': t["author"],
+            'author_thumbnails_url': t["authorThumbnails"][-1]["url"],
+            'view_count': t["viewCount"],
+            'like_count': t["likeCount"],
+            'subscribers_count': t["subCountText"],
+            'streamUrls': streamUrls
+        },
+        [
+            {
+                "video_id": i["videoId"],
+                "title": i["title"],
+                "author_id": i["authorId"],
+                "author": i["author"],
+                "length_text": str(datetime.timedelta(seconds=i["lengthSeconds"])),
+                "view_count_text": i["viewCountText"]
+            } for i in recommended_videos
+        ]
+    ]
+    '''
+    response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
+    return template('watch.html', { # watch.htmlを準備してください( ・∇・)。通常の再生 + 画質を選択できる機能があると良い。
+        "request": request,         # 画質のデータはstreamUrls.resolutionに入っています。ストリームURLはstreamUrls.url。
+        "videoid": v,
+        "videourls": video_data[0]['video_urls'],
+        "description": video_data[0]['description_html'],
+        "video_title": video_data[0]['title'],
+        "author_id": video_data[0]['author_id'],
+        "author_icon": video_data[0]['author_thumbnails_url'],
+        "author": video_data[0]['author'],
+        "length_text": video_data[0]['length_text'],
+        "view_count": video_data[0]['view_count'],
+        "like_count": video_data[0]['like_count'],
+        "subscribers_count": video_data[0]['subscribers_count'],
+        "streamUrls": video_data[0]['streamUrls'], #ここに高画質ストリーム(対応する画質を含む)を収納
         "recommended_videos": video_data[1],
         "proxy":proxy
     })
