@@ -877,7 +877,10 @@ def list_page(response: Response, request: Request):
     return template("1v1-lol.html", {"request": request})
 @app.get("/paper", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("paper.html.html", {"request": request})
+    return template("paper.html", {"request": request})
+@app.get("/narrow", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("narrow.html", {"request": request})
 
 
 
