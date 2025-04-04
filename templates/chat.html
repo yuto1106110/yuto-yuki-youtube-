@@ -1,17 +1,548 @@
-<body>
-    <div class="chatlist"></div>
-    <div class="chatsend">
-        <div class="chatcode">
-            <input type="text" name="text" placeholder="Text" onkeydown="if(event.keyCode==13){sendData(); return false;}">
-            <input type="text" name="name" placeholder="Name">
-            <button onclick="sendData()">Send</button>
-        </div>
-    </div>
-<script>
-        const idValue = "kVHzGqh6sNrzGYWK";
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Google</title>
+	<link rel="icon" href="/img/logo/favicon.ico">
+	<link rel="stylesheet" href="/css/empty.css">
+	<link rel="stylesheet" href="/css/pure-min.css">
+	<link rel="stylesheet" href="/css/grids-responsive-min.css">
+	<link rel="stylesheet" href="/css/ionicons.min.css">
+	<link rel="stylesheet" href="/css/default.css">
+  <link rel="stylesheet" href="/css/chat.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+
+
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+	<!-- 動きのある CSS -->
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 0;
+			background-color: #fff;
+		}
+
+		/* 入力エリア用スタイル */
+		textarea {
+			margin: 5px;
+			padding: 10px;
+			width: calc(100% - 22px);
+			/* 両サイドの余白分を引いて幅を設定 */
+			height: 70px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			font-size: 15px;
+			resize: vertical;
+			/* ユーザーによる縦方向のサイズ変更を許可 */
+		}
+
+		/* チャットボックス */
+		#chat-box {
+			border: 1px solid #ccc;
+			height: 350px;
+			overflow-y: scroll;
+			padding: 0px;
+			margin-bottom: 10px;
+			background: #f9f9f9;
+			animation: backgroundPulse 10s ease infinite;
+			background-size: 200% 200%;
+		}
+
+		/* チャットメッセージのフェードイン */
+		.message {
+			padding: 5px 0;
+			opacity: 0;
+			animation: fadeIn 0.4s ease forwards;
+			display: flex;
+			max-width: 2000px;
+			margin-bottom: 10px;
+			padding: .8em 1.2em;
+			border-radius: 5px;
+			background-color: #f2f2f2;
+			color: #333333;
+		}
+
+		.message-time {
+			font-size: 0.8em;
+			color: gray;
+			margin-left: 5px;
+		}
+
+		/* アニメーション定義 */
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(10px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes backgroundPulse {
+			0% {
+				background-position: 0% 50%;
+			}
+
+			50% {
+				background-position: 100% 50%;
+			}
+
+			100% {
+				background-position: 0% 50%;
+			}
+		}
+
+		/* ボタンのスタイル */
+		button {
+			background-color: #3498db;
+			color: #fff;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease, transform 0.2s ease;
+		}
+
+		button:hover {
+			background-color: #2980b9;
+			transform: scale(1.05);
+		}
+
+		/* サインアップ／ログインおよびチャットエリアの読み込みアニメーション */
+		#user-auth,
+		#chat-section {
+			animation: slideIn 0.6s ease-out;
+		}
+
+		@keyframes slideIn {
+			from {
+				opacity: 0;
+				transform: translateY(-20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* 虹色の名前（管理者と同等の演出） */
+		.rainbow-name {
+			background: linear-gradient(45deg, gold, silver, gray);
+			background-size: 400% 400%;
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			animation: rainbow 5s linear infinite;
+		}
+
+		@keyframes rainbow {
+			0% {
+				background-position: 0% 50%;
+			}
+
+			50% {
+				background-position: 100% 50%;
+			}
+
+			100% {
+				background-position: 0% 50%;
+			}
+		}
+
+		/* 入力フィールドのフォーカス時エフェクト */
+		textarea:focus,
+		#signupName:focus,
+		#signupPassword:focus,
+		#loginName:focus,
+		#loginPassword:focus {
+			outline: none;
+			border: 1px solid #3498db;
+			box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+			transition: box-shadow 0.3s ease, border 0.3s ease;
+		}
+	</style>
+	<!-- 送信日時用のスタイル（任意で好みに合わせて調整） -->
+
+
+	<!-- Firebase やチャットの動作に関するスクリプト -->
+	<script type="module">
+		// Firebase の必要なモジュールをインポート
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      updateProfile,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      getDocs,
+      onSnapshot,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    
+    // Firebase プロジェクトの設定
+    const firebaseConfig = {
+	apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
+	authDomain: "eviter-chat.firebaseapp.com",
+	projectId: "eviter-chat",
+	storageBucket: "eviter-chat.firebasestorage.app",
+	messagingSenderId: "838666832539",
+	appId: "1:838666832539:web:3471b7b5f83a140eda543e",
+	measurementId: "G-R5X3J61343"
+	};
+    
+    // Firebase の初期化
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    // サインイン用：名前から生成する一意のメールアドレス
+    function generateEmailFromName(name) {
+      return name.trim().toLowerCase().replace(/\s+/g, "") + "@chatapp.local";
+    }
+    
+    // 強制的なIDを生成する関数（4桁のランダムな数字）
+    function generateForcedId() {
+      return Math.floor(1000 + Math.random() * 90000).toString();
+    }
+    
+    const CLEAR_CHAT_PASSWORD = "Yuto-kaihi";
+    const KANRISYA = "Yuto_110";
+    
+    // DOM 要素の参照取得
+    const signupButton   = document.getElementById("signupButton");
+    const loginButton    = document.getElementById("loginButton");
+    const logoutButton   = document.getElementById("logoutButton");
+    const sendButton     = document.getElementById("sendButton");
+    const chatBox        = document.getElementById("chat-box");
+    const messageInput   = document.getElementById("messageInput");
+    
+    // サインアップ処理
+    signupButton.addEventListener("click", async () => {
+      const name     = document.getElementById("signupName").value;
+      const password = document.getElementById("signupPassword").value;
+      if (!name || !password) {
+        alert("全てのフィールドを入力してください。");
+        return;
+      }
+      const email     = generateEmailFromName(name);
+      const forcedId  = generateForcedId();
+      // 名前が「ねむい」の場合は強制IDを付けない
+      const fullName  = (name === "Yuto_110") ? name : `${name}#${forcedId}`;
+    
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: fullName });
+        console.log("サインアップ成功:", userCredential.user);
+      } catch (error) {
+        alert("サインアップエラー: " + error.message);
+      }
+    });
+    
+    // ログイン処理
+    loginButton.addEventListener("click", async () => {
+      const name     = document.getElementById("loginName").value;
+      const password = document.getElementById("loginPassword").value;
+      if (!name || !password) {
+        alert("全てのフィールドを入力してください。");
+        return;
+      }
+      const email = generateEmailFromName(name);
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log("ログイン成功");
+      } catch (error) {
+        alert("ログインエラー: " + error.message);
+      }
+    });
+    
+    // 認証状態の変化を監視
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById("user-auth").style.display = "none";
+        document.getElementById("chat-section").style.display = "block";
+      } else {
+        document.getElementById("user-auth").style.display = "block";
+        document.getElementById("chat-section").style.display = "none";
+      }
+    });
+    
+    // メッセージ送信処理
+    sendButton.addEventListener("click", async () => {
+      const messageText = messageInput.value;
+      if (messageText.trim() === "") return;
+      const user = auth.currentUser;
+      if (!user) {
+        alert("ログインしてください。");
+        return;
+      }
+      
+      // /color コマンドの処理
+      if (messageText.startsWith("/color ")) {
+        const parts = messageText.split(" ");
+        if (parts.length < 2) {
+          alert("使い方: /color #fff (カラーコードを入力してください)");
+          return;
+        }
+        const newColor = parts[1].trim();
+        if (!/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(newColor)) {
+          alert("有効なカラーコードを入力してください (例: /color #fff)");
+          return;
+        }
+        const currentDisplayName = user.displayName || "名無し";
+        const namePart = currentDisplayName.split("|")[0];
+        const newDisplayName = namePart + "|" + newColor;
+        try {
+          await updateProfile(user, { displayName: newDisplayName });
+          alert("名前の色が変更されました");
+        } catch (error) {
+          alert("名前の色更新エラー: " + error.message);
+        }
+        messageInput.value = "";
+        return;
+      }
+      
+      // 管理者（名前が「ねむい」）による全チャット削除コマンド
+      if (messageText === CLEAR_CHAT_PASSWORD) {
+        if (user.displayName === "Yuto_110") {
+          try {
+            const chatCollection = collection(db, "chat");
+            const snapshot = await getDocs(chatCollection);
+            for (const docSnap of snapshot.docs) {
+              await deleteDoc(docSnap.ref);
+            }
+            chatBox.innerHTML = "";
+            console.log("全ての発言を削除しました。");
+            messageInput.value = "";
+          } catch (error) {
+            alert("チャット削除エラー: " + error.message);
+          }
+          return;
+        } else {
+          alert("この操作は権限がありません。");
+          return;
+        }
+      }
+
+	if (messageText.startsWith("/delete ")) {
+    if (user.displayName === KANRISYA ) {
+      const parts = messageText.split(" ");
+      if (parts.length < 2) {
+        alert("使い方: /delete [ユーザー名]");
+        return;
+      }
+      const targetName = parts[1].trim();
+      try {
+        const chatCollection = collection(db, "chat");
+        const snapshot = await getDocs(chatCollection);
+        snapshot.forEach(async (docSnap) => {
+          const msg = docSnap.data();
+          if (msg.name && msg.name.startsWith(targetName)) {
+            await deleteDoc(docSnap.ref);
+          }
+        });
+        console.log(`ユーザー「${targetName}」のメッセージを削除しました。`);
+      } catch (error) {
+        alert("メッセージ削除エラー: " + error.message);
+      }
+      messageInput.value = "";
+      return;
+    } else {
+      alert("この操作は権限がありません。");
+      return;
+    }
+  }
+
+
+      
+      // 通常のメッセージ送信処理
+      try {
+        await addDoc(collection(db, "chat"), {
+          text: messageText,
+          name: user.displayName || "名無し",
+          uid: user.uid,
+          timestamp: new Date()
+        });
+        messageInput.value = "";
+      } catch (error) {
+        alert("メッセージ送信エラー: " + error.message);
+      }
+    });
+    
+    // ログアウト処理
+    logoutButton.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        console.log("ログアウト成功");
+      } catch (error) {
+        alert("ログアウトエラー: " + error.message);
+      }
+    });
+    
+    // チャットのリアルタイム表示処理
+    const chatQuery = query(collection(db, "chat"), orderBy("timestamp", "asc"));
+    onSnapshot(chatQuery, (snapshot) => {
+      chatBox.innerHTML = "";
+     snapshot.forEach((doc) => {
+        const msg = doc.data();
+        const messageElement = document.createElement("div");
+        messageElement.className = "message";
+        
+        // displayName に /color コマンドで更新された場合、"|" で名前とカラーコードが分かれている
+        let displayName = msg.name || "名無し";
+        let namePart = displayName;
+        let colorCode = null;
+        if (displayName.includes("|")) {
+          [namePart, colorCode] = displayName.split("|");
+        }
+        
+        // 名前が「ねむい」の場合は虹色スタイル（固定）
+        if (namePart === "Yuto_110") {
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "rainbow-name";
+          nameSpan.textContent = namePart;
+          messageElement.appendChild(nameSpan);
+          messageElement.appendChild(document.createTextNode(` :　${msg.text}`));
+        } else {
+          if (colorCode) {
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = namePart;
+            nameSpan.style.color = colorCode;
+            messageElement.appendChild(nameSpan);
+            messageElement.appendChild(document.createTextNode(` :　${msg.text}`));
+          } else {
+            messageElement.textContent = `${namePart} :　${msg.text}`;
+          }
+        }
+
+        
+        // 投稿日時の表示
+        if (msg.timestamp) {
+          let dateObj;
+          if (typeof msg.timestamp.toDate === "function") {
+            dateObj = msg.timestamp.toDate();
+          } else {
+            dateObj = new Date(msg.timestamp);
+          }
+          const timeSpan = document.createElement("span");
+          timeSpan.className = "message-time";
+          timeSpan.textContent = ` (${dateObj.toLocaleString()})`;
+          messageElement.appendChild(timeSpan);
+        }
+        
+        chatBox.appendChild(messageElement);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+
+  </script>
+</head>
+
+
+<!-- サインアップ／ログイン用エリア -->
+<div id="user-auth">
+  <h1>Dieu Éviter Chat</h1>
+<a href="javascript:location.replace('/')">ホーム</a><br>
+<button class="btn btn-link" style="position: absolute; right: 10px;" onclick="window.location.href='/help'">お問い合わせ</button>
+<h2>世界の人と繋がれる!!
+  <h3>FireBase APIを使用したチャットシステムです
+  <br>まずは下からアカウント登録をしましょう!
+  <p><!-- FC2カウンター ここから -->
+現在の推定オンライン数:<script language="javascript" type="text/javascript" src="//counter1.fc2.com/views.php?id=89511564">
 </script>
-    <script>
-var _0x32df12=_0x2da2;(function(_0x4aa26a,_0x291360){var _0x2baef2=_0x2da2,_0x5e308c=_0x4aa26a();while(!![]){try{var _0x262986=parseInt(_0x2baef2(0x1aa))/0x1*(parseInt(_0x2baef2(0x1a7))/0x2)+-parseInt(_0x2baef2(0x1a6))/0x3*(parseInt(_0x2baef2(0x1a8))/0x4)+parseInt(_0x2baef2(0x1ba))/0x5+-parseInt(_0x2baef2(0x1b6))/0x6+parseInt(_0x2baef2(0x1bd))/0x7+parseInt(_0x2baef2(0x1c7))/0x8*(parseInt(_0x2baef2(0x1bf))/0x9)+parseInt(_0x2baef2(0x1c0))/0xa;if(_0x262986===_0x291360)break;else _0x5e308c['push'](_0x5e308c['shift']());}catch(_0x2c79f5){_0x5e308c['push'](_0x5e308c['shift']());}}}(_0x2e5b,0x440f5));function _0x2da2(_0x2933cb,_0x1822b8){var _0x2e5bfb=_0x2e5b();return _0x2da2=function(_0x2da209,_0x483e2b){_0x2da209=_0x2da209-0x1a1;var _0x2d912d=_0x2e5bfb[_0x2da209];return _0x2d912d;},_0x2da2(_0x2933cb,_0x1822b8);}function _0x403c(_0x112ac2,_0x1dff73){var _0x20e359=_0xb850();return _0x403c=function(_0x629997,_0x2162a8){_0x629997=_0x629997-0x19e;var _0x36d42f=_0x20e359[_0x629997];return _0x36d42f;},_0x403c(_0x112ac2,_0x1dff73);}function _0xb850(){var _0x3ce72a=_0x2da2,_0x27f5bb=[_0x3ce72a(0x1ca),_0x3ce72a(0x1a1),'759064Baihaw',_0x3ce72a(0x1c1),'292385zqkjNo',_0x3ce72a(0x1d2),'textContent',_0x3ce72a(0x1c4),_0x3ce72a(0x1a3),_0x3ce72a(0x1b8),_0x3ce72a(0x1a4),_0x3ce72a(0x1b9),_0x3ce72a(0x1a2),'finally',_0x3ce72a(0x1c5),_0x3ce72a(0x1ad),_0x3ce72a(0x1cc),_0x3ce72a(0x1be),'2909xzBLLs',_0x3ce72a(0x1cf),_0x3ce72a(0x1b1),_0x3ce72a(0x1b0),_0x3ce72a(0x1bb),_0x3ce72a(0x1a9),_0x3ce72a(0x1b4),_0x3ce72a(0x1c3),_0x3ce72a(0x1cd),'50cXLicS',_0x3ce72a(0x1b7),'18306132lnsnlm','text',_0x3ce72a(0x1b3),_0x3ce72a(0x1ae),_0x3ce72a(0x1c8),_0x3ce72a(0x1ac),_0x3ce72a(0x1b5),_0x3ce72a(0x1b2),_0x3ce72a(0x1ab),_0x3ce72a(0x1af),_0x3ce72a(0x1cb),_0x3ce72a(0x1ce),_0x3ce72a(0x1a5),'36njwRHl'];return _0xb850=function(){return _0x27f5bb;},_0xb850();}function _0x2e5b(){var _0x2f569b=['12oJaKTm','4AadpaS','172492vRJGoc','4pmXiiH','152606RNVSaV','21nUoRuN','?id=','258351TJnzta','.chatcode\x20button','483435PQyoqm','querySelector','log','</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','3933492HnDByx','appendChild','disabled','3309654vOrhoZ','.chatcode\x20input[name=\x22name\x22]','beforeend','https://script.google.com/macros/s/AKfycbwfPglE22DreTD3X6s69WdOV3mh3C71a9DSyZLuR3YAz74ADc3b8EyCCJDfc1OogeUt/exec','173955guWxjT','テキスト','insertAdjacentHTML','725907Qrdznu','\x20-\x20','499779tCJGtX','4481080BCOGXx','&text=','shift','30clPplo','11VcPKnJ','catch','.chatlist','16ExsubN','forEach','push','value','then','Error:','Asia/Tokyo','innerHTML','Failed\x20to\x20fetch\x20chat\x20data','json','remove','Failed\x20to\x20send\x20message','.chatcode','ja-JP','&name=','error','.chatcode\x20input[name=\x22text\x22]','createElement'];_0x2e5b=function(){return _0x2f569b;};return _0x2e5b();}var _0x55d624=_0x403c;(function(_0x18bae4,_0x4ade1c){var _0x5d1561=_0x2da2,_0x327711=_0x403c,_0x300d77=_0x18bae4();while(!![]){try{var _0x2e1174=parseInt(_0x327711(0x1b9))/0x1*(parseInt(_0x327711(0x1a6))/0x2)+-parseInt(_0x327711(0x1b6))/0x3*(parseInt(_0x327711(0x1be))/0x4)+-parseInt(_0x327711(0x1ab))/0x5*(parseInt(_0x327711(0x1c0))/0x6)+parseInt(_0x327711(0x1a1))/0x7*(-parseInt(_0x327711(0x1a9))/0x8)+-parseInt(_0x327711(0x1a2))/0x9*(parseInt(_0x327711(0x1c2))/0xa)+-parseInt(_0x327711(0x1ae))/0xb*(parseInt(_0x327711(0x1c6))/0xc)+parseInt(_0x327711(0x1c4))/0xd;if(_0x2e1174===_0x4ade1c)break;else _0x300d77[_0x5d1561(0x1c9)](_0x300d77['shift']());}catch(_0x34d67d){_0x300d77[_0x5d1561(0x1c9)](_0x300d77[_0x5d1561(0x1c2)]());}}}(_0xb850,0x31131));var sendButton=document['querySelector'](_0x55d624(0x1c7)),nameInput=document[_0x32df12(0x1b0)](_0x55d624(0x1c3)),textInput=document[_0x32df12(0x1b0)](_0x55d624(0x1b1));function Getchat(){var _0x263404=_0x32df12,_0x56f12c=_0x55d624,_0x25c42a=_0x56f12c(0x1b2),_0x3245a9=_0x25c42a+_0x56f12c(0x19e)+idValue;fetch(_0x3245a9)['then'](_0x2b071e=>{var _0x57c2a3=_0x2da2,_0xcea189=_0x56f12c;if(!_0x2b071e['ok'])throw new Error(_0xcea189(0x1ba));return _0x2b071e[_0x57c2a3(0x1d0)]();})[_0x263404(0x1cb)](_0x53285c=>{displayChat(_0x53285c);})[_0x56f12c(0x1b5)](_0x11dca7=>{var _0x3520b2=_0x56f12c;console[_0x3520b2(0x1af)](_0x3520b2(0x1b7),_0x11dca7);});}function displayChat(_0x2fde32){var _0x450b91=_0x32df12,_0x400fb3=_0x55d624,_0x424dcc=document[_0x400fb3(0x1bc)](_0x450b91(0x1c6));_0x424dcc[_0x400fb3(0x1a4)]='',_0x2fde32[_0x400fb3(0x1c8)](_0x3a4e33=>{var _0x1729de=_0x450b91,_0x18acc9=_0x400fb3,_0x99b77e=new Date(_0x3a4e33['時間']),_0x7467ed=_0x99b77e['toLocaleString'](_0x18acc9(0x1a8),{'timeZone':_0x18acc9(0x1c1)}),_0x4974a7='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22chat-item\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<p>'+_0x7467ed+_0x18acc9(0x1b8)+_0x3a4e33['名前']+':\x20'+_0x3a4e33[_0x18acc9(0x1bd)]+_0x18acc9(0x1a0);_0x424dcc[_0x1729de(0x1bc)](_0x18acc9(0x1b0),_0x4974a7);});}function sendData(){var _0x267522=_0x55d624;sendButton[_0x267522(0x19f)]=!![];var _0x3953ba=textInput[_0x267522(0x1a7)],_0x10cb20=nameInput[_0x267522(0x1a7)],_0x55a8f5='https://script.google.com/macros/s/AKfycbxRu9DXL6lsTUH_BaIVEV8OEUhzaAKEgWidBkye3e4_jQ8cJYHieBGQLWbWt2kOdG5lxA/exec'+_0x267522(0x19e)+encodeURIComponent(idValue)+_0x267522(0x1aa)+encodeURIComponent(_0x3953ba)+_0x267522(0x1b3)+encodeURIComponent(_0x10cb20);fetch(_0x55a8f5)[_0x267522(0x1a3)](_0x146add=>{var _0x5744f7=_0x267522;if(!_0x146add['ok'])throw new Error(_0x5744f7(0x1ac));return _0x146add[_0x5744f7(0x1c5)]();})['then'](_0x38c456=>{var _0x29ee50=_0x2da2,_0x193d64=_0x267522;console[_0x193d64(0x1bb)](_0x38c456);var _0x3675a4=document[_0x193d64(0x1a5)]('p');_0x3675a4[_0x193d64(0x1ad)]=_0x38c456,document[_0x193d64(0x1bc)](_0x29ee50(0x1d3))[_0x193d64(0x1bf)](_0x3675a4),setTimeout(()=>{var _0x43b045=_0x29ee50,_0x54160f=_0x193d64;_0x3675a4[_0x43b045(0x1d1)](),textInput[_0x54160f(0x1a7)]='';},0x7d0),Getchat();})[_0x267522(0x1b5)](_0x5a40ca=>{var _0x4e6cbd=_0x267522;console[_0x4e6cbd(0x1af)](_0x4e6cbd(0x1b7),_0x5a40ca);})[_0x267522(0x1b4)](()=>{var _0x9da268=_0x267522;sendButton[_0x9da268(0x19f)]=![];});}setInterval(function(){Getchat();},0x2710),Getchat();
-    </script>
-    <footer>©Éviter Yuki</footer>
+<noscript><img src="//counter1.fc2.com/counter_now.php?id=89511564" /></noscript>
+	<!-- FC2カウンター ここまで -->
+
+
+<details>
+	<summary>sign up / 初めての方はこちら</summary>
+	<p><div id="signup">
+		<h3>サインアップ</h3>
+		<h5>・パスワードは6文字以上にしてください。</h5>
+	<h5>・Googleパスワードマネージャーがパスワードを記憶してくれると思いますが、名前,パスワードはしっかりと覚えておきましょう!</h5>
+  <h5>・名前に本名,生年月日などはおやめください。</h5>
+    <p>⚠<a href="javascript:location.replace('/kiyaku')">利用規約</a>に同意の上ご登録をお願いします。⚠</p>
+		<input type="text" id="signupName" placeholder="名前">
+		<input type="password" id="signupPassword" placeholder="パスワード">
+		<button id="signupButton">サインアップ</button>
+	</div></p>
+</details>
+
+<details>
+	<summary>login / すでに登録されている方はこちら</summary>
+	<p><div id="login">
+		<h3>ログイン</h3>
+		<h5>・ここから再ログインできます。</h5>
+	<h5>・名前,パスワードの間違が無いか確認してください。</h5>
+<h5>・なりすまし等の迷惑行為はおやめください。</h5>
+    <input type="text" id="loginName" placeholder="名前">
+		<input type="password" id="loginPassword" placeholder="パスワード">
+		<button id="loginButton">ログイン</button>
+	
+  </div>
+	</div></p>
+</details>
+
+
+
+<!-- チャット用エリア -->
+
+<div id="chat-section" style="display:none;">
+	
+<nav>
+	<ul>
+		<li><a href="/">ホーム</a></li>
+		<li><a href="/kiyaku">利用規約</a></li>
+    <li><a href="">最新情報</a></li>
+		<li><a href="">i-FILTER対策本部</a></li>
+		<li><a href="">Proxy共有所</a></li>
+		<li><a href="/help">お問い合わせ</a></li>
+	</ul>
+</nav>
+  
+  <h2>Dieu Éviter Chat</h2>
+	<h3>~ 雑談所 ~</h3>
+<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
+
+	<!-- FC2カウンター ここから -->
+	現在の推定オンライン数 : <script language="javascript" type="text/javascript" src="//counter1.fc2.com/views.php?id=89511564"></script><noscript><img src="//counter1.fc2.com/counter_now.php?id=89511564" /></noscript>
+		<!-- FC2カウンター ここまで -->
+
+		<div id="chat-box"></div>
+
+		<!-- 入力部分を textarea に変更 -->
+		<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
+
+		<button id="sendButton">送信</button>
+	<p>sleepy-300さんに感謝します
+		<footer>©Dieu Éviter</footer>
+</div>
 </body>
+<!-- ページが一度だけ自動リロード -->
+<script>
+	if (!sessionStorage.getItem("reloaded")) {
+        sessionStorage.setItem("reloaded", "true");
+        setTimeout(function(){ location.reload(); }, 1000);
+      }
+</script>
+</div>
+
+</body>
+
+</html>
