@@ -753,6 +753,9 @@ def list_page(response: Response, request: Request):
 @app.get("/nocookie/{{ videoid }}", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("nocookie.html", {"request": request})
+@app.get("/kiyaku", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("kiyaku.html", {"request": request})
 
 
 
