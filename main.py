@@ -878,9 +878,9 @@ def list_page(response: Response, request: Request):
 @app.get("/paper", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("paper.html", {"request": request})
-@app.get("/narrow", response_class=HTMLResponse)
+@app.get("/chat-use", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
-    return template("narrow.html", {"request": request})
+    return template("chat-use.html", {"request": request})
 
 
 
