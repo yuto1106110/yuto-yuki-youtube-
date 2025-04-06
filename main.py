@@ -87,6 +87,59 @@ def gettingVideoData(videoid):
     ]
 
 
+def gettingVideoData(videoid):
+    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+
+    if 'recommendedvideo' in t:
+        recommended_videos = t["recommendedvideo"]
+    elif 'recommendedVideos' in t:
+        recommended_videos = t["recommendedVideos"]
+    else:
+        recommended_videos = {
+            "videoId": "failed",
+            "title": "failed",
+            "authorId": "failed",
+            "author": "failed",
+            "lengthSeconds": 0,
+            "viewCountText": "Load Failed"
+        }
+
+    adaptive = t.get('adaptiveFormats', [])
+    streamUrls = [
+        {
+            'url': stream['url'],
+            'resolution': stream['resolution']
+        }
+        for stream in adaptive
+        if stream.get('container') == 'webm' and stream.get('resolution')
+    ]
+
+    return [
+        {
+            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
+            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
+            'title': t["title"],
+            'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"])),
+            'author_id': t["authorId"],
+            'author': t["author"],
+            'author_thumbnails_url': t["authorThumbnails"][-1]["url"],
+            'view_count': t["viewCount"],
+            'like_count': t["likeCount"],
+            'subscribers_count': t["subCountText"],
+            'audio_streamUrls': audio_streamUrls # ここに高画質ストリームが収納されます
+        },
+        [
+            {
+                "video_id": i["videoId"],
+                "title": i["title"],
+                "author_id": i["authorId"],
+                "author": i["author"],
+                "length_text": str(datetime.timedelta(seconds=i["lengthSeconds"])),
+                "view_count_text": i["viewCountText"]
+            } for i in recommended_videos
+        ]
+    ]
+
 
 
 def getRandomUserAgent():
