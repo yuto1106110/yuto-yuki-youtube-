@@ -354,5 +354,27 @@ async function fetchHighQualityVideo() {
             });
 		
         </script>	    
+
+		     <label for="quality-selector">画質を選択:</label>
+  <select id="quality-selector" onchange="changeQuality()">
+    <option value="auto" >自動</option>
+    <option value="360p" >360p</option>
+    <option value="480p" >480p</option>
+    <option value="720p" >720p</option>
+    <option value="1080p" >1080p</option>
+  </select>
+
+  <script>
+    function changeQuality(){
+      // ユーザが選択した画質を取得
+      var quality = document.getElementById('quality-selector').value;
+      // 現在の URL に quality パラメータを追加してリダイレクト
+      var url = new URL(window.location.href);
+      url.searchParams.set('quality', quality);
+      window.location.href = url.href;
+    }
+  </script>
+
+	    
     </body>
 </html>
