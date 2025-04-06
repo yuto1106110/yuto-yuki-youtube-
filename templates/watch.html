@@ -105,7 +105,7 @@
 	<div class="control-section mb-4">
 	<label class="block mb-2">画質選択:
                 <select id="qualitySelect" class="w-full bg-gray-800 text-white p-2 rounded">
-                    <option value="<%= stream.url %>" data-resolution="{{ streamUrls.resolution }}">{{ streamUrls.resolution }}</option>
+                    <option value="{{ streamUrls[0].resolution }}" data-resolution="{{ streamUrls[0].resolution }}">{{ streamUrls[0].resolution }}</option>
                 </select>
             </label>
 	<button id="qualityReset" class="control-button w-full bg-gray-700 py-2 hover:text-white p-2 rounded mb-2">画質をリセット</button>
