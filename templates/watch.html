@@ -52,10 +52,10 @@
                         <p id="video_info">お使いのブラウザは動画の再生に対応していません。</p>
                     </video>
                 <audio id="audio" controls>
-        <source src="{{ videourls[0] }}">
+        <source src="{{ videourls[0] }}" type="video/mp3">
     </audio>
-		</div>
-                <div class="h-box">
+	</div>
+		    <div class="h-box">
                     <h1>{{ video_title }}</h1>
                     <p style="display: inline-block; margin-right: 10px; vertical-align: super;">{{ view_count }}回視聴</p>
                     <div style="display: inline-block;"><span class="material-symbols-outlined" style="display: inline-block; padding-right: 5px;">thumb_up</span><p style="display: inline-block; vertical-align: super; ">{{ like_count }}</p></div>
