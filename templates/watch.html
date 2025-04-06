@@ -388,7 +388,14 @@ async function fetchHighQualityVideo() {
                 audio.currentTime = video.currentTime;
             }
         });
-          
+
+document.getElementById('reloadButton').addEventListener('click', function() {
+    const video = document.getElementById('video');
+    const audio = document.getElementById('audio');
+    
+    video.load();
+    audio.load();
+});		
 		
         </script>	    
     </body>
