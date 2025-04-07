@@ -67,22 +67,7 @@
                     <div class="pure-u-1 pure-u-lg-1-5">
                         <button onclick="location.replace(location.href)">Reload / リロード</button>
 
-	<label class="block mb-2">画質選択:
-                <select id="qualitySelect" class="w-full bg-gray-800 text-white p-2 rounded">
-                    <% videoData.streamUrls.forEach(stream => { %>
-                    <option value="{{ streamUrls[0].resolution }}" data-resolution="{{ streamUrls[0].resolution }}">{{ streamUrls[0].resolution }}</option>
-				<option value="{{ streamUrls[1].resolution }}" data-resolution="{{ streamUrls[1].resolution }}">
-					{{ streamUrls[1].resolution }}</option>
-				<option value="{{ streamUrls[10].resolution }}" data-resolution="{{ streamUrls[10].resolution }}">
-					{{ streamUrls[10].resolution }}</option>
-                    <% }); %>
-                </select>
-            </label>
-<button id="qualityReset" class="control-button w-full bg-gray-700 py-2 hover:text-white p-2 rounded mb-2">画質をリセット</button>
-</div>	
-
-			    
-			    
+		    
 <details class="accordion-006">
   <summary>ツール</summary>
 <p><a href="javascript:location.replace('/')"></i>ホーム</a>
@@ -411,5 +396,22 @@ document.getElementById('reloadButton').addEventListener('click', function() {
 });		
 	
         </script>	    
-    </body>
+    
+	<label class="block mb-2">画質選択:
+                <select id="qualitySelect" class="w-full bg-gray-800 text-white p-2 rounded">
+                    <% videoData.streamUrls.forEach(stream => { %>
+                    <option value="{{ streamUrls[0].resolution }}" data-resolution="{{ streamUrls[0].resolution }}">{{ streamUrls[0].resolution }}</option>
+				<option value="{{ streamUrls[1].resolution }}" data-resolution="{{ streamUrls[1].resolution }}">
+					{{ streamUrls[1].resolution }}</option>
+				<option value="{{ streamUrls[10].resolution }}" data-resolution="{{ streamUrls[10].resolution }}">
+					{{ streamUrls[10].resolution }}</option>
+                    <% }); %>
+                </select>
+            </label>
+<button id="qualityReset" class="control-button w-full bg-gray-700 py-2 hover:text-white p-2 rounded mb-2">画質をリセット</button>
+</div>	
+		
+		
+		
+		</body>
 </html>
