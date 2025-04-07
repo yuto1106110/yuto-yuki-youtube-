@@ -138,61 +138,9 @@
                 </div>
             </div>
         </div>
-        <div class="pure-u-1 pure-u-md-2-24"></div>
 
 
-<div class="header"></div>
-<input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
-<label for="openSidebarMenu" class="sidebarIconToggle">
-    <div class="spinner diagonal part-1"></div>
-    <div class="spinner horizontal"></div>
-    <div class="spinner diagonal part-2"></div>
-  </label>
-	    <script>
-            const highinvidiousapis ='https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati';
-async function highfetchVideoInfoParallel(videoId) {
-  const startTime = Date.now();
-  const instanceErrors = new Set();
 
-  for (const instance of highinvidiousapis) {
-    try {
-      const response = await axios.get(`${instance}/api/v1/videos/${videoId}`, { timeout: 3000 });
-      console.log(`使ってみたURL: ${instance}/api/v1/videos/${videoId}`);
-
-      if (response.data && response.data.formatStreams) {
-        return response.data;
-      } else {
-        console.error(`formatStreamsが存在しない: ${instance}`);
-      }
-    } catch (error) {
-      console.error(`エラー: ${instance} - ${error.message}`);
-      instanceErrors.add(instance);
-    }
-    if (Date.now() - startTime >= 10000) {
-      throw new Error("接続がタイムアウトしました");
-    }
-  }
-  throw new Error("動画を取得する方法が見つかりません");
-}
-
-async function fetchHighQualityVideo() {
-  try {
-    const highQualityData = await highfetchVideoInfoParallel(videoId);
-    const streams = highQualityData.formatStreams;
-    const highestQualityStream = streams.sort((a, b) => b.bitrate - a.bitrate)[0];
-
-    const player = document.getElementById('player');
-    const videoSource = document.createElement('source');
-    videoSource.src = highestQualityStream.url; // 高画質ストリームのURLを設定
-    player.innerHTML = '';
-    player.appendChild(videoSource);
-    player.load();
-    alert('高画質動画を取得しました！');
-  } catch (error) {
-    console.error("高画質動画の取得中にエラーが発生しました:", error);
-    alert('高画質動画の取得に失敗しました');
-  }
-}
             const xhr = new XMLHttpRequest();
             xhr.open("GET", "/comments?v=" + getQueryValue('v'));
             xhr.onload = function () {      
