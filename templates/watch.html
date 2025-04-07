@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+e<!DOCTYPE html>
 <html lang="ja">
     <head>
         <meta charset="utf-8">
@@ -105,8 +105,6 @@
 <label class="block mb-2">画質選択:
                 <select id="qualitySelect" class="w-full bg-gray-800 text-white p-2 rounded">
                     <% videoData.streamUrls.forEach(stream => { %>
-                    <option value="{{ streamUrls[0].resolution }}" data-resolution="{{ streamUrls[0].resolution }}">{{ streamUrls[0].resolution }}</option>
-                    <option value="{{ streamUrls[1].resolution }}" data-resolution="{{ streamUrls[1].resolution }}">{{ streamUrls[1].resolution }}</option>
 			 <option value="{{ streamUrls[10].resolution }}" data-resolution="{{ streamUrls[10].resolution }}">{{ streamUrls[10].resolution }}</option>
 			<% }); %>
                 </select>
