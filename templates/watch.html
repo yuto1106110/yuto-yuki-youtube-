@@ -384,7 +384,7 @@ async function fetchHighQualityVideo() {
         });
       
         video.addEventListener('timeupdate', () => {
-            if (Math.abs(video.currentTime - audio.currentTime) > 0.1) {
+            if (Math.abs(video.currentTime - audio.currentTime) > 0.3) {
                 audio.currentTime = video.currentTime;
             }
         });
