@@ -125,6 +125,10 @@
 			margin-left: 5px;
 		}
 
+	.read-count {
+    font-size: 12px;
+  }
+
 		/* アニメーション定義 */
 		@keyframes fadeIn {
 			from {
@@ -227,25 +231,26 @@
 	<!-- Firebase やチャットの動作に関するスクリプト -->
 	<script type="module">
 		// Firebase の必要なモジュールをインポート
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      updateProfile,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      deleteDoc,
-      getDocs,
-      onSnapshot,
-      query,
-      orderBy
-    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+	import {
+	getAuth,
+	createUserWithEmailAndPassword,
+	signInWithEmailAndPassword,
+	updateProfile,
+	signOut,
+	onAuthStateChanged
+	} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+	import {
+	getFirestore,
+	collection,
+	addDoc,
+	deleteDoc,
+	getDocs,
+	onSnapshot,
+	query,
+	orderBy,
+	updateDoc
+	} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
     
     // Firebase プロジェクトの設定
 	const firebaseConfig = {
@@ -445,11 +450,17 @@
 const chatQuery = query(collection(db, "chat"), orderBy("timestamp", "asc"));
 onSnapshot(chatQuery, (snapshot) => {
   chatBox.innerHTML = "";
+	// 現在のログインユーザーを取得
+	const currentUser = auth.currentUser;
+
+
   snapshot.forEach((doc) => {
     const msg = doc.data();
     // メッセージコンテナ（iframe風の枠線・背景）の作成
     const messageContainer = document.createElement("div");
     messageContainer.className = "message-container";
+
+
 
     // 送信者名の表示用Div
     const nameDiv = document.createElement("div");
@@ -476,14 +487,34 @@ onSnapshot(chatQuery, (snapshot) => {
     }
     messageContainer.appendChild(nameDiv);
 
+
     // メッセージ本文の表示用Div
     const textDiv = document.createElement("div");
     textDiv.className = "message-text";
     textDiv.textContent = msg.text;
     messageContainer.appendChild(textDiv);
 
-
-
+	// --- 既読機能の実装 ---
+	// msg.readBy が未定義の場合は空配列として扱う
+	let readByArray = msg.readBy || [];
+	
+	if (currentUser && !readByArray.includes(currentUser.uid)) {
+	// 未読の場合、現在のユーザー UID を readBy 配列に追加
+	const newReadBy = [...readByArray, currentUser.uid];
+	updateDoc(doc.ref, { readBy: newReadBy })
+	.catch((error) => console.error("既読更新エラー:", error));
+	// ローカルでもカウントを更新（UI上の表示を即時反映）
+	readByArray.push(currentUser.uid);
+	}
+	
+	// 既読カウント表示（readBy 配列の長さで表示）
+	if (readByArray.length > 0) {
+	const readCountDiv = document.createElement("div");
+	readCountDiv.className = "read-count";
+	readCountDiv.textContent = "メッセージの閲覧数: " + readByArray.length;
+	messageContainer.appendChild(readCountDiv);
+	}
+	// --- 既読機能ここまで ---
 
 
     // タイムスタンプがある場合
@@ -499,6 +530,9 @@ onSnapshot(chatQuery, (snapshot) => {
       timeDiv.textContent = dateObj.toLocaleString();
       messageContainer.appendChild(timeDiv);
     }
+
+
+
 
 
     // チャットボックスにメッセージコンテナを追加
@@ -623,4 +657,5 @@ const notification = new Notification('新着メッセージがあります!!', 
   </div>
 	
 	</body>
+	
 	</html>
