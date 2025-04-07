@@ -69,7 +69,7 @@
 <p><a href="javascript:location.replace('/')"></i>ホーム</a>
 <p><a href="javascript:{navigator.share({title: '現時点の動画を共有', text: '{{ video_title }}', url: location.origin + '/watch?v={{ videoid }}' + '&t=' + Math.floor(document.getElementById('player').currentTime)})}">現時点の動画を共有</a><br>
 <p><a href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
-<p><a href="{{ videourls[6] }}" download="{{ video_title }}">動画をダウンロード</a><br>
+<p><a href="{{ videourls[0] }}" download="{{ video_title }}">動画をダウンロード</a><br>
 <p><a href="javascript:shareVideo('{{ g_videoid }}')">YouTubeのurlを取得</a><br>
 <p><a href="javascript:Videoid('{{ g_videoid }}')">ビデオIDを取得</a><br>
 <p><a href="javascript:location.replace('/thumbnail?v={{ videoid }}')"></i>サムネを取得</a>
