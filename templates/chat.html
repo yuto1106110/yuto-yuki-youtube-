@@ -447,7 +447,6 @@ onSnapshot(chatQuery, (snapshot) => {
   chatBox.innerHTML = "";
   snapshot.forEach((doc) => {
     const msg = doc.data();
-
     // メッセージコンテナ（iframe風の枠線・背景）の作成
     const messageContainer = document.createElement("div");
     messageContainer.className = "message-container";
@@ -484,6 +483,9 @@ onSnapshot(chatQuery, (snapshot) => {
     messageContainer.appendChild(textDiv);
 
 
+
+
+
     // タイムスタンプがある場合
     if (msg.timestamp) {
       let dateObj;
@@ -491,7 +493,7 @@ onSnapshot(chatQuery, (snapshot) => {
         dateObj = msg.timestamp.toDate();
       } else {
         dateObj = new Date(msg.timestamp);
-      }
+    }
       const timeDiv = document.createElement("div");
       timeDiv.className = "message-time";
       timeDiv.textContent = dateObj.toLocaleString();
@@ -501,7 +503,7 @@ onSnapshot(chatQuery, (snapshot) => {
 
     // チャットボックスにメッセージコンテナを追加
     chatBox.appendChild(messageContainer);
-  });
+  });newMessage()
   // 最新メッセージが下部に表示されるようスクロール
   chatBox.scrollTop = chatBox.scrollHeight;
 });
@@ -603,11 +605,22 @@ onSnapshot(chatQuery, (snapshot) => {
 	        sessionStorage.setItem("reloaded", "true");
 	        setTimeout(function(){ location.reload(); }, 1000);
 	      }
-	
-	setTimeout(function(){location.reload();},300000);
+	Notification.requestPermission().then((result) => {
+	console.log(result);
+	});
+
 	</script>
-	</div>
+	
+  
+  <script>
+function newMessage() {
+if (Notification.permission === 'granted') {
+const notification = new Notification('新着メッセージがあります!!', {
+});
+}
+}
+ </script>
+  </div>
 	
 	</body>
-	
 	</html>
