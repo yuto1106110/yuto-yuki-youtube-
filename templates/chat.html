@@ -532,20 +532,7 @@ onValue(chatRef, (snapshot) => {
 			        sessionStorage.setItem("reloaded", "true");
 			        setTimeout(function(){ location.reload(); }, 1000);
 			      }
-			Notification.requestPermission().then((result) => {
-			console.log(result);
-			});
 		
-		</script>
-	
-	
-		<script>
-			function newMessage() {
-		if (Notification.permission === 'granted') {
-		const notification = new Notification('新着メッセージがあります!!', {
-		});
-		}
-		}
 		</script>
 	</div>
 	
