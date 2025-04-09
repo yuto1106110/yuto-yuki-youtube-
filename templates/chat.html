@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="/css/grids-responsive-min.css">
 	<link rel="stylesheet" href="/css/ionicons.min.css">
 	<link rel="stylesheet" href="/css/default.css">
-<link rel="stylesheet" href="/css/chat.css">
+	<link rel="stylesheet" href="/css/chat.css">
 	<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
 
 	<!-- jQuery -->
@@ -34,7 +34,7 @@
 			margin-bottom: 10px;
 			background: #fff;
 			border-radius: 5px;
-			}
+		}
 
 		/* メッセージコンテナを iframe のような枠線と背景に */
 		.message-container {
@@ -43,7 +43,7 @@
 			margin-bottom: 10px;
 			background: #fff;
 			border-radius: 5px;
-			}
+		}
 
 		/* 送信者名は太字で表示 */
 		.message-name {
@@ -64,19 +64,6 @@
 			text-align: right;
 		}
 
-		/* 削除ボタン：右寄せのスタイル */
-		.delete-button {
-			float: right;
-			background-color: #e74c3c;
-			color: #fff;
-			border: none;
-			padding: 5px 10px;
-			border-radius: 3px;
-			cursor: pointer;
-			font-size: 0.8em;
-			transition: background-color 0.3s ease;
-			margin-top: 5px;
-		}
 
 		.delete-button:hover {
 			background-color: #c0392b;
@@ -125,9 +112,9 @@
 			margin-left: 5px;
 		}
 
-	.read-count {
-    font-size: 12px;
-  }
+		.read-count {
+			font-size: 12px;
+		}
 
 		/* アニメーション定義 */
 		@keyframes fadeIn {
@@ -225,331 +212,218 @@
 			transition: box-shadow 0.3s ease, border 0.3s ease;
 		}
 	</style>
-	<!-- 送信日時用のスタイル（任意で好みに合わせて調整） -->
+<!DOCTYPE html>
+<html lang="ja">
 
-
-	<!-- Firebase やチャットの動作に関するスクリプト -->
+<head>
+	<meta charset="UTF-8" />
+	<title>Realtime Chat</title>
 	<script type="module">
-		// Firebase の必要なモジュールをインポート
-	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-	import {
-	getAuth,
-	createUserWithEmailAndPassword,
-	signInWithEmailAndPassword,
-	updateProfile,
-	signOut,
-	onAuthStateChanged
-	} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-	import {
-	getFirestore,
-	collection,
-	addDoc,
-	deleteDoc,
-	getDocs,
-	onSnapshot,
-	query,
-	orderBy,
-	updateDoc
-	} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-    
-    // Firebase プロジェクトの設定
-	const firebaseConfig = {
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      push,
+      onValue,
+      remove,
+      set,
+      update,
+      get
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";const firebaseConfig = {
   apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
   authDomain: "eviter-chat.firebaseapp.com",
   databaseURL: "https://eviter-chat-default-rtdb.firebaseio.com",
   projectId: "eviter-chat",
-  storageBucket: "eviter-chat.firebasestorage.app",
+  storageBucket: "eviter-chat.appspot.com",
   messagingSenderId: "838666832539",
-  appId: "1:838666832539:web:3471b7b5f83a140eda543e",
-  measurementId: "G-R5X3J61343"
+  appId: "1:838666832539:web:3471b7b5f83a140eda543e"
 };
 
-    // Firebase の初期化
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    
-    // サインイン用：名前から生成する一意のメールアドレス
-    function generateEmailFromName(name) {
-      return name.trim().toLowerCase().replace(/\s+/g, "") + "@chatapp.local";
-    }
-    
-    // 強制的なIDを生成する関数（4桁のランダムな数字）
-    function generateForcedId() {
-      return Math.floor(1000 + Math.random() * 90000).toString();
-    }
-    
-    const CLEAR_CHAT_PASSWORD = "Yuto-kaihi";
-    
-    // DOM 要素の参照取得
-    const signupButton   = document.getElementById("signupButton");
-    const loginButton    = document.getElementById("loginButton");
-    const logoutButton   = document.getElementById("logoutButton");
-    const sendButton     = document.getElementById("sendButton");
-    const chatBox        = document.getElementById("chat-box");
-    const messageInput   = document.getElementById("messageInput");
-    
-    // サインアップ処理
-    signupButton.addEventListener("click", async () => {
-      const name     = document.getElementById("signupName").value;
-      const password = document.getElementById("signupPassword").value;
-      if (!name || !password) {
-        alert("全てのフィールドを入力してください。");
-        return;
-      }
-      const email     = generateEmailFromName(name);
-      const forcedId  = generateForcedId();
-      // 名前が「ねむい」の場合は強制IDを付けない
-      const fullName  = (name === "Yuto-110") ? name : `${name}#${forcedId}`;
-    
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, { displayName: fullName });
-        console.log("サインアップ成功:", userCredential.user);
-      } catch (error) {
-        alert("サインアップエラー: " + error.message);
-      }
-    });
-    
-    // ログイン処理
-    loginButton.addEventListener("click", async () => {
-      const name     = document.getElementById("loginName").value;
-      const password = document.getElementById("loginPassword").value;
-      if (!name || !password) {
-        alert("全てのフィールドを入力してください。");
-        return;
-      }
-      const email = generateEmailFromName(name);
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        console.log("ログイン成功");
-      } catch (error) {
-        alert("ログインエラー: " + error.message);
-      }
-    });
-    
-    // 認証状態の変化を監視
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById("user-auth").style.display = "none";
-        document.getElementById("chat-section").style.display = "block";
-      } else {
-        document.getElementById("user-auth").style.display = "block";
-        document.getElementById("chat-section").style.display = "none";
-      }
-    });
-    
-    // メッセージ送信処理
-    sendButton.addEventListener("click", async () => {
-      const messageText = messageInput.value;
-      if (messageText.trim() === "") return;
-      const user = auth.currentUser;
-      if (!user) {
-        alert("ログインしてください。");
-        return;
-      }
-	if (messageText.startsWith("/delete ")) {
-    if (user.displayName === "Yuto-110") {
-      const parts = messageText.split(" ");
-      if (parts.length < 2) {
-        alert("使い方: /delete [ユーザー名]");
-        return;
-      }
-      const targetName = parts[1].trim();
-      try {
-        const chatCollection = collection(db, "chat");
-        const snapshot = await getDocs(chatCollection);
-        snapshot.forEach(async (docSnap) => {
-          const msg = docSnap.data();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+const signupBtn = document.getElementById("signupButton");
+const loginBtn = document.getElementById("loginButton");
+const logoutBtn = document.getElementById("logoutButton");
+const sendBtn = document.getElementById("sendButton");
+const messageInput = document.getElementById("messageInput");
+const chatBox = document.getElementById("chat-box");
+
+function generateEmail(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, "") + "@chat.local";
+}
+
+function generateForcedId() {
+  return Math.floor(1000 + Math.random() * 90000).toString();
+}
+
+const CLEAR_CHAT_PASSWORD = "Yuto-kaihi";
+
+signupBtn.addEventListener("click", async () => {
+  const name = document.getElementById("signupName").value;
+  const password = document.getElementById("signupPassword").value;
+  const email = generateEmail(name);
+  const fullName = (name === "Yuto-110") ? name : `${name}#${generateForcedId()}`;
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(cred.user, { displayName: fullName });
+    alert("サインアップ成功");
+  } catch (err) {
+    alert("エラー: " + err.message);
+  }
+});
+
+loginBtn.addEventListener("click", async () => {
+  const name = document.getElementById("loginName").value;
+  const password = document.getElementById("loginPassword").value;
+  const email = generateEmail(name);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    alert("ログインエラー: " + err.message);
+  }
+});
+
+logoutBtn.addEventListener("click", () => {
+  signOut(auth);
+});
+
+sendBtn.addEventListener("click", async () => {
+  const text = messageInput.value.trim();
+  const user = auth.currentUser;
+  if (!text || !user) return;
+
+  sendBtn.disabled = true;
+
+  try {
+    if (text.startsWith("/delete ")) {
+      if (user.displayName === "Yuto-110") {
+        const targetName = text.split(" ")[1];
+        const snapshot = await get(ref(db, "chat"));
+        snapshot.forEach(child => {
+          const msg = child.val();
           if (msg.name && msg.name.startsWith(targetName)) {
-            await deleteDoc(docSnap.ref);
+            remove(ref(db, `chat/${child.key}`));
           }
         });
-        console.log(`ユーザー「${targetName}」のメッセージを削除しました。`);
-      } catch (error) {
-        alert("メッセージ削除エラー: " + error.message);
+      } else {
+        alert("この操作は権限がありません。");
       }
       messageInput.value = "";
-      return;
-    } else {
-      alert("この操作は権限がありません。");
+      sendBtn.disabled = false;
       return;
     }
+
+    if (text.startsWith("/color ")) {
+      const colorCode = text.split(" ")[1];
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(colorCode)) {
+        const namePart = user.displayName.split("|")[0];
+        await updateProfile(user, { displayName: `${namePart}|${colorCode}` });
+        alert("名前の色を変更しました。");
+      } else {
+        alert("カラーコードが無効です。");
+      }
+      messageInput.value = "";
+      sendBtn.disabled = false;
+      return;
+    }
+
+    if (text === CLEAR_CHAT_PASSWORD && user.displayName === "Yuto-110") {
+      await set(ref(db, "chat"), null);
+      messageInput.value = "";
+      sendBtn.disabled = false;
+      return;
+    }
+
+    await push(ref(db, "chat"), {
+      name: user.displayName,
+      uid: user.uid,
+      text: text,
+      timestamp: Date.now(),
+      readBy: []
+    });
+
+    messageInput.value = "";
+  } catch (error) {
+    alert("送信エラー: " + error.message);
   }
-      
-      // /color コマンドの処理
-      if (messageText.startsWith("/color ")) {
-        const parts = messageText.split(" ");
-        if (parts.length < 2) {
-          alert("使い方: /color #fff (カラーコードを入力してください)");
-          return;
-        }
-        const newColor = parts[1].trim();
-        if (!/^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(newColor)) {
-          alert("有効なカラーコードを入力してください (例: /color #fff)");
-          return;
-        }
-        const currentDisplayName = user.displayName || "名無し";
-        const namePart = currentDisplayName.split("|")[0];
-        const newDisplayName = namePart + "|" + newColor;
-        try {
-          await updateProfile(user, { displayName: newDisplayName });
-          alert("名前の色が変更されました");
-        } catch (error) {
-          alert("名前の色更新エラー: " + error.message);
-        }
-        messageInput.value = "";
-        return;
-      }
-      
-      // 管理者（名前が「ねむい」）による全チャット削除コマンド
-      if (messageText === CLEAR_CHAT_PASSWORD) {
-        if (user.displayName === "Yuto-110") {
-          try {
-            const chatCollection = collection(db, "chat");
-            const snapshot = await getDocs(chatCollection);
-            for (const docSnap of snapshot.docs) {
-              await deleteDoc(docSnap.ref);
-            }
-            chatBox.innerHTML = "";
-            console.log("全ての発言を削除しました。");
-            messageInput.value = "";
-          } catch (error) {
-            alert("チャット削除エラー: " + error.message);
-          }
-          return;
-        } else {
-          alert("この操作は権限がありません。");
-          return;
-        }
-      }
-      
-      // 通常のメッセージ送信処理
-      try {
-        await addDoc(collection(db, "chat"), {
-          text: messageText,
-          name: user.displayName || "名無し",
-          uid: user.uid,
-          timestamp: new Date()
-        });
-        messageInput.value = "";
-      } catch (error) {
-        alert("メッセージ送信エラー: " + error.message);
-      }
-    });
-    
-    // ログアウト処理
-    logoutButton.addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-        console.log("ログアウト成功");
-      } catch (error) {
-        alert("ログアウトエラー: " + error.message);
-      }
-    });
-// 昇順（古い順～新しい順）でメッセージを取得
-const chatQuery = query(collection(db, "chat"), orderBy("timestamp", "asc"));
-onSnapshot(chatQuery, (snapshot) => {
+
+  sendBtn.disabled = false;
+});
+
+onAuthStateChanged(auth, (user) => {
+  document.getElementById("user-auth").style.display = user ? "none" : "block";
+  document.getElementById("chat-section").style.display = user ? "block" : "none";
+});
+
+const chatRef = ref(db, "chat");
+onValue(chatRef, (snapshot) => {
   chatBox.innerHTML = "";
-	// 現在のログインユーザーを取得
-	const currentUser = auth.currentUser;
+  const user = auth.currentUser;
 
+  snapshot.forEach((child) => {
+    const msg = child.val();
+    const key = child.key;
+    if (!msg || !msg.text || !msg.name) return;
 
-  snapshot.forEach((doc) => {
-    const msg = doc.data();
-    // メッセージコンテナ（iframe風の枠線・背景）の作成
-    const messageContainer = document.createElement("div");
-    messageContainer.className = "message-container";
+    const container = document.createElement("div");
+    container.className = "message-container";
 
+    const nameSpan = document.createElement("div");
+    nameSpan.className = "message-name";
 
-
-    // 送信者名の表示用Div
-    const nameDiv = document.createElement("div");
-    nameDiv.className = "message-name";
-
-    let displayName = msg.name || "名無し";
-    let namePart = displayName;
-    let colorCode = "";
-    if (displayName.includes("|")) {
-      [namePart, colorCode] = displayName.split("|");
-    }
+    let [namePart, color] = msg.name.split("|");
+    const nameEl = document.createElement("span");
+    nameEl.textContent = namePart;
     if (namePart === "Yuto-110") {
-      const span = document.createElement("span");
-      span.className = "rainbow-name";
-      span.textContent = namePart;
-      nameDiv.appendChild(span);
-    } else {
-      const span = document.createElement("span");
-      span.textContent = namePart;
-      if (colorCode) {
-        span.style.color = colorCode;
-      }
-      nameDiv.appendChild(span);
+      nameEl.className = "rainbow-name";
+    } else if (color) {
+      nameEl.style.color = color;
     }
-    messageContainer.appendChild(nameDiv);
+    nameSpan.appendChild(nameEl);
+    container.appendChild(nameSpan);
 
-
-    // メッセージ本文の表示用Div
     const textDiv = document.createElement("div");
     textDiv.className = "message-text";
     textDiv.textContent = msg.text;
-    messageContainer.appendChild(textDiv);
+    container.appendChild(textDiv);
 
-	// --- 既読機能の実装 ---
-	// msg.readBy が未定義の場合は空配列として扱う
-	let readByArray = msg.readBy || [];
-	
-	if (currentUser && !readByArray.includes(currentUser.uid)) {
-	// 未読の場合、現在のユーザー UID を readBy 配列に追加
-	const newReadBy = [...readByArray, currentUser.uid];
-	updateDoc(doc.ref, { readBy: newReadBy })
-	.catch((error) => console.error("既読更新エラー:", error));
-	// ローカルでもカウントを更新（UI上の表示を即時反映）
-	readByArray.push(currentUser.uid);
-	}
-	
-	// 既読カウント表示（readBy 配列の長さで表示）
-	if (readByArray.length > 0) {
-	const readCountDiv = document.createElement("div");
-	readCountDiv.className = "read-count";
-	readCountDiv.textContent = "メッセージの閲覧数: " + readByArray.length;
-	messageContainer.appendChild(readCountDiv);
-	}
-	// --- 既読機能ここまで ---
-
-
-    // タイムスタンプがある場合
-    if (msg.timestamp) {
-      let dateObj;
-      if (typeof msg.timestamp.toDate === "function") {
-        dateObj = msg.timestamp.toDate();
-      } else {
-        dateObj = new Date(msg.timestamp);
-    }
-      const timeDiv = document.createElement("div");
-      timeDiv.className = "message-time";
-      timeDiv.textContent = dateObj.toLocaleString();
-      messageContainer.appendChild(timeDiv);
+    if (msg.readBy && msg.readBy.length > 0) {
+      const readDiv = document.createElement("div");
+      readDiv.className = "read-count";
+      readDiv.textContent = `メッセージの閲覧数: ${msg.readBy.length}`;
+      container.appendChild(readDiv);
     }
 
+    const timeDiv = document.createElement("div");
+    timeDiv.className = "message-time";
+    timeDiv.textContent = new Date(msg.timestamp).toLocaleString();
+    container.appendChild(timeDiv);
 
+    chatBox.appendChild(container);
 
-
-
-    // チャットボックスにメッセージコンテナを追加
-    chatBox.appendChild(messageContainer);
+    // 非同期で既読更新
+    if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
+      const updated = [...(msg.readBy || []), user.uid];
+      update(ref(db, `chat/${key}`), { readBy: updated });
+    }
   });
-  // 最新メッセージが下部に表示されるようスクロール
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 
-
   </script>
+
 </head>
 
-
-
-	<!-- サインアップ／ログイン用エリア -->
 	<div id="user-auth">
 		<h1>Dieu Éviter Chat</h1>
 		<a href="javascript:location.replace('/')">ホーム</a><br>
@@ -557,106 +431,109 @@ onSnapshot(chatQuery, (snapshot) => {
 		<h2>世界の人と繋がれる!!
 			<h3>FireBase APIを使用したチャットシステムです
 				<br>まずは下からアカウント登録をしましょう!
-	　<h2>~ 雑談部屋 ~
-	<h4><a href="/chat-use">使い方 / ヘルプ</a></li>
+		　<h2>~ 雑談部屋 ~
+					<h4><a href="/chat-use">使い方 / ヘルプ</a></li>
 	
-<h3><a href="javascript:location.replace('/chat-proxy')">・Proxy共有所へ</a><br>
-<h3><a href="javascript:location.replace('/chat-web')">・WEBフィルター対策本部へ</a><br>
-
-
-				<p>	<details>
-						<summary>■sign up / 初めての方はこちら</summary>
-				
-							<div id="signup">
-								<h3>サインアップ</h3>
-								<h5>・パスワードは6文字以上にしてください。</h5>
-								<h5>・Googleパスワードマネージャーがパスワードを記憶してくれると思いますが、名前,パスワードはしっかりと覚えておきましょう!</h5>
-								<h5>・名前に本名,生年月日などはおやめください。</h5>
-								<p>⚠利用規約に同意の上ご登録をお願いします。⚠</p>
-								<a href="javascript:location.replace('/kiyaku')">利用規約</a><br>
-								<input type="text" id="signupName" placeholder="名前">
-								<input type="password" id="signupPassword" placeholder="パスワード">
-								<button id="signupButton">サインアップ</button>
-							</div>
-						</p>
-					</details>
+						<h3><a href="javascript:location.replace('/chat-proxy')">・Proxy共有所へ</a><br>
+							<h3><a href="javascript:location.replace('/chat-web')">・WEBフィルター対策本部へ</a><br>
 	
-					<details>
-						<summary>■login / すでに登録されている方はこちら</summary>
-						<p>
-							<div id="login">
-								<h3>ログイン</h3>
-								<h5>・ここから再ログインできます。</h5>
-								<h5>・名前,パスワードの間違が無いか確認してください。</h5>
-								<h5>・なりすまし等の迷惑行為はおやめください。</h5>
-								<input type="text" id="loginName" placeholder="名前">
-								<input type="password" id="loginPassword" placeholder="パスワード">
-								<button id="loginButton">ログイン</button>
 	
-							</div>
-            
+								<p>
+									<details>
+										<summary>■sign up / 初めての方はこちら</summary>
+	
+										<div id="signup">
+											<h3>サインアップ</h3>
+											<h5>・パスワードは6文字以上にしてください。</h5>
+											<h5>・Googleパスワードマネージャーがパスワードを記憶してくれると思いますが、名前,パスワードはしっかりと覚えておきましょう!</h5>
+											<h5>・名前に本名,生年月日などはおやめください。</h5>
+											<p>⚠利用規約に同意の上ご登録をお願いします。⚠</p>
+											<a href="javascript:location.replace('/kiyaku')">利用規約</a><br>
+											<input type="text" id="signupName" placeholder="名前">
+											<input type="password" id="signupPassword" placeholder="パスワード">
+											<button id="signupButton">サインアップ</button>
+										</div>
+								</p>
+								</details>
+	
+								<details>
+									<summary>■login / すでに登録されている方はこちら</summary>
+									<p>
+										<div id="login">
+											<h3>ログイン</h3>
+											<h5>・ここから再ログインできます。</h5>
+											<h5>・名前,パスワードの間違が無いか確認してください。</h5>
+											<h5>・なりすまし等の迷惑行為はおやめください。</h5>
+											<input type="text" id="loginName" placeholder="名前">
+											<input type="password" id="loginPassword" placeholder="パスワード">
+											<button id="loginButton">ログイン</button>
+	
+										</div>
+	
 	</div>
 	<div>
-	</details>
+		</details>
 	
 	
 	
-	<!-- チャット用エリア -->
+		<!-- チャット用エリア -->
+	<body>
+		<div id="chat-section" style="display:none;">
 	
-	<div id="chat-section" style="display:none;">
+			<nav>
+				<ul>
+					<li><a href="/">ホーム</a></li>
+					<li><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
+					<li><a href="/chat">雑談部屋</a></li>
+					<li><a href="/chat-web">WEBフィルター対策本部</a></li>
+					<li><a href="/chat-proxy">Proxy共有所</a></li>
+					<li><a href="/help">お問い合わせ</a></li>
+					<li><a href="/kiyaku">利用規約</a></li>
+				</ul>
+			</nav>
+			<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
+			<h2>Dieu Éviter Chat</h2>
+			<h3>~ 雑談部屋 ~</h3>
+			<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
+				<p>↑まずは見てね!!↑
+					<p>・まずは挨拶をしましょう!
+						<p>
+							<!-- FC2カウンター ここから -->・Chat内の推定オンライン数:<script language="javascript" type="text/javascript"
+								src="//counter1.fc2.com/views.php?id=89511564"></script>
+							<noscript><img src="//counter1.fc2.com/counter_now.php?id=89511564" /></noscript>
+								<!-- FC2カウンター ここまで -->
+								<div id="chat-box"></div>
 	
-		<nav>
-			<ul>
-				<li><a href="/">ホーム</a></li>
-				<li><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
-				<li><a href="/chat">雑談部屋</a></li>
-				<li><a href="/chat-web">WEBフィルター対策本部</a></li>
-				<li><a href="/chat-proxy">Proxy共有所</a></li>
-				<li><a href="/help">お問い合わせ</a></li>
-				<li><a href="/kiyaku">利用規約</a></li>
-			</ul>
-		</nav>
-		<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
-		<h2>Dieu Éviter Chat</h2>
-		<h3>~ 雑談部屋 ~</h3>
-	<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
-		  <p>↑まずは見てね!!↑
-  <p>・まずは挨拶をしましょう!
-				<p><!-- FC2カウンター ここから -->・Chat内の推定オンライン数:<script language="javascript" type="text/javascript"
-					src="//counter1.fc2.com/views.php?id=89511564"></script>
-				<noscript><img src="//counter1.fc2.com/counter_now.php?id=89511564" /></noscript><!-- FC2カウンター ここまで -->
-							<div id="chat-box"></div>
+								<!-- 入力部分を textarea に変更 -->
+								<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
 	
-							<!-- 入力部分を textarea に変更 -->
-							<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
-	
-							<button id="sendButton">送信</button>
+								<button id="sendButton">送信</button>
 								<footer>©Dieu Éviter</footer>
-	</div>
-	</body>
-	<!-- ページが一度だけ自動リロード -->
-	<script>
-		if (!sessionStorage.getItem("reloaded")) {
-	        sessionStorage.setItem("reloaded", "true");
-	        setTimeout(function(){ location.reload(); }, 1000);
-	      }
-	Notification.requestPermission().then((result) => {
-	console.log(result);
+		</div>
+		</body>
+		<!-- ページが一度だけ自動リロード -->
+		<script>
+			if (!sessionStorage.getItem("reloaded")) {
+		        sessionStorage.setItem("reloaded", "true");
+		        setTimeout(function(){ location.reload(); }, 1000);
+		      }
+		Notification.requestPermission().then((result) => {
+		console.log(result);
+		});
+	
+		</script>
+	
+	
+		<script>
+			function newMessage() {
+	if (Notification.permission === 'granted') {
+	const notification = new Notification('新着メッセージがあります!!', {
 	});
-
-	</script>
-	
-  
-  <script>
-function newMessage() {
-if (Notification.permission === 'granted') {
-const notification = new Notification('新着メッセージがあります!!', {
-});
-}
-}
- </script>
-  </div>
+	}
+	}
+		</script>
+	</div>
 	
 	</body>
-	
-	</html>
+
+</html>
