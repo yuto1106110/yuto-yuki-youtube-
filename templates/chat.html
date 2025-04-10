@@ -116,6 +116,11 @@
 			font-size: 12px;
 		}
 
+.white-button {
+background-color: #fff;
+color: #000;
+}
+
 		/* アニメーション定義 */
 		@keyframes fadeIn {
 			from {
@@ -418,6 +423,7 @@ onValue(chatRef, (snapshot) => {
 
 const goodBtn = document.createElement("button");
 goodBtn.textContent = `👍 (${msg.good || 0})`;
+goodBtn.classList.add("white-button");
 goodBtn.style.marginRight = "5px";
 goodBtn.onclick = () => {
 update(ref(db, `chat/${key}`), {
@@ -427,6 +433,7 @@ good: (msg.good || 0) + 1
 
 const badBtn = document.createElement("button");
 badBtn.textContent = `😡 (${msg.bad || 0})`;
+badBtn.classList.add("white-button");
 badBtn.onclick = () => {
 update(ref(db, `chat/${key}`), {
 bad: (msg.bad || 0) + 1
