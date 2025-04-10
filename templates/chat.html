@@ -460,6 +460,22 @@ container.appendChild(buttonDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 
+import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+const guestLoginBtn = document.getElementById("guestLoginButton");
+
+guestLoginBtn.addEventListener("click", async () => {
+try {
+const cred = await signInAnonymously(auth);
+const guestName = "ゲスト#" + generateForcedId();
+await updateProfile(cred.user, { displayName: guestName });
+alert("ゲストとしてログインしました");
+} catch (error) {
+alert("ゲストログイン失敗: " + error.message);
+}
+});
+
+
   </script>
 	</head>
 
@@ -474,11 +490,10 @@ container.appendChild(buttonDiv);
 			　<h2>~ 雑談部屋 ~
 					<h4><a href="/chat-use">使い方 / ヘルプ</a></li>
 
-						<h3><a href="javascript:location.replace('/chat-proxy')">・Proxy共有所へ</a><br>
-							<h3><a href="javascript:location.replace('/chat-web')">・WEBフィルター対策本部へ</a><br>
+	
 
 
-								<p>
+								<p><button id="guestLoginButton">ゲストで入る</button>
 									<details>
 										<summary>■sign up / 初めての方はこちら</summary>
 
@@ -507,7 +522,6 @@ container.appendChild(buttonDiv);
 											<input type="text" id="loginName" placeholder="名前">
 											<input type="password" id="loginPassword" placeholder="パスワード">
 											<button id="loginButton">ログイン</button>
-
 										</div>
 
 	</div>
