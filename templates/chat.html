@@ -493,6 +493,15 @@ alert("ゲストログイン失敗: " + error.message);
 });
 
 
+const enterToggle = document.getElementById("enterToggle");
+
+messageInput.addEventListener("keydown", (e) => {
+if (enterToggle.checked && e.key === "Enter" && !e.shiftKey) {
+e.preventDefault();
+sendBtn.click();
+}
+});
+
   </script>
 	</head>
 
@@ -574,6 +583,11 @@ alert("ゲストログイン失敗: " + error.message);
 
 							<!-- 入力部分を textarea に変更 -->
 							<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
+
+<label style="display: block; margin: 5px 10px;">
+  <input type="checkbox" id="enterToggle" checked>
+  Enterで送信（Shift+Enterで改行）
+</label>
 
 							<button id="sendButton">送信</button>
 							<footer>©Dieu Éviter</footer>
