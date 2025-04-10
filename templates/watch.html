@@ -355,6 +355,31 @@ document.getElementById('reloadButton').addEventListener('click', function() {
 			{% endfor %}
 			</select>
 <button class="btn btn-link" onclick="window.location.href='/watch?v={{ videoid }}'">通常再生に戻す</button>
+<script>
+document.getElementById('quality-change').addEventListener('change', function () {
+    const selectedUrl = this.value;
+    const video = document.getElementById('video');
+
+    // 現在の再生位置を記録
+    const currentTime = video.currentTime;
+    const isPlaying = !video.paused;
+
+    // <source> を置き換え
+    video.innerHTML = '';
+    const newSource = document.createElement('source');
+    newSource.src = selectedUrl;
+    newSource.type = 'video/mp4';
+    video.appendChild(newSource);
+
+    // 再読み込みして再生位置を復元
+    video.load();
+    video.currentTime = currentTime;
+
+    if (isPlaying) {
+        video.play().catch(err => console.error("再生失敗:", err));
+    }
+});
+</script>
 	    
 		</body>
 </html>
