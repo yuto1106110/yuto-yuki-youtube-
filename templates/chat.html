@@ -112,9 +112,7 @@
 			margin-left: 5px;
 		}
 
-		.read-count {
-			font-size: 12px;
-		}
+
 
 .white-button {
 background-color: #fff;
@@ -444,13 +442,6 @@ const buttonDiv = document.createElement("div");
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
 container.appendChild(buttonDiv);
-
-    if (msg.readBy && msg.readBy.length > 0) {
-      const readDiv = document.createElement("div");
-      readDiv.className = "read-count";
-      readDiv.textContent = `メッセージの閲覧数: ${msg.readBy.length}`;
-      container.appendChild(readDiv);
-    }
 
 
     const timeDiv = document.createElement("div");
