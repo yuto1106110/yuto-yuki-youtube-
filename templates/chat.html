@@ -464,6 +464,19 @@ onValue(chatRef, (snapshot) => {
     const nameSpan = document.createElement("div");
     nameSpan.className = "message-name";
 
+let bannedUsers = {};
+
+onValue(ref(db, "bannedUsers"), snapshot => {
+bannedUsers = snapshot.val() || {};
+});
+
+if (msg.uid && bannedUsers[msg.uid]) {
+const placeholder = document.createElement("div");
+placeholder.className = "message-container";
+placeholder.textContent = "（このユーザーはBANされています）";
+chatBox.appendChild(placeholder);
+return;
+}
 
 
     let [namePart, color] = msg.name.split("|");
@@ -579,6 +592,10 @@ sendBtn.click();
 }
 });
 
+
+
+
+
   </script>
 	</head>
 
@@ -651,7 +668,7 @@ sendBtn.click();
 				</nav>
 				<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
 				<button id="openSettingsPage" style="position: fixed; bottom: 20px; right: 20px; z-index: 500;">⚙️ 設定</button>
-        <h2>Dieu Éviter Chat</h2>
+				<h2>Dieu Éviter Chat</h2>
 				<h3>~ 雑談部屋 ~</h3>
 				<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
 					<p>↑まずは見てね!!↑
@@ -672,8 +689,8 @@ sendBtn.click();
 			</div>
 		</body>
 
-<!-- 設定画面（別ページ風） -->
-<div id="settingsPage" style="
+		<!-- 設定画面（別ページ風） -->
+		<div id="settingsPage" style="
   display: none;
   position: fixed;
   top: 0; left: 0;
@@ -683,27 +700,27 @@ sendBtn.click();
   padding: 20px;
   overflow-y: auto;
 ">
-	<button id="closeSettings" style="position: absolute; top: 10px; right: 70px;">✖ 閉じる</button>
-	<h2>設定ページ</h2>
+			<button id="closeSettings" style="position: absolute; top: 10px; right: 70px;">✖ 閉じる</button>
+			<h2>設定ページ</h2>
 
-	<div style="margin-top: 20px;">
-		<h4>名前変更</h4>
-		<input type="text" id="newName" placeholder="新しい名前">
-		<button id="updateNameBtn">名前を変更</button>
-	</div>
+			<div style="margin-top: 20px;">
+				<h4>名前変更</h4>
+				<input type="text" id="newName" placeholder="新しい名前">
+				<button id="updateNameBtn">名前を変更</button>
+			</div>
 
-	<div style="margin-top: 20px;">
-		<h4>パスワード変更</h4>
-		<input type="password" id="newPassword" placeholder="新しいパスワード">
-		<button id="updatePasswordBtn">パスワードを変更</button>
-	</div>
+			<div style="margin-top: 20px;">
+				<h4>パスワード変更</h4>
+				<input type="password" id="newPassword" placeholder="新しいパスワード">
+				<button id="updatePasswordBtn">パスワードを変更</button>
+			</div>
 
-	<div style="margin-top: 20px;">
-		<h4>表示名の色変更</h4>
-		<input type="text" id="newColor" placeholder="#3498db など">
-		<button id="updateColorBtn">色を変更</button>
-	</div>
-</div>
+			<div style="margin-top: 20px;">
+				<h4>表示名の色変更</h4>
+				<input type="text" id="newColor" placeholder="#3498db など">
+				<button id="updateColorBtn">色を変更</button>
+			</div>
+		</div>
 
 		<!-- ページが一度だけ自動リロード -->
 		<script>
