@@ -114,10 +114,10 @@
 
 
 
-.white-button {
-background-color: #fff;
-color: #000;
-}
+		.white-button {
+			background-color: #fff;
+			color: #000;
+		}
 
 		/* アニメーション定義 */
 		@keyframes fadeIn {
@@ -289,14 +289,27 @@ signupBtn.addEventListener("click", async () => {
 });
 
 loginBtn.addEventListener("click", async () => {
-  const name = document.getElementById("loginName").value;
-  const password = document.getElementById("loginPassword").value;
-  const email = generateEmail(name);
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    alert("ログインエラー: " + err.message);
-  }
+const name = document.getElementById("loginName").value;
+const password = document.getElementById("loginPassword").value;
+const email = generateEmail(name);
+
+try {
+const cred = await signInWithEmailAndPassword(auth, email, password);
+const uid = cred.user.uid;
+
+// BANチェック
+const banRef = ref(db, `bannedUsers/${uid}`);
+const banSnap = await get(banRef);
+if (banSnap.exists()) {
+alert("あなたはBANされています。");
+await signOut(auth); // 一瞬ログイン状態になってるのでサインアウトさせる
+return;
+}
+
+// BANされていない場合は何もしない（ログイン続行）
+} catch (err) {
+alert("ログインエラー: " + err.message);
+}
 });
 
 logoutBtn.addEventListener("click", () => {
@@ -342,6 +355,37 @@ sendBtn.addEventListener("click", async () => {
       sendBtn.disabled = false;
       return;
     }
+
+
+
+// BAN機能
+if (text.startsWith("/ban ")) {
+const user = auth.currentUser;
+const targetUid = text.split(" ")[1];
+
+// 主 or 管理者のみ
+if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+await set(ref(db, `bannedUsers/${targetUid}`), true);
+alert(`ユーザー（UID: ${targetUid}）をBANしました。`);
+} else {
+alert("この操作は権限がありません。");
+}
+
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
+if (user) {
+const banRef = ref(db, `bannedUsers/${user.uid}`);
+get(banRef).then(snapshot => {
+if (snapshot.exists()) {
+alert("あなたはBANされています。");
+signOut(auth);
+}
+});
+}
+
 
     if (text === CLEAR_CHAT_PASSWORD && user.displayName === "Yuto-110") {
       await set(ref(db, "chat"), null);
@@ -420,6 +464,8 @@ onValue(chatRef, (snapshot) => {
     const nameSpan = document.createElement("div");
     nameSpan.className = "message-name";
 
+
+
     let [namePart, color] = msg.name.split("|");
     const nameEl = document.createElement("span");
     nameEl.textContent = namePart;
@@ -455,17 +501,48 @@ bad: (msg.bad || 0) + 1
 });
 };
 
+
 const buttonDiv = document.createElement("div");
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
 container.appendChild(buttonDiv);
 
+const uidDiv = document.createElement("div");
+uidDiv.style.fontSize = "0.75em";
+uidDiv.style.color = "gray";
+uidDiv.style.display = "flex";
+uidDiv.style.alignItems = "center";
+
+// UID表示
+const uidText = document.createElement("span");
+uidText.textContent = `UID: ${msg.uid}`;
+uidText.style.marginRight = "8px";
+
+// コピー用ボタン
+const copyBtn = document.createElement("button");
+copyBtn.textContent = "コピー";
+copyBtn.style.fontSize = "0.7em";
+copyBtn.style.padding = "3px 6px";
+copyBtn.classList.add("white-button");
+
+copyBtn.onclick = async () => {
+try {
+await navigator.clipboard.writeText(msg.uid);
+copyBtn.textContent = "コピー済み!";
+setTimeout(() => copyBtn.textContent = "コピー", 2000);
+} catch (err) {
+alert("コピーできませんでした: " + err);
+}
+};
+
+uidDiv.appendChild(uidText);
+uidDiv.appendChild(copyBtn);
+container.appendChild(uidDiv);
 
     const timeDiv = document.createElement("div");
     timeDiv.className = "message-time";
     timeDiv.textContent = new Date(msg.timestamp).toLocaleString();
     container.appendChild(timeDiv);
-
 
     chatBox.appendChild(container);
 
@@ -502,6 +579,7 @@ sendBtn.click();
 }
 });
 
+
   </script>
 	</head>
 
@@ -516,39 +594,39 @@ sendBtn.click();
 			　<h2>~ 雑談部屋 ~
 					<h4><a href="/chat-use">使い方 / ヘルプ</a></li>
 
-	
 
 
-								<p><button id="guestLoginButton">ゲストで入る</button>
-									<details>
-										<summary>■sign up / 初めての方はこちら</summary>
 
-										<div id="signup">
-											<h3>サインアップ</h3>
-											<h5>・パスワードは6文字以上にしてください。</h5>
-											<h5>・Googleパスワードマネージャーがパスワードを記憶してくれると思いますが、名前,パスワードはしっかりと覚えておきましょう!</h5>
-											<h5>・名前に本名,生年月日などはおやめください。</h5>
-											<p>⚠利用規約に同意の上ご登録をお願いします。⚠</p>
-											<a href="javascript:location.replace('/kiyaku')">利用規約</a><br>
-											<input type="text" id="signupName" placeholder="名前">
-											<input type="password" id="signupPassword" placeholder="パスワード">
-											<button id="signupButton">サインアップ</button>
-										</div>
-								</p>
-								</details>
+						<p><button id="guestLoginButton">ゲストで入る</button>
+							<details>
+								<summary>■sign up / 初めての方はこちら</summary>
 
-								<details>
-									<summary>■login / すでに登録されている方はこちら</summary>
-									<p>
-										<div id="login">
-											<h3>ログイン</h3>
-											<h5>・ここから再ログインできます。</h5>
-											<h5>・名前,パスワードの間違が無いか確認してください。</h5>
-											<h5>・なりすまし等の迷惑行為はおやめください。</h5>
-											<input type="text" id="loginName" placeholder="名前">
-											<input type="password" id="loginPassword" placeholder="パスワード">
-											<button id="loginButton">ログイン</button>
-										</div>
+								<div id="signup">
+									<h3>サインアップ</h3>
+									<h5>・パスワードは6文字以上にしてください。</h5>
+									<h5>・Googleパスワードマネージャーがパスワードを記憶してくれると思いますが、名前,パスワードはしっかりと覚えておきましょう!</h5>
+									<h5>・名前に本名,生年月日などはおやめください。</h5>
+									<p>⚠利用規約に同意の上ご登録をお願いします。⚠</p>
+									<a href="javascript:location.replace('/kiyaku')">利用規約</a><br>
+									<input type="text" id="signupName" placeholder="名前">
+									<input type="password" id="signupPassword" placeholder="パスワード">
+									<button id="signupButton">サインアップ</button>
+								</div>
+						</p>
+						</details>
+
+						<details>
+							<summary>■login / すでに登録されている方はこちら</summary>
+							<p>
+								<div id="login">
+									<h3>ログイン</h3>
+									<h5>・ここから再ログインできます。</h5>
+									<h5>・名前,パスワードの間違が無いか確認してください。</h5>
+									<h5>・なりすまし等の迷惑行為はおやめください。</h5>
+									<input type="text" id="loginName" placeholder="名前">
+									<input type="password" id="loginPassword" placeholder="パスワード">
+									<button id="loginButton">ログイン</button>
+								</div>
 
 	</div>
 	<div>
@@ -584,7 +662,7 @@ sendBtn.click();
 							<!-- 入力部分を textarea に変更 -->
 							<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
 
-<label style="display: block; margin: 5px 10px;">
+							<label style="display: block; margin: 5px 10px;">
   <input type="checkbox" id="enterToggle" checked>
   Enterで送信（Shift+Enterで改行）
 </label>
