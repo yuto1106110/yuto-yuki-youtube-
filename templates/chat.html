@@ -579,7 +579,6 @@ sendBtn.click();
 }
 });
 
-
   </script>
 	</head>
 
@@ -651,7 +650,8 @@ sendBtn.click();
 					</ul>
 				</nav>
 				<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
-				<h2>Dieu Éviter Chat</h2>
+				<button id="openSettingsPage" style="position: fixed; bottom: 20px; right: 20px; z-index: 500;">⚙️ 設定</button>
+        <h2>Dieu Éviter Chat</h2>
 				<h3>~ 雑談部屋 ~</h3>
 				<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
 					<p>↑まずは見てね!!↑
@@ -671,6 +671,40 @@ sendBtn.click();
 							<footer>©Dieu Éviter</footer>
 			</div>
 		</body>
+
+<!-- 設定画面（別ページ風） -->
+<div id="settingsPage" style="
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: white;
+  z-index: 1000;
+  padding: 20px;
+  overflow-y: auto;
+">
+	<button id="closeSettings" style="position: absolute; top: 10px; right: 70px;">✖ 閉じる</button>
+	<h2>設定ページ</h2>
+
+	<div style="margin-top: 20px;">
+		<h4>名前変更</h4>
+		<input type="text" id="newName" placeholder="新しい名前">
+		<button id="updateNameBtn">名前を変更</button>
+	</div>
+
+	<div style="margin-top: 20px;">
+		<h4>パスワード変更</h4>
+		<input type="password" id="newPassword" placeholder="新しいパスワード">
+		<button id="updatePasswordBtn">パスワードを変更</button>
+	</div>
+
+	<div style="margin-top: 20px;">
+		<h4>表示名の色変更</h4>
+		<input type="text" id="newColor" placeholder="#3498db など">
+		<button id="updateColorBtn">色を変更</button>
+	</div>
+</div>
+
 		<!-- ページが一度だけ自動リロード -->
 		<script>
 			if (!sessionStorage.getItem("reloaded")) {
@@ -678,6 +712,18 @@ sendBtn.click();
 			        setTimeout(function(){ location.reload(); }, 1000);
 			      }
 		
+const openSettingsPageBtn = document.getElementById("openSettingsPage");
+const settingsPage = document.getElementById("settingsPage");
+const closeSettingsBtn = document.getElementById("closeSettings");
+
+openSettingsPageBtn.addEventListener("click", () => {
+settingsPage.style.display = "block";
+});
+
+closeSettingsBtn.addEventListener("click", () => {
+settingsPage.style.display = "none";
+});
+
 		</script>
 	</div>
 
