@@ -640,6 +640,37 @@ sendBtn.click();
 }
 });
 
+async function loadAdminList() {
+const adminSnap = await get(ref(db, "admins"));
+const chatSnap = await get(ref(db, "chat"));
+
+const adminUids = adminSnap.exists() ? Object.keys(adminSnap.val()) : [];
+const nameMap = {}; // uid: name
+
+// チャット履歴から名前を拾う（最新の名前）
+if (chatSnap.exists()) {
+chatSnap.forEach(child => {
+const msg = child.val();
+if (msg.uid && msg.name && adminUids.includes(msg.uid)) {
+nameMap[msg.uid] = msg.name;
+}
+});
+}
+
+const list = document.getElementById("adminListItems");
+list.innerHTML = "";
+
+adminUids.forEach(uid => {
+const li = document.createElement("li");
+li.textContent = `${nameMap[uid] || "(名前不明)"} - UID: ${uid}`;
+list.appendChild(li);
+});
+}
+
+openSettingsPageBtn.addEventListener("click", () => {
+settingsPage.style.display = "block";
+loadAdminList(); // 管理者一覧を読み込む
+});
 
   </script>
 	</head>
@@ -765,7 +796,13 @@ sendBtn.click();
 				<input type="text" id="newColor" placeholder="#3498db など">
 				<button id="updateColorBtn">色を変更</button>
 			</div>
-		</div>
+		
+	<div id="adminList" style="margin-top: 20px;">
+		<h4>管理者一覧</h4>
+		<ul id="adminListItems"></ul>
+	</div>
+
+    </div>
 
 		<!-- ページが一度だけ自動リロード -->
 		<script>
