@@ -233,11 +233,8 @@
     } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
     import {
       getDatabase,
-      ref,
-      push,
       onValue,
       remove,
-      set,
       update,
       get,
       onDisconnect,
@@ -251,7 +248,7 @@
   messagingSenderId: "838666832539",
   appId: "1:838666832539:web:3471b7b5f83a140eda543e"
 };
-
+import { push, ref, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"; // 忘れずにimport！
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
@@ -404,6 +401,7 @@ sendBtn.disabled = false;
 return;
 }
 
+
 // BAN機能
 if (text.startsWith("/ban ")) {
 const user = auth.currentUser;
@@ -412,6 +410,14 @@ const targetUid = text.split(" ")[1];
 // 主 or 管理者のみ
 if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
 await set(ref(db, `bannedUsers/${targetUid}`), true);
+	// BANログを記録
+	await push(ref(db, "logs"), {
+	type: "ban",
+	actorUid: user.uid,
+	actorName: user.displayName,
+	targetUid: targetUid,
+	timestamp: Date.now()
+	});
 alert(`ユーザー（UID: ${targetUid}）をBANしました。`);
 } else {
 alert("この操作は権限がありません。");
@@ -823,18 +829,71 @@ list.appendChild(li);
 				<input type="text" id="newColor" placeholder="#3498db など">
 				<button id="updateColorBtn">色を変更</button>
 			</div>
-		
-	<div id="adminList" style="margin-top: 20px;">
-		<h4>管理者一覧</h4>
-		<ul id="adminListItems"></ul>
-	</div>
 
+			<div id="adminList" style="margin-top: 20px;">
+				<h4>管理者一覧</h4>
+				<ul id="adminListItems"></ul>
+			</div>
+
+<!-- ✅ 1. BAN履歴の表示枠を設定ページ内に追加 -->
 <div id="banLogList" style="margin-top: 20px;">
 	<h4>BAN履歴</h4>
 	<ul id="banLogItems"></ul>
-</div>
+</div><!-- ✅ 2. 設定ページを開くボタンのJS -->
+<script>
+	const openSettingsPageBtn = document.getElementById("openSettingsPage");
+const settingsPage = document.getElementById("settingsPage");
+const closeSettingsBtn = document.getElementById("closeSettings");
 
-    </div>
+openSettingsPageBtn.addEventListener("click", () => {
+  settingsPage.style.display = "block";
+
+  // 管理者一覧とBAN履歴を読み込む（window経由で安全に）
+  if (typeof loadAdminList === "function") loadAdminList();
+  if (typeof loadBanLogs === "function") loadBanLogs();
+});
+
+closeSettingsBtn.addEventListener("click", () => {
+  settingsPage.style.display = "none";
+});
+</script><!-- ✅ 3. FirebaseからBAN履歴を取得する処理（<script type="module">内） -->
+<script type="module">
+	import {
+  getDatabase,
+  ref,
+  get
+} from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+// dbはアプリ初期化済みのFirebase DBインスタンス
+const db = getDatabase();
+
+// BANログを読み込む関数（グローバルwindowに登録）
+window.loadBanLogs = async function () {
+  const logsRef = ref(db, "logs");
+  const logsSnap = await get(logsRef);
+  const list = document.getElementById("banLogItems");
+  list.innerHTML = "";
+
+  if (!logsSnap.exists()) {
+    list.innerHTML = "<li>BAN履歴はまだありません。</li>";
+    return;
+  }
+
+  const logs = Object.values(logsSnap.val());
+  const banLogs = logs.filter(log => log.type === "ban");
+  banLogs.sort((a, b) => b.timestamp - a.timestamp);
+
+  banLogs.forEach(log => {
+    const li = document.createElement("li");
+    const time = new Date(log.timestamp).toLocaleString();
+    li.textContent = `${time} - ${log.actorName} が UID: ${log.targetUid} をBAN`;
+    list.appendChild(li);
+  });
+};
+</script>
+
+
+		</div>
 
 		<!-- ページが一度だけ自動リロード -->
 		<script>
@@ -842,13 +901,11 @@ list.appendChild(li);
 			        sessionStorage.setItem("reloaded", "true");
 			        setTimeout(function(){ location.reload(); }, 1000);
 			      }
-		
-const openSettingsPageBtn = document.getElementById("openSettingsPage");
-const settingsPage = document.getElementById("settingsPage");
-const closeSettingsBtn = document.getElementById("closeSettings");
 
 openSettingsPageBtn.addEventListener("click", () => {
 settingsPage.style.display = "block";
+if (typeof loadAdminList === "function") loadAdminList();
+if (typeof loadBanLogs === "function") loadBanLogs();
 });
 
 closeSettingsBtn.addEventListener("click", () => {
