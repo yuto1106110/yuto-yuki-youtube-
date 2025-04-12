@@ -513,9 +513,38 @@ onValue(chatRef, (snapshot) => {
     const container = document.createElement("div");
     container.className = "message-container";
 
-    const nameSpan = document.createElement("div");
-    nameSpan.className = "message-name";
+const nameSpan = document.createElement("div");
+nameSpan.className = "message-name";
 
+let [nameRaw, color] = msg.name.split("|") || [msg.name, ""];
+let namePart = nameRaw.replace(/^Admin-/, ""); // 念のため分割失敗も考慮
+let icon = "";
+
+// 主（Yuto-110）の判定（名前ベース）
+if (namePart === "Yuto-110") {
+icon = "";
+}
+// 管理者（adminList に uid が含まれる）
+else if (adminList && Object.keys(adminList).includes(msg.uid)) {
+icon = "⭐";
+}
+
+// 表示テキスト：「アイコン 名前 #UID」
+const displayText = `${icon} ${namePart}`;
+
+// 要素作成
+const nameEl = document.createElement("span");
+nameEl.textContent = displayText;
+
+// スタイル設定
+if (namePart === "Yuto-110") {
+nameEl.className = "rainbow-name";
+} else if (color) {
+nameEl.style.color = color;
+}
+
+nameSpan.appendChild(nameEl);
+container.appendChild(nameSpan);
 
 
 let bannedUsers = {};
@@ -533,21 +562,11 @@ return;
 }
 
 
-    let [namePart, color] = msg.name.split("|");
-    const nameEl = document.createElement("span");
-    nameEl.textContent = namePart;
-    if (namePart === "Yuto-110") {
-      nameEl.className = "rainbow-name";
-    } else if (color) {
-      nameEl.style.color = color;
-    }
-    nameSpan.appendChild(nameEl);
-    container.appendChild(nameSpan);
+	const textDiv = document.createElement("div");
+	textDiv.className = "message-text";
+	textDiv.textContent = msg.text;
+	container.appendChild(textDiv);
 
-    const textDiv = document.createElement("div");
-    textDiv.className = "message-text";
-    textDiv.textContent = msg.text;
-    container.appendChild(textDiv);
 
 const goodBtn = document.createElement("button");
 goodBtn.textContent = `👍 (${msg.good || 0})`;
@@ -705,6 +724,13 @@ list.appendChild(li);
 }
 }
 
+let adminList = {};
+onValue(ref(db, "admins"), (snapshot) => {
+adminList = snapshot.val() || {};
+});
+
+
+
   </script>
 	</head>
 
@@ -835,13 +861,13 @@ list.appendChild(li);
 				<ul id="adminListItems"></ul>
 			</div>
 
-<!-- ✅ 1. BAN履歴の表示枠を設定ページ内に追加 -->
-<div id="banLogList" style="margin-top: 20px;">
-	<h4>BAN履歴</h4>
-	<ul id="banLogItems"></ul>
-</div><!-- ✅ 2. 設定ページを開くボタンのJS -->
-<script>
-	const openSettingsPageBtn = document.getElementById("openSettingsPage");
+			<!-- ✅ 1. BAN履歴の表示枠を設定ページ内に追加 -->
+			<div id="banLogList" style="margin-top: 20px;">
+				<h4>BAN履歴</h4>
+				<ul id="banLogItems"></ul>
+			</div><!-- ✅ 2. 設定ページを開くボタンのJS -->
+			<script>
+				const openSettingsPageBtn = document.getElementById("openSettingsPage");
 const settingsPage = document.getElementById("settingsPage");
 const closeSettingsBtn = document.getElementById("closeSettings");
 
@@ -856,9 +882,9 @@ openSettingsPageBtn.addEventListener("click", () => {
 closeSettingsBtn.addEventListener("click", () => {
   settingsPage.style.display = "none";
 });
-</script><!-- ✅ 3. FirebaseからBAN履歴を取得する処理（<script type="module">内） -->
-<script type="module">
-	import {
+			</script><!-- ✅ 3. FirebaseからBAN履歴を取得する処理（<script type="module">内） -->
+			<script type="module">
+				import {
   getDatabase,
   ref,
   get
