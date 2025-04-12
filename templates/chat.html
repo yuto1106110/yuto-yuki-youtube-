@@ -562,22 +562,26 @@ return;
 }
 
 
-	const textDiv = document.createElement("div");
-	textDiv.className = "message-text";
-	textDiv.textContent = msg.text;
-	container.appendChild(textDiv);
 
 
+// --- いいね＆低評価ボタン ---
+const buttonDiv = document.createElement("div");
+buttonDiv.style.display = "flex";
+buttonDiv.style.gap = "6px";
+buttonDiv.style.marginLeft = "auto"; // ← 右寄せにするポイント！
+buttonDiv.style.alignItems = "center";
+
+// Goodボタン
 const goodBtn = document.createElement("button");
 goodBtn.textContent = `👍 (${msg.good || 0})`;
 goodBtn.classList.add("white-button");
-goodBtn.style.marginRight = "5px";
 goodBtn.onclick = () => {
 update(ref(db, `chat/${key}`), {
 good: (msg.good || 0) + 1
 });
 };
 
+// Badボタン
 const badBtn = document.createElement("button");
 badBtn.textContent = `😡 (${msg.bad || 0})`;
 badBtn.classList.add("white-button");
@@ -587,11 +591,24 @@ bad: (msg.bad || 0) + 1
 });
 };
 
-
-const buttonDiv = document.createElement("div");
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
-container.appendChild(buttonDiv);
+
+// --- メッセージ本体と並べるようにflex化する ---
+const messageWrapper = document.createElement("div");
+messageWrapper.style.display = "flex";
+messageWrapper.style.justifyContent = "space-between";
+messageWrapper.style.alignItems = "center";
+
+// 左側：テキスト本文
+const textDiv = document.createElement("div");
+textDiv.className = "message-text";
+textDiv.textContent = msg.text;
+
+// 組み立て
+messageWrapper.appendChild(textDiv);
+messageWrapper.appendChild(buttonDiv);
+container.appendChild(messageWrapper);
 
 const uidDiv = document.createElement("div");
 uidDiv.style.fontSize = "0.75em";
