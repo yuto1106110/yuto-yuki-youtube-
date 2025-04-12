@@ -325,7 +325,7 @@ sendBtn.addEventListener("click", async () => {
 
   try {
     if (text.startsWith("/delete ")) {
-      if (user.displayName === "Yuto-110") {
+if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
         const targetName = text.split(" ")[1];
         const snapshot = await get(ref(db, "chat"));
         snapshot.forEach(child => {
@@ -356,7 +356,53 @@ sendBtn.addEventListener("click", async () => {
       return;
     }
 
+let isAdmin = false;
 
+onAuthStateChanged(auth, async (user) => {
+if (!user) return;
+
+const adminSnap = await get(ref(db, `admins/${user.uid}`));
+isAdmin = adminSnap.exists();
+
+// displayName が Admin じゃなければ表示名を変える（任意）
+if (isAdmin && !user.displayName.startsWith("Admin")) {
+await updateProfile(user, { displayName: `Admin-${user.displayName}` });
+alert("管理者としてログインしました！");
+}
+});
+
+
+if (text.startsWith("/addadmin ")) {
+const user = auth.currentUser;
+const targetUid = text.split(" ")[1];
+
+if (user.displayName === "Yuto-110") {
+await set(ref(db, `admins/${targetUid}`), true);
+alert(`UID: ${targetUid} を管理者に追加しました！`);
+} else {
+alert("この操作は許可されていません");
+}
+
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
+
+
+if (text.startsWith("/removeadmin ")) {
+if (user.displayName === "Yuto-110") {
+const targetUid = text.split(" ")[1];
+await remove(ref(db, `admins/${targetUid}`));
+alert(`UID: ${targetUid} の管理者権限を削除しました`);
+} else {
+alert("この操作は許可されていません");
+}
+
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
 
 // BAN機能
 if (text.startsWith("/ban ")) {
@@ -463,6 +509,8 @@ onValue(chatRef, (snapshot) => {
 
     const nameSpan = document.createElement("div");
     nameSpan.className = "message-name";
+
+
 
 let bannedUsers = {};
 
@@ -591,9 +639,6 @@ e.preventDefault();
 sendBtn.click();
 }
 });
-
-
-
 
 
   </script>
