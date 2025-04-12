@@ -669,8 +669,35 @@ list.appendChild(li);
 
 openSettingsPageBtn.addEventListener("click", () => {
 settingsPage.style.display = "block";
-loadAdminList(); // 管理者一覧を読み込む
+loadAdminList(); // 管理者一覧読み込み
+loadBanLogs(); // BAN履歴読み込み ←これ追加！
 });
+
+async function loadBanLogs() {
+const logsSnap = await get(ref(db, "logs"));
+const list = document.getElementById("banLogItems");
+list.innerHTML = "";
+
+if (logsSnap.exists()) {
+const logs = Object.values(logsSnap.val());
+
+// BANに関するものだけフィルタ
+const banLogs = logs.filter(log => log.type === "ban");
+
+// 新しい順に並べる
+banLogs.sort((a, b) => b.timestamp - a.timestamp);
+
+banLogs.forEach(log => {
+const li = document.createElement("li");
+li.textContent = `${new Date(log.timestamp).toLocaleString()} - ${log.actorName} が UID: ${log.targetUid} をBAN`;
+list.appendChild(li);
+});
+} else {
+const li = document.createElement("li");
+li.textContent = "BAN履歴はまだありません。";
+list.appendChild(li);
+}
+}
 
   </script>
 	</head>
@@ -801,6 +828,11 @@ loadAdminList(); // 管理者一覧を読み込む
 		<h4>管理者一覧</h4>
 		<ul id="adminListItems"></ul>
 	</div>
+
+<div id="banLogList" style="margin-top: 20px;">
+	<h4>BAN履歴</h4>
+	<ul id="banLogItems"></ul>
+</div>
 
     </div>
 
