@@ -437,6 +437,25 @@ let isAdmin = false;
 onAuthStateChanged(auth, async (user) => {
 if (!user) return;
 
+
+// deviceId がなければ生成
+if (!localStorage.getItem("deviceId")) {
+localStorage.setItem("deviceId", crypto.randomUUID());
+}
+const deviceId = localStorage.getItem("deviceId");
+
+// アク禁チェック
+const blockSnap = await get(ref(db, `blockedDevices/${deviceId}`));
+if (blockSnap.exists()) {
+alert("この端末はアク禁対象です。");
+await signOut(auth);
+location.reload();
+return;
+}
+
+
+
+
 const adminSnap = await get(ref(db, `admins/${user.uid}`));
 isAdmin = adminSnap.exists();
 
@@ -568,6 +587,40 @@ signOut(auth);
 }
 });
 }
+
+
+// ✅ /block コマンド（主だけ）
+if (text.startsWith("/block ")) {
+const deviceId = text.split(" ")[1];
+if (user.displayName === "Yuto-110") {
+await set(ref(db, `blockedDevices/${deviceId}`), {
+reason: "主によるアク禁",
+by: user.displayName,
+timestamp: Date.now()
+});
+alert(`${deviceId} をアク禁に追加しました。`);
+} else {
+alert("この操作は主のみ可能です。");
+}
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
+// ✅ /unblock コマンド（主だけ）
+if (text.startsWith("/unblock ")) {
+const deviceId = text.split(" ")[1];
+if (user.displayName === "Yuto-110") {
+await remove(ref(db, `blockedDevices/${deviceId}`));
+alert(`${deviceId} のアク禁を解除しました。`);
+} else {
+alert("この操作は主のみ可能です。");
+}
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
 
 
 const ownerUid = "fyGR6L9DvfNgaxWlkJALog0IjqG3"; // 例: const ownerUid = "abc123def456";
@@ -1169,7 +1222,8 @@ settingsPage.style.display = "none";
 
 		</script>
 	</div>
-<script src="//accaii.com/yuto110/script.js" async></script><noscript><img src="//accaii.com/yuto110/script?guid=on"></noscript>
+	<script src="//accaii.com/yuto110/script.js" async></script>
+	<noscript><img src="//accaii.com/yuto110/script?guid=on"></noscript>
 
 </body>
 
