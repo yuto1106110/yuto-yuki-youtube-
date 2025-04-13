@@ -798,6 +798,8 @@ const displayText = `${icon} ${namePart}`;
 // 要素作成
 const nameEl = document.createElement("span");
 nameEl.textContent = displayText;
+nameEl.style.cursor = "pointer";
+nameEl.onclick = () => showProfile(msg.uid);
 
 // スタイル設定
 if (namePart === "Yuto-110") {
@@ -1203,7 +1205,16 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 				<h4>BAN履歴</h4>
 				<ul id="banLogItems"></ul>
 			</div><!-- ✅ 2. 設定ページを開くボタンのJS -->
-			<script>
+			
+	<!-- プロフィールパネル HTML -->
+	<div id="profilePanel"
+		style="display: none; position: fixed; top: 10%; right: 10px; width: 300px; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 16px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 2000;">
+		<button onclick="closeProfile()" style="float: right;">✖</button>
+		<h3>プロフィール</h3>
+		<div id="profileContent">読み込み中...</div>
+	</div>
+      
+    <script>
 				const openSettingsPageBtn = document.getElementById("openSettingsPage");
 const settingsPage = document.getElementById("settingsPage");
 const closeSettingsBtn = document.getElementById("closeSettings");
@@ -1276,6 +1287,36 @@ settingsPage.style.display = "none";
 });
 
 		</script>
+<!-- JavaScript（type="module"の中） -->
+<script type="module">
+// プロフィールパネル表示
+window.showProfile = async function (uid) {
+  const snap = await get(ref(db, `users/${uid}`));
+  if (!snap.exists()) {
+    document.getElementById("profileContent").textContent = "ユーザー情報が見つかりません";
+  } else {
+    const data = snap.val();
+    const name = data.name || "未設定";
+    const idTag = name.includes("#") ? name.split("#")[1] : "不明";
+    const nameColor = data.nameColor || "#000000";
+
+    const html = `
+      <p><strong>ユーザー名:</strong> ${name}</p>
+      <p><strong>ID:</strong> #${idTag}</p>
+      <p><strong>UID:</strong> ${uid}</p>
+      <p><strong>名前の色:</strong> <span style="color:${nameColor}; font-weight:bold">${nameColor}</span></p>
+    `;
+    document.getElementById("profileContent").innerHTML = html;
+  }
+  document.getElementById("profilePanel").style.display = "block";
+};
+
+window.closeProfile = function () {
+  document.getElementById("profilePanel").style.display = "none";
+};
+</script>
+
+
 	</div>
 	<script src="//accaii.com/yuto110/script.js" async></script>
 	<noscript><img src="//accaii.com/yuto110/script?guid=on"></noscript>
