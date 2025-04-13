@@ -1324,18 +1324,13 @@ async function showProfile(uid) {
     const idTag = name.includes("#") ? name.split("#")[1] : "不明";
     const nameColor = data.nameColor || "#000000";
 
-    const html = `
-      <p><strong>ユーザー名:</strong> ${name}</p>
-      <p><strong>ID:</strong> #${idTag}</p>
-      <p><strong>UID:</strong> ${uid}</p>
-      </span></p>
-    `;
-	// コピー用ボタン
-	const copyBtn = document.createElement("button");
-	copyBtn.textContent = "コピー";
-	copyBtn.style.fontSize = "0.7em";
-	copyBtn.style.padding = "3px 6px";
-	copyBtn.classList.add("white-button");
+const html = `
+<p><strong>ユーザー名:</strong> ${name} <button onclick="copyToClipboard('${name}')">コピー</button></p>
+<p><strong>ID:</strong> #${idTag}</p>
+<p><strong>UID:</strong> ${uid} <button onclick="copyToClipboard('${uid}')">コピー</button></p>
+<p><strong>名前の色:</strong> <span style="color:${nameColor}; font-weight:bold;">${nameColor}</span></p>
+`;
+
 	
 	copyBtn.onclick = async () => {
 	try {
@@ -1358,6 +1353,15 @@ function closeProfile() {
 // ✅ 関数をグローバル化
 window.showProfile = showProfile;
 window.closeProfile = closeProfile;
+
+window.copyToClipboard = function (text) {
+navigator.clipboard.writeText(text).then(() => {
+alert("コピーしました！");
+}).catch(() => {
+alert("コピーに失敗しました");
+});
+};
+
 </script>
 
 
