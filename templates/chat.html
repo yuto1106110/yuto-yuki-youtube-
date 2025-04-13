@@ -214,6 +214,57 @@
 			box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
 			transition: box-shadow 0.3s ease, border 0.3s ease;
 		}
+
+#sidebar {
+position: fixed;
+left: 0;
+top: 0;
+width: 220px;
+height: 100%;
+background-color: #f4f4f4;
+border-right: 1px solid #ccc;
+padding: 20px;
+box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+z-index: 1000;
+transform: translateX(-100%);
+transition: transform 0.3s ease;
+}
+#sidebar.open {
+transform: translateX(0);
+}
+#sidebar h3 {
+margin-top: 0;
+}
+#sidebar ul {
+list-style: none;
+padding-left: 0;
+}
+#sidebar li {
+margin: 10px 0;
+}
+#sidebar a {
+text-decoration: none;
+color: #333;
+}
+#toggleSidebarBtn {
+position: fixed;
+top: 10px;
+left: 10px;
+z-index: 1100;
+background: #3498db;
+color: white;
+border: none;
+padding: 8px 12px;
+border-radius: 4px;
+cursor: pointer;
+}
+#chat-section {
+transition: margin-left 0.3s ease;
+}
+#chat-section.shifted {
+margin-left: 240px;
+}
+
 	</style>
 	<!DOCTYPE html>
 	<html lang="ja">
@@ -830,21 +881,34 @@ adminList = snapshot.val() || {};
 
 
 		<!-- チャット用エリア -->
-
 		<body>
 			<div id="chat-section" style="display:none;">
 
-				<nav>
-					<ul>
-						<li><a href="/">ホーム　</a></li>
-						<li><a href="/chat-use">　使い方 / ヘルプはこちら　</a></li>
-						<li><a href="/chat">　雑談部屋　</a></li>
-						<li><a href="/chat-web">　WEBフィルター対策本部　</a></li>
-						<li><a href="/chat-proxy">　Proxy共有所　</a></li>
-						<li><a href="/help">　お問い合わせ　</a></li>
-						<li><a href="/kiyaku">　利用規約</a></li>
-					</ul>
-				</nav>
+<!-- トグルボタン --><button id="toggleSidebarBtn">≡ メニュー</button>
+
+<!-- サイドバー本体 -->
+<div id="sidebar">
+	<h3>メニュー</h3>
+	<ul>
+		<li><a href="/">ホーム</a></li>
+		<li><a href="/chat">雑談部屋</a></li>
+		<li><a href="/chat-use">使い方</a></li>
+		<li><a href="/help">お問い合わせ</a></li>
+		<li><a href="/kiyaku">利用規約</a></li>
+	</ul>
+</div>
+<script>
+	window.addEventListener("DOMContentLoaded", () => {
+    const chatSection = document.getElementById("chat-section");
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("toggleSidebarBtn");
+
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      chatSection?.classList.toggle("shifted");
+    });
+  });
+</script>
 				<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
 				<button id="openSettingsPage" style="position: fixed; bottom: 20px; right: 20px; z-index: 500;">⚙️ 設定</button>
 				<h2>Dieu Éviter Chat</h2>
