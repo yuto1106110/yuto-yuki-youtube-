@@ -313,16 +313,17 @@ const auth = getAuth(app);
 
 
 
-// 2. IP取得 & 保存
 onAuthStateChanged(auth, async (user) => {
+// user が null なら return（先にチェック！）
+if (!user) return;
 
-// deviceId を取得 or 生成
+// deviceId を生成（なければ）
 if (!localStorage.getItem("deviceId")) {
 localStorage.setItem("deviceId", crypto.randomUUID());
 }
 const deviceId = localStorage.getItem("deviceId");
 
-// アク禁チェック（blockedDevices に登録されてるか）
+// アク禁チェック（blockedDevices にあるか）
 const blockedSnap = await get(ref(db, `blockedDevices/${deviceId}`));
 if (blockedSnap.exists()) {
 alert("この端末はアク禁対象です。アクセスできません。");
@@ -331,8 +332,7 @@ location.reload();
 return;
 }
 
-if (!user) return;
-
+// 通常ログイン処理に続く...
 try {
 const res = await fetch("https://api.ipify.org?format=json");
 const data = await res.json();
