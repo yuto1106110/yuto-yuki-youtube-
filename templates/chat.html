@@ -1331,16 +1331,7 @@ const html = `
 <p><strong>名前の色:</strong> <span style="color:${nameColor}; font-weight:bold;">${nameColor}</span></p>
 `;
 
-	
-	copyBtn.onclick = async () => {
-	try {
-	await navigator.clipboard.writeText(msg.uid);
-	copyBtn.textContent = "コピー済み!";
-	setTimeout(() => copyBtn.textContent = "コピー", 2000);
-	} catch (err) {
-	alert("コピーできませんでした: " + err);
-	}
-	};
+
     document.getElementById("profileContent").innerHTML = html;
   }
   document.getElementById("profilePanel").style.display = "block";
