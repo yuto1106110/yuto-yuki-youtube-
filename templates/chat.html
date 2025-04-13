@@ -311,8 +311,26 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+
+
 // 2. IP取得 & 保存
 onAuthStateChanged(auth, async (user) => {
+
+// deviceId を取得 or 生成
+if (!localStorage.getItem("deviceId")) {
+localStorage.setItem("deviceId", crypto.randomUUID());
+}
+const deviceId = localStorage.getItem("deviceId");
+
+// アク禁チェック（blockedDevices に登録されてるか）
+const blockedSnap = await get(ref(db, `blockedDevices/${deviceId}`));
+if (blockedSnap.exists()) {
+alert("この端末はアク禁対象です。アクセスできません。");
+await signOut(auth);
+location.reload();
+return;
+}
+
 if (!user) return;
 
 try {
@@ -328,6 +346,9 @@ ip: ip
 console.error("IP取得エラー:", err);
 }
 });
+
+
+
 
 const signupBtn = document.getElementById("signupButton");
 const loginBtn = document.getElementById("loginButton");
@@ -436,24 +457,6 @@ let isAdmin = false;
 
 onAuthStateChanged(auth, async (user) => {
 if (!user) return;
-
-
-// deviceId がなければ生成
-if (!localStorage.getItem("deviceId")) {
-localStorage.setItem("deviceId", crypto.randomUUID());
-}
-const deviceId = localStorage.getItem("deviceId");
-
-// アク禁チェック
-const blockSnap = await get(ref(db, `blockedDevices/${deviceId}`));
-if (blockSnap.exists()) {
-alert("この端末はアク禁対象です。");
-await signOut(auth);
-location.reload();
-return;
-}
-
-
 
 
 const adminSnap = await get(ref(db, `admins/${user.uid}`));
