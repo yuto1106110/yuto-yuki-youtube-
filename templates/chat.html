@@ -356,6 +356,13 @@ deviceId: deviceId
 } catch (err) {
 console.error("IP取得または保存失敗", err);
 }
+
+await set(ref(db, `users/${user.uid}`), {
+name: user.displayName || "名無し",
+ip: ip,
+deviceId: localStorage.getItem("deviceId")
+});
+
 });
 
 
@@ -603,7 +610,38 @@ signOut(auth);
 }
 
 
-// ✅ /block コマンド（主だけ）
+// ✅ /banuid コマンド（UIDからデバイスIDを取得してアク禁）
+if (text.startsWith("/banuid ")) {
+const targetUid = text.split(" ")[1];
+if (user.displayName === "Yuto-110") {
+const userSnap = await get(ref(db, `users/${targetUid}`));
+if (!userSnap.exists()) {
+alert("指定されたUIDのユーザー情報が見つかりません。");
+} else {
+const data = userSnap.val();
+const deviceId = data.deviceId;
+if (!deviceId) {
+alert("このユーザーには deviceId の記録がありません。");
+} else {
+await set(ref(db, `blockedDevices/${deviceId}`), {
+reason: "UIDからのアク禁",
+by: user.displayName,
+timestamp: Date.now()
+});
+alert(`UID: ${targetUid} の端末（deviceId: ${deviceId}）をアク禁しました。`);
+}
+}
+} else {
+alert("このコマンドは主のみ実行できます。");
+}
+
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
+
+// ✅   ck コマンド（主だけ）
 if (text.startsWith("/block ")) {
 const deviceId = text.split(" ")[1];
 if (user.displayName === "Yuto-110") {
