@@ -1012,14 +1012,17 @@ adminList = snapshot.val() || {};
 document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("updateNameBtn")?.addEventListener("click", async () => {
 
-// 名前変更
 document.getElementById("updateNameBtn").addEventListener("click", async () => {
 const newName = document.getElementById("newName").value.trim();
 const user = auth.currentUser;
 if (!user || !newName) return;
 
-const baseName = newName + "#" + user.uid.slice(0, 4);
-await updateProfile(user, { displayName: baseName });
+const currentName = user.displayName || "";
+const tag = currentName.includes("#") ? currentName.split("#")[1] : user.uid.slice(0, 4);
+
+const updatedName = `${newName}#${tag}`;
+
+await updateProfile(user, { displayName: updatedName });
 alert("名前を変更しました。再読み込みで反映されます。");
 });
 
