@@ -474,8 +474,8 @@ if (text.startsWith("/mute ")) {
 
 
 // ✅ /help コマンドの追加 
-if (text === "/help") { alert(`使用可能なコマンド一覧：
-
+if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+if (text === "/help")  alert(`使用可能なコマンド一覧：
 /ban UID - 指定ユーザーをBAN
  /unban UID - BAN解除 
  /mute UID - 一時的に発言を停止（1分） 
@@ -990,7 +990,7 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 				<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
 					<p>↑まずは見てね!!↑
 						<p>・まずは挨拶をしましょう!
-							<p>・/helpと入力するとコマンド一覧がでてくるよ！
+              <p>・(管理者限定) /helpと打つとコマンド一覧が表示されます
 							<p id="online-count">今誰もいないよ~(君どうやってこのカウンターをすり抜けたんだい?): 0人</p>
 							<div id="chat-box"></div>
 
