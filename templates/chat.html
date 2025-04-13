@@ -452,6 +452,23 @@ sendBtn.disabled = false;
 return;
 }
 
+const now = Date.now();
+const mutedSnap = await get(ref(db, `mutedUsers/${user.uid}`));
+if (mutedSnap.exists() && now < mutedSnap.val()) { alert("現在コメントできません（制限中）"); return; }
+
+if (text.startsWith("/mute ")) {
+  const targetUid = text.split(" ")[1];
+  if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+    const until = Date.now() + 60 * 1000; // 1分
+    await set(ref(db, `mutedUsers/${targetUid}`), until);
+    alert(`${targetUid} を1分間ミュートしました`);
+  } else {
+    alert("ミュートの権限がありません");
+  }
+  messageInput.value = "";
+  sendBtn.disabled = false;
+  return;
+}
 
 // BAN機能
 if (text.startsWith("/ban ")) {
@@ -824,6 +841,45 @@ onValue(ref(db, "admins"), (snapshot) => {
 adminList = snapshot.val() || {};
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+document.getElementById("updateNameBtn")?.addEventListener("click", async () => {
+
+// 名前変更
+document.getElementById("updateNameBtn").addEventListener("click", async () => {
+const newName = document.getElementById("newName").value.trim();
+const user = auth.currentUser;
+if (!user || !newName) return;
+
+const baseName = newName + "#" + user.uid.slice(0, 4);
+await updateProfile(user, { displayName: baseName });
+alert("名前を変更しました。再読み込みで反映されます。");
+});
+
+// パスワード変更
+document.getElementById("updatePasswordBtn").addEventListener("click", async () => {
+const newPassword = document.getElementById("newPassword").value.trim();
+const user = auth.currentUser;
+if (!user || newPassword.length < 6) { alert("パスワードは6文字以上にしてください。"); return; } try { await
+	user.updatePassword(newPassword); alert("パスワードを変更しました。"); } catch (err) { alert("パスワード変更に失敗: " + err.message);
+  }
+});
+
+// 色変更
+document.getElementById(" updateColorBtn").addEventListener("click", async ()=> {
+	const newColor = document.getElementById("newColor").value.trim();
+	const user = auth.currentUser;
+	if (!user || !/^#[0-9a-fA-F]{3,6}$/.test(newColor)) {
+	alert("正しいカラーコードを入力してください（例: #3498db）");
+	return;
+	}
+
+	const namePart = user.displayName.split("|")[0];
+	await updateProfile(user, { displayName: `${namePart}|${newColor}` });
+	alert("表示名の色を変更しました。再読み込みで反映されます。");
+	});
+
+
+});});
 
 
   </script>
