@@ -314,25 +314,35 @@ const auth = getAuth(app);
 
 
 onAuthStateChanged(auth, async (user) => {
-// user が null なら return（先にチェック！）
 if (!user) return;
 
-// deviceId を生成（なければ）
+// ✅ deviceId を生成（初回だけ）
 if (!localStorage.getItem("deviceId")) {
 localStorage.setItem("deviceId", crypto.randomUUID());
 }
 const deviceId = localStorage.getItem("deviceId");
 
-// アク禁チェック（blockedDevices にあるか）
+// ✅ Firebase App 初期化チェック（ここ重要）
+if (!getApps().length) {
+initializeApp(firebaseConfig);
+}
+const db = getDatabase();
+const authInstance = getAuth();
+
+// ✅ アク禁チェック（blockedDevices にあればログアウト）
+try {
 const blockedSnap = await get(ref(db, `blockedDevices/${deviceId}`));
 if (blockedSnap.exists()) {
 alert("この端末はアク禁対象です。アクセスできません。");
-await signOut(auth);
+await signOut(authInstance);
 location.reload();
 return;
 }
+} catch (e) {
+console.error("アク禁チェック失敗:", e);
+}
 
-// 通常ログイン処理に続く...
+// ✅ IP保存など、他のログイン後処理が続く
 try {
 const res = await fetch("https://api.ipify.org?format=json");
 const data = await res.json();
@@ -340,10 +350,11 @@ const ip = data.ip;
 
 await set(ref(db, `users/${user.uid}`), {
 name: user.displayName || "名無し",
-ip: ip
+ip: ip,
+deviceId: deviceId
 });
 } catch (err) {
-console.error("IP取得エラー:", err);
+console.error("IP取得または保存失敗", err);
 }
 });
 
