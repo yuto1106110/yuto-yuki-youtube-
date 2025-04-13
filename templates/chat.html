@@ -439,6 +439,33 @@ signOut(auth);
 }
 
 
+const ownerUid = "fyGR6L9DvfNgaxWlkJALog0IjqG3"; // 例: const ownerUid = "abc123def456";
+if (text.startsWith("/unban ")) {
+const targetUid = text.split(" ")[1];
+const currentUser = auth.currentUser;
+
+// 管理者/主のみ許可
+const isAdmin = await get(ref(db, `admins/${currentUser.uid}`));
+const isOwner = currentUser.uid === ownerUid; // ownerUid は主のUID
+
+if (isAdmin.exists() || isOwner) {
+await remove(ref(db, `bannedUsers/${targetUid}`));
+await push(ref(db, "logs"), {
+type: "unban",
+actorUid: currentUser.uid,
+actorName: currentUser.displayName,
+targetUid,
+timestamp: Date.now(),
+detail: "コマンドによるBAN解除"
+});
+alert(`UID: ${targetUid} のBANを解除しました`);
+} else {
+alert("このコマンドは管理者のみ使用できます");
+}
+return; // 通常のメッセージ送信はスキップ
+}
+
+
     if (text === CLEAR_CHAT_PASSWORD && user.displayName === "Yuto-110") {
       await set(ref(db, "chat"), null);
       messageInput.value = "";
