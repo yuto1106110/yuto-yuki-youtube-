@@ -371,8 +371,10 @@ sendBtn.addEventListener("click", async () => {
 
   sendBtn.disabled = true;
 
+
+
   try {
-    if (text.startsWith("/delete ")) {
+if (text.startsWith("/delete ")) {
 if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
         const targetName = text.split(" ")[1];
         const snapshot = await get(ref(db, "chat"));
@@ -469,6 +471,22 @@ if (text.startsWith("/mute ")) {
   sendBtn.disabled = false;
   return;
 }
+
+
+// ✅ /help コマンドの追加 
+if (text === "/help") { alert(`使用可能なコマンド一覧：
+
+/ban UID - 指定ユーザーをBAN
+ /unban UID - BAN解除 
+ /mute UID - 一時的に発言を停止（1分） 
+ /delete UID - 指定ユーザーのコメントを全消し
+ /help - このヘルプを表示 
+/addadmin UID - 管理者に任命
+/removeadmin UID - 管理者を剥奪
+※ /ban や /mute は主と管理者のみ実行可能です
+※ /addadminと/removeadminは主しか使えません()`); messageInput.value = ""; sendBtn.disabled = false; return; }
+
+
 
 // BAN機能
 if (text.startsWith("/ban ")) {
