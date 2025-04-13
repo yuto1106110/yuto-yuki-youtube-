@@ -1160,8 +1160,11 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 
 								<button id="sendButton">送信</button>
 								<footer>©Dieu Éviter</footer>
+
 			</div>
 		</body>
+
+
 
 		<!-- 設定画面（別ページ風） -->
 		<div id="settingsPage" style="
@@ -1206,13 +1209,7 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 				<ul id="banLogItems"></ul>
 			</div><!-- ✅ 2. 設定ページを開くボタンのJS -->
 			
-	<!-- プロフィールパネル HTML -->
-	<div id="profilePanel"
-		style="display: none; position: fixed; top: 10%; right: 10px; width: 300px; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 16px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 2000;">
-		<button onclick="closeProfile()" style="float: right;">✖</button>
-		<h3>プロフィール</h3>
-		<div id="profileContent">読み込み中...</div>
-	</div>
+
       
     <script>
 				const openSettingsPageBtn = document.getElementById("openSettingsPage");
@@ -1287,10 +1284,37 @@ settingsPage.style.display = "none";
 });
 
 		</script>
-<!-- JavaScript（type="module"の中） -->
+
+
+<!-- ✅ プロフィールパネルのHTML -->
+<div id="profilePanel"
+	style="display: none; position: fixed; top: 10%; right: 10px; width: 300px; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 16px; box-shadow: 0 0 10px rgba(0,0,0,0.2); z-index: 2000;">
+	<button onclick="closeProfile()" style="float: right;">✖</button>
+	<h3>プロフィール</h3>
+	<div id="profileContent">読み込み中...</div>
+</div>
 <script type="module">
-// プロフィールパネル表示
-window.showProfile = async function (uid) {
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+const firebaseConfig = {
+  // あなたの Firebase 設定
+	apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
+	authDomain: "eviter-chat.firebaseapp.com",
+	databaseURL: "https://eviter-chat-default-rtdb.firebaseio.com",
+	projectId: "eviter-chat",
+	storageBucket: "eviter-chat.appspot.com",
+	messagingSenderId: "838666832539",
+	appId: "1:838666832539:web:3471b7b5f83a140eda543e"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// ✅ プロフィール関数（グローバルへ登録）
+async function showProfile(uid) {
   const snap = await get(ref(db, `users/${uid}`));
   if (!snap.exists()) {
     document.getElementById("profileContent").textContent = "ユーザー情報が見つかりません";
@@ -1304,16 +1328,36 @@ window.showProfile = async function (uid) {
       <p><strong>ユーザー名:</strong> ${name}</p>
       <p><strong>ID:</strong> #${idTag}</p>
       <p><strong>UID:</strong> ${uid}</p>
-      <p><strong>名前の色:</strong> <span style="color:${nameColor}; font-weight:bold">${nameColor}</span></p>
+      </span></p>
     `;
+	// コピー用ボタン
+	const copyBtn = document.createElement("button");
+	copyBtn.textContent = "コピー";
+	copyBtn.style.fontSize = "0.7em";
+	copyBtn.style.padding = "3px 6px";
+	copyBtn.classList.add("white-button");
+	
+	copyBtn.onclick = async () => {
+	try {
+	await navigator.clipboard.writeText(msg.uid);
+	copyBtn.textContent = "コピー済み!";
+	setTimeout(() => copyBtn.textContent = "コピー", 2000);
+	} catch (err) {
+	alert("コピーできませんでした: " + err);
+	}
+	};
     document.getElementById("profileContent").innerHTML = html;
   }
   document.getElementById("profilePanel").style.display = "block";
-};
+}
 
-window.closeProfile = function () {
+function closeProfile() {
   document.getElementById("profilePanel").style.display = "none";
-};
+}
+
+// ✅ 関数をグローバル化
+window.showProfile = showProfile;
+window.closeProfile = closeProfile;
 </script>
 
 
