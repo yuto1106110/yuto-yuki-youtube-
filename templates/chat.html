@@ -881,31 +881,7 @@ uidDiv.style.color = "gray";
 uidDiv.style.display = "flex";
 uidDiv.style.alignItems = "center";
 
-// UID表示
-const uidText = document.createElement("span");
-uidText.textContent = `UID: ${msg.uid}`;
-uidText.style.marginRight = "8px";
 
-// コピー用ボタン
-const copyBtn = document.createElement("button");
-copyBtn.textContent = "コピー";
-copyBtn.style.fontSize = "0.7em";
-copyBtn.style.padding = "3px 6px";
-copyBtn.classList.add("white-button");
-
-copyBtn.onclick = async () => {
-try {
-await navigator.clipboard.writeText(msg.uid);
-copyBtn.textContent = "コピー済み!";
-setTimeout(() => copyBtn.textContent = "コピー", 2000);
-} catch (err) {
-alert("コピーできませんでした: " + err);
-}
-};
-
-uidDiv.appendChild(uidText);
-uidDiv.appendChild(copyBtn);
-container.appendChild(uidDiv);
 
     const timeDiv = document.createElement("div");
     timeDiv.className = "message-time";
