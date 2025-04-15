@@ -203,7 +203,8 @@ def getInfo(request):
 
 failed = "Load Failed"
 
-def getVideoData(videoid):
+def getVideoData(videoid, request):
+    invidious_api = InvidiousAPI(request)
     t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
 
     if 'recommendedvideo' in t:
