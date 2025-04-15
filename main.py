@@ -125,9 +125,7 @@ class InvidiousAPI:
             'API': self.all,
             'checkVideo': self.check_video
         }
-async def video(request: Request):
-    invidious_api = InvidiousAPI(request)
-    # 残りの処理
+
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
