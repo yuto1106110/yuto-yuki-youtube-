@@ -95,22 +95,35 @@ def getRandomUserAgent():
   }
 
 class InvidiousAPI:
-    def __init__(self):
-        self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
-      
-        self.video = self.all['video']
-        self.playlist = self.all['playlist']
-        self.search = self.all['search']
-        self.channel = self.all['channel']
-        self.comments = self.all['comments']
+def __init__(self, request = None):
+if request and hasattr(request, 'cookies'):
+source_url = request.cookies.get("api_source")
+        else:
+source_url = None
 
-        self.check_video = False
+if not source_url:
+  source_url = os.environ.get(
+    "DEFAULT_API_SOURCE",
+    "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati"
+  )
 
-    def info(self):
-        return {
-            'API': self.all,
-            'checkVideo': self.check_video
-        }
+self.all = ast.literal_eval(
+  requests.get(source_url, headers = getRandomUserAgent(), timeout = (1.0, 0.5)).text
+)
+
+self.video = self.all['video']
+self.playlist = self.all['playlist']
+self.search = self.all['search']
+self.channel = self.all['channel']
+self.comments = self.all['comments']
+
+self.check_video = False
+
+def info(self):
+return {
+  'API': self.all,
+  'checkVideo': self.check_video
+}
 
         
 invidious_api = InvidiousAPI()
