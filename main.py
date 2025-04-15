@@ -397,7 +397,7 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 
-
+from fastapi import Request
 @app.get('/watch', response_class=HTMLResponse)
 async def video(request: Request):
     invidious_api = InvidiousAPI(request)
