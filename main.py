@@ -87,30 +87,33 @@ def gettingVideoData(videoid):
     ]
 
 
+def getRandomUserAgent():
+  user_agent = user_agents[random.randint(0, len(user_agents) - 1)]
+  print(user_agent)
+  return {
+    'User-Agent': user_agent
+  }
+
 class InvidiousAPI:
-def __init__(self):
-self.all =
-ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati',
-headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
+    def __init__(self):
+        self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
+      
+        self.video = self.all['video']
+        self.playlist = self.all['playlist']
+        self.search = self.all['search']
+        self.channel = self.all['channel']
+        self.comments = self.all['comments']
 
-self.video = self.all['video']
-self.playlist = self.all['playlist']
-self.search = self.all['search']
-self.channel = self.all['channel']
-self.comments = self.all['comments']
+        self.check_video = False
 
-self.check_video = False
-
-def info(self):
-return {
-'API': self.all,
-'checkVideo': self.check_video
-}
-
-invidious_api = InvidiousAPI()
+    def info(self):
+        return {
+            'API': self.all,
+            'checkVideo': self.check_video
+        }
 
         
-
+invidious_api = InvidiousAPI()
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
