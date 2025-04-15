@@ -414,12 +414,14 @@ logoutBtn.addEventListener("click", () => {
 });
 
 sendBtn.addEventListener("click", async () => {
-  const text = messageInput.value.trim();
+let text = messageInput.value.trim();
+text = text.replace(/^@\S+\s*/, ""); // 先頭の @名前 を削除
   const user = auth.currentUser;
   if (!text || !user) return;
 
   sendBtn.disabled = true;
-
+// @〜 で始まる名前（返信先）を削除する
+text = text.replace(/^@\\S+\\s*/, "");
 
 
   try {
