@@ -95,9 +95,22 @@ def getRandomUserAgent():
   }
 
 class InvidiousAPI:
-    def __init__(self):
-        self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
-      
+    def __init__(self, request=None):
+        if request and hasattr(request, 'cookies'):
+            source_url = request.cookies.get("api_source")
+        else:
+            source_url = None
+
+        if not source_url:
+            source_url = os.environ.get(
+                "DEFAULT_API_SOURCE",
+                "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati"
+            )
+
+        self.all = ast.literal_eval(
+            requests.get(source_url, headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text
+        )
+
         self.video = self.all['video']
         self.playlist = self.all['playlist']
         self.search = self.all['search']
@@ -112,8 +125,6 @@ class InvidiousAPI:
             'checkVideo': self.check_video
         }
 
-        
-invidious_api = InvidiousAPI()
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
@@ -388,6 +399,9 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 @app.get('/watch', response_class=HTMLResponse)
+async def video(request: Request):
+    invidious_api = InvidiousAPI(request)
+    # 残りの処理
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
     if not(checkCookie(yuki)):
