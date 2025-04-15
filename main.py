@@ -124,7 +124,10 @@ class InvidiousAPI:
             'API': self.all,
             'checkVideo': self.check_video
         }
-
+from fastapi import Request
+async def video(request: Request):
+    invidious_api = InvidiousAPI(request)
+    # 残りの処理
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
@@ -397,11 +400,8 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 
-from fastapi import Request
+
 @app.get('/watch', response_class=HTMLResponse)
-async def video(request: Request):
-    invidious_api = InvidiousAPI(request)
-    # 残りの処理
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
     if not(checkCookie(yuki)):
