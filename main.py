@@ -124,7 +124,6 @@ class InvidiousAPI:
             'API': self.all,
             'checkVideo': self.check_video
         }
-from fastapi import Request
 async def video(request: Request):
     invidious_api = InvidiousAPI(request)
     # 残りの処理
