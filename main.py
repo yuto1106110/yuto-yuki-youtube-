@@ -8,6 +8,7 @@ import os
 import subprocess
 from cache import cache
 import ast
+from fastapi import FastAPI, Response, Cookie, Request
 
 # 3 => (3.0, 1.5) => (1.5, 1)
 max_api_wait_time = (3.0, 1.5)
@@ -402,11 +403,12 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
+  # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
-    video_data = getVideoData(v)
+  invidious_api = InvidiousAPI(request)  
+  video_data = getVideoData(v)
     '''
     return [
         {
