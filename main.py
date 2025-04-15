@@ -126,7 +126,7 @@ return {
 }
 
         
-invidious_api = InvidiousAPI()
+
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
