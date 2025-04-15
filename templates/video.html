@@ -336,11 +336,109 @@
 	<div id="tool-sub-server" class="tool-sub">
 		<p><a href="javascript:closeSubTool('server')">← 戻る</a></p>
 		<h3>サーバー切り替え</h3>
-		<p>※今後実装予定</p>
-		<p>Default server</p>
-		<p>Eviter server</p>
-		<p>Invidious server-1</p>
-		<p>Wakame server-2</p>
+<div style="margin-top: 20px;">
+	<label for="apiSourceSelector">APIを変更:</label>
+	<select id="apiSourceSelector">
+    <option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati">Default server(推奨)</option>
+	<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/eviter-server">Dieu Éviter server(おすすめ)</option>
+    <option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-1">invidious server-1</option>
+    <option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-2">invidious server-2</option>
+	<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-1">wakame server-1</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-2">wakame server-2</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/mucis-api">music専用(音楽の場合読み込まれやすい)</option>
+  </select>
+	<button onclick="setAPISource()">このサーバーを使う</button>
+</div>
+
+<script>
+	function setAPISource() {
+  const selected = document.getElementById('apiSourceSelector').value;
+  document.cookie = `api_source=${selected}; path=/; max-age=604800`; // 7日間有効
+  alert('API切り替え完了！ページを再読み込みしてください');
+}
+</script>
+
+	<div id="loading">取得中...</div>
+	<table>
+		<thead>
+	
+		</thead>
+		<tbody id="results">
+			<!-- 結果を追加するよお -->
+		</tbody>
+	</table>
+	<p id="healthStatus"></p>
+	<p id="advice" style="margin-top: 1px; font-weight: ;"></p>
+	
+	<script>
+		const apiUrls = [
+{ name: "Default server(推奨)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati" },
+{ name: "Dieu Éviter server(おすすめ)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/eviter-server" },
+{ name: "invidious server-1", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-1" },
+{ name: "invidious server-2", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-2" },
+{ name: "wakame server-1", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-1" },
+{ name: "wakame server-2", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-2" },
+{ name: "music専用(音楽の場合読み込まれやすい)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/music-api"
+					},
+	    ];
+	
+	    async function checkApiHealth(api) {
+	        const startTime = performance.now();
+	        let errorMessage = '';
+	        try {
+	            const response = await fetch(api.url);
+	            const endTime = performance.now();
+	            const duration = Math.round(endTime - startTime);
+	            const status = response.ok ? "正常" : "エラー";
+	            if (!response.ok) {
+	                errorMessage = `ステータスコード: ${response.status}`;
+	            }
+	            return { name: api.name, duration, status, errorMessage };
+	        } catch (error) {
+	            const endTime = performance.now();
+	            const duration = Math.round(endTime - startTime);
+	            errorMessage = error.message || 'ネットワークエラー';
+	            return { name: api.name, duration, status: "エラー", errorMessage };
+	        }
+	    }
+	
+	    function generateAdvice(healthyCount) {
+	        const totalApis = apiUrls.length;
+	        const healthPercentage = Math.round((healthyCount / totalApis) * 100);
+	
+	        if (healthPercentage === 100) {
+	            return "APIが正常に作動しています。";
+	        } else if (healthPercentage >= 80) {
+	            return "APIがほぼ正常に作動しています。大丈夫です";
+	        } else if (healthPercentage >= 50) {
+	            return "APIが落ちている可能性があります。最新の情報をご確認ください";
+	        } else {
+	            return "APIが作動していません。エラー文と共に問い合わせに報告してください";
+	        }
+	    }
+	
+	    async function checkAllApis() {
+	        document.getElementById('loading').style.display = 'block';
+	        let healthyCount = 0;
+	
+	        for (const api of apiUrls) {
+	            const result = await checkApiHealth(api);
+	            const { name, duration, status, errorMessage } = result;
+	
+	            const row = document.createElement('tr');
+	            row.innerHTML = `<td>${name}</td><td>${duration}</td><td>${status}</td><td class="${status === 'エラー' ? 'error' : ''}">${errorMessage || '-'}</td>`;
+	            document.getElementById('results').appendChild(row);
+	
+	            if (status === "正常") healthyCount++;
+	        }
+	
+	        document.getElementById('healthStatus').innerText = `API ヘルス: ${Math.round((healthyCount / apiUrls.length) * 100)}%`;
+	        document.getElementById('advice').innerText = generateAdvice(healthyCount);
+	        document.getElementById('loading').style.display = 'none';
+	    }
+	
+	    checkAllApis();
+	</script>
 	</div>
 </div><!-- スタイル（CSS） -->
 <style>
