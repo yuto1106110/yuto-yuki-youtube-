@@ -344,6 +344,12 @@ id: idTag,
 color: colorCode || "#000000",
 deviceId: deviceId
 });
+
+if (user.isAnonymous && !localStorage.getItem("guest_uid")) {
+localStorage.setItem("guest_uid", user.uid);
+}
+
+
 });
 
 const signupBtn = document.getElementById("signupButton");
@@ -687,13 +693,16 @@ return; // 通常のメッセージ送信はスキップ
       return;
     }
 
-    await push(ref(db, "chat"), {
-      name: user.displayName,
-      uid: user.uid,
-      text: text,
-      timestamp: Date.now(),
-      readBy: []
-    });
+await push(ref(db, "chat"), {
+name: user.displayName,
+uid: user.uid,
+text: text,
+timestamp: Date.now(),
+readBy: [],
+replyTo: currentReplyKey || null
+});
+currentReplyKey = null; // 送信後はリセット
+
 
 // メッセージ数が30件を超えていたら古いものを削除
 const snapshot = await get(ref(db, "chat"));
@@ -742,6 +751,13 @@ onValue(connectionsRef, (snapshot) => {
 });
 
 const chatRef = ref(db, "chat");
+
+let adminList = {};
+onValue(ref(db, "admins"), (snapshot) => {
+adminList = snapshot.val() || {};
+});
+
+
 onValue(chatRef, (snapshot) => {
   chatBox.innerHTML = "";
   const user = auth.currentUser;
@@ -834,6 +850,18 @@ bad: (msg.bad || 0) + 1
 });
 };
 
+
+const replyBtn = document.createElement("button");
+replyBtn.textContent = "返信";
+replyBtn.classList.add("white-button");
+replyBtn.onclick = () => {
+messageInput.value = `@${namePart} `;
+messageInput.focus();
+currentReplyKey = key;
+};
+buttonDiv.appendChild(replyBtn);
+
+
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
 
@@ -847,6 +875,26 @@ messageWrapper.style.alignItems = "center";
 const textDiv = document.createElement("div");
 textDiv.className = "message-text";
 textDiv.textContent = msg.text;
+
+
+
+if (msg.replyTo) {
+const replyRef = ref(db, `chat/${msg.replyTo}`);
+get(replyRef).then(replySnap => {
+if (replySnap.exists()) {
+const replyMsg = replySnap.val();
+const replyPreview = document.createElement("div");
+replyPreview.textContent = `↪ ${replyMsg.name?.split("|")[0] || "不明"}: ${replyMsg.text?.slice(0, 30) || "..."}`;
+replyPreview.style.fontStyle = "italic";
+replyPreview.style.color = "#555";
+replyPreview.style.borderLeft = "3px solid #ccc";
+replyPreview.style.paddingLeft = "8px";
+replyPreview.style.marginBottom = "5px";
+container.insertBefore(replyPreview, container.firstChild);
+}
+});
+}
+
 
 // 組み立て
 messageWrapper.appendChild(textDiv);
@@ -878,13 +926,20 @@ uidDiv.style.alignItems = "center";
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
-const guestLoginBtn = document.getElementById("guestLoginButton");
+document.getElementById("guestLogin").addEventListener("click", async () => {
+// すでにゲストUIDが保存されていたら再ログインしない
+if (localStorage.getItem("guest_uid")) {
+alert("この端末ではすでにゲストアカウントが作成されています。");
+return;
+}
 
-guestLoginBtn.addEventListener("click", async () => {
 try {
 const cred = await signInAnonymously(auth);
+localStorage.setItem("guest_uid", cred.user.uid); // ゲストUIDを保存
+
 const guestName = "ゲスト#" + generateForcedId();
 await updateProfile(cred.user, { displayName: guestName });
+
 alert("ゲストとしてログインしました");
 } catch (error) {
 alert("ゲストログイン失敗: " + error.message);
@@ -960,10 +1015,7 @@ list.appendChild(li);
 }
 }
 
-let adminList = {};
-onValue(ref(db, "admins"), (snapshot) => {
-adminList = snapshot.val() || {};
-});
+
 
 document.addEventListener("DOMContentLoaded", () => {
 document.getElementById("updateNameBtn")?.addEventListener("click", async () => {
@@ -1008,6 +1060,8 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 
 });});
 
+let currentReplyKey = null;
+
 
   </script>
 	</head>
@@ -1026,7 +1080,7 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 
 
 
-						<p><button id="guestLoginButton">ゲストで入る</button>
+						<p><button id="guestLogin">ゲストで入る</button>
 							<details>
 								<summary>■sign up / 初めての方はこちら</summary>
 
