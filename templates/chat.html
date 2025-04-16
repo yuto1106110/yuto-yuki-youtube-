@@ -924,7 +924,9 @@ uidDiv.style.alignItems = "center";
       update(ref(db, `chat/${key}`), { readBy: updated });
     }
   });
-  chatBox.scrollTop = chatBox.scrollHeight;
+const shouldScroll =
+chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100; if (shouldScroll) {
+	chatBox.scrollTop=chatBox.scrollHeight; }
 });
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
@@ -1162,11 +1164,11 @@ let currentReplyKey = null;
 								<p id="online-count">今誰もいないよ~(君どうやってこのカウンターをすり抜けたんだい?): 0人</p>
 								<div id="chat-box"></div>
 
-<div id="charCount">0 / 100</div>
+								<div id="charCount">0 / 100</div>
 
 
 								<!-- 入力部分を textarea に変更 -->
-<textarea id="messageInput" placeholder="メッセージを入力" maxlength="100"></textarea>
+								<textarea id="messageInput" placeholder="メッセージを入力" maxlength="100"></textarea>
 
 								<label style="display: block; margin: 5px 10px;">
   <input type="checkbox" id="enterToggle" checked>
