@@ -346,40 +346,308 @@ document.getElementById('reloadButton').addEventListener('click', function() {
 });		
 		</script>
 
+<!-- ツールボタン（右固定） -->
+<button class="button-31" onclick="openToolPanel()" style="position: fixed; top: 100px; left: 20px; z-index: 1000;">ツール</button>
 
-	    
-		<label for="quality-change">画質を変更:</label>
-			<select id="quality-change">
-			{% for s in streamUrls %}
-			<option value="{{ s.url }}" data-resolution="{{ s.resolution }}">{{ s.resolution }}</option>
-			{% endfor %}
-			</select>
-<button class="btn btn-link" onclick="window.location.href='/watch?v={{ videoid }}'">通常再生に戻す</button>
-<script>
-document.getElementById('quality-change').addEventListener('change', function () {
-    const selectedUrl = this.value;
-    const video = document.getElementById('video');
+<!-- ツールパネル本体 -->
+<div id="tool-panel" class="tool-panel">
+	<!-- 閉じるボタン（右上） -->
+	<button onclick="closeToolPanel()" class="close-button">&times;</button> <!-- メインメニュー -->
+	<div id="tool-main" class="tool-content">
+		<h3>ツール一覧</h3>
+		<p><a href="/">ホーム</a></p>
+		<p><a href="/chat">Dieu Éviter Chat</a></p>
+		<p><a onclick="location.replace(location.href)">再読み込み</a></p>
+		<p><a href="javascript:openSubTool('tool')">基本ツール →</a></p>
+		<p><a href="javascript:openSubTool('embed')">再生方法の変更 →</a></p>
+		<p><a href="javascript:openSubTool('server')">サーバー切り替え →</a></p>
+		<label for="autonextpage">自動で次の動画へ<input id="autonextpage" type="checkbox" onchange="changeAutoNextPage(this)"></label><br>
+		<label for="loop">ループ再生<input id="loop" type="checkbox" onchange="changeLoop(this)"></label>
+	
+  
+		<h3><label for="quality-change">画質を変更:</label>
+		<select id="quality-change">
+					{% for s in streamUrls %}
+					<option value="{{ s.url }}" data-resolution="{{ s.resolution }}">{{ s.resolution }}</option>
+					{% endfor %}
+					</select>
+		<button class="btn btn-link" onclick="window.location.href='/watch?v={{ videoid }}'">通常再生に戻す</button>
+		<script>
+			document.getElementById('quality-change').addEventListener('change', function () {
+		    const selectedUrl = this.value;
+		    const video = document.getElementById('video');
+		
+		    // 現在の再生位置を記録
+		    const currentTime = video.currentTime;
+		    const isPlaying = !video.paused;
+		
+		    // <source> を置き換え
+		    video.innerHTML = '';
+		    const newSource = document.createElement('source');
+		    newSource.src = selectedUrl;
+		    newSource.type = 'video/mp4';
+		    video.appendChild(newSource);
+		
+		    // 再読み込みして再生位置を復元
+		    video.load();
+		    video.currentTime = currentTime;
+		
+		    if (isPlaying) {
+		        video.play().catch(err => console.error("再生失敗:", err));
+		    }
+		});
+		</script>
+  
+  
+  
+  </div>
+	<!-- サブメニュー: 埋め込みツール -->
 
-    // 現在の再生位置を記録
-    const currentTime = video.currentTime;
-    const isPlaying = !video.paused;
+	<div id="tool-sub-tool" class="tool-sub">
+		<p><a href="javascript:closeSubTool('tool')">← 戻る</a></p>
+		<h3>基本ツール</h3>
+		<p><a href="javascript:shareVideo('{{ g_videoid }}')">YouTubeのURLを取得</a></p>
+		<p><a href="javascript:Videoid('{{ g_videoid }}')">ビデオIDを取得</a></p>
+		<p><a href="javascript:location.replace('/thumbnail?v={{ videoid }}')">サムネを取得</a></p>
+		<p><a
+				href="javascript:{navigator.share({title: '現時点の動画を共有', text: '{{ video_title }}', url: location.origin + '/watch?v={{ videoid }}' + '&t=' + Math.floor(document.getElementById('player').currentTime)})}">現時点の動画を共有</a><br>
+			<p><a
+					href="javascript:{navigator.share({title: '動画を共有', text: '{{ video_title }}', url: location.href})}">動画を共有</a><br>
+				<p><a href="{{ videourls[0] }}" download="{{ video_title }}">動画をダウンロード</a><br>
 
-    // <source> を置き換え
-    video.innerHTML = '';
-    const newSource = document.createElement('source');
-    newSource.src = selectedUrl;
-    newSource.type = 'video/mp4';
-    video.appendChild(newSource);
 
-    // 再読み込みして再生位置を復元
-    video.load();
-    video.currentTime = currentTime;
+  </div>
 
-    if (isPlaying) {
-        video.play().catch(err => console.error("再生失敗:", err));
-    }
-});
-</script>
+
+					<div id="tool-sub-embed" class="tool-sub">
+						<p><a href="javascript:closeSubTool('embed')">← 戻る</a></p>
+						<h3>再生方法の変更</h3>
+						<p><a href="javascript:location.replace('/watch?v={{ videoid }}')">通常再生</a></p>
+						<p><a href="javascript:location.replace('/w?v={{ videoid }}')">画質変更モード</a></p>
+						<p><a href="javascript:location.replace('/embed?v={{ videoid }}')">公式embed再生</a></p>
+						<p><a href="javascript:location.replace('/nocookie?v={{ videoid }}')">no-cookie再生</a></p>
+						<p><a href="javascript:location.replace('/umekomi')">YouTubePlayer Demo再生</a></p>
+					</div>
+
+
+					<div id="tool-sub-server" class="tool-sub">
+						<p><a href="javascript:closeSubTool('server')">← 戻る</a></p>
+						<h3>サーバー切り替え</h3>
+						<form id="api-selector-form">
+							<label for="api-source">APIソースを選択:</label>
+							<select id="api-source" name="api_source">
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati">Default server(推奨)
+</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/eviter-server">Dieu Éviter
+	server(おすすめ)</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-1">invidious server-1
+</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-2">invidious server-2
+</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-1">wakame server-1</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-2">wakame server-2</option>
+<option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/mucis-api">music専用(音楽の場合読み込まれやすい)
+</option>
+  </select>
+							<button type="submit">切り替え</button>
+						</form>
+
+						<script>
+							document.getElementById('api-selector-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const selectedApi = document.getElementById('api-source').value;
+    document.cookie = `api_source=${selectedApi}; path=/; max-age=31536000`;
+    location.reload();
+  });
+						</script>
+						<div id="loading">取得中...</div>
+						<table>
+							<thead>
+
+							</thead>
+							<tbody id="results">
+								<!-- 結果を追加するよお -->
+							</tbody>
+						</table>
+						<p id="healthStatus"></p>
+						<p id="advice" style="margin-top: 1px; font-weight: ;"></p>
+
+						<script>
+							const apiUrls = [
+{ name: "Default server(推奨)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati" },
+{ name: "Dieu Éviter server(おすすめ)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/eviter-server" },
+{ name: "invidious server-1", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-1" },
+{ name: "invidious server-2", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/invidious-2" },
+{ name: "wakame server-1", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-1" },
+{ name: "wakame server-2", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/wakame-2" },
+{ name: "music専用(音楽の場合読み込まれやすい)", url: "https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/music-api"
+					},
+	    ];
+	
+	    async function checkApiHealth(api) {
+	        const startTime = performance.now();
+	        let errorMessage = '';
+	        try {
+	            const response = await fetch(api.url);
+	            const endTime = performance.now();
+	            const duration = Math.round(endTime - startTime);
+	            const status = response.ok ? "正常" : "エラー";
+	            if (!response.ok) {
+	                errorMessage = `ステータスコード: ${response.status}`;
+	            }
+	            return { name: api.name, duration, status, errorMessage };
+	        } catch (error) {
+	            const endTime = performance.now();
+	            const duration = Math.round(endTime - startTime);
+	            errorMessage = error.message || 'ネットワークエラー';
+	            return { name: api.name, duration, status: "エラー", errorMessage };
+	        }
+	    }
+	
+	    function generateAdvice(healthyCount) {
+	        const totalApis = apiUrls.length;
+	        const healthPercentage = Math.round((healthyCount / totalApis) * 100);
+	
+	        if (healthPercentage === 100) {
+	            return "APIが正常に作動しています。";
+	        } else if (healthPercentage >= 80) {
+	            return "APIがほぼ正常に作動しています。大丈夫です";
+	        } else if (healthPercentage >= 50) {
+	            return "APIが落ちている可能性があります。最新の情報をご確認ください";
+	        } else {
+	            return "APIが作動していません。エラー文と共に問い合わせに報告してください";
+	        }
+	    }
+	
+	    async function checkAllApis() {
+	        document.getElementById('loading').style.display = 'block';
+	        let healthyCount = 0;
+	
+	        for (const api of apiUrls) {
+	            const result = await checkApiHealth(api);
+	            const { name, duration, status, errorMessage } = result;
+	
+	            const row = document.createElement('tr');
+	            row.innerHTML = `<td>${name}</td><td>${duration}</td><td>${status}</td><td class="${status === 'エラー' ? 'error' : ''}">${errorMessage || '-'}</td>`;
+	            document.getElementById('results').appendChild(row);
+	
+	            if (status === "正常") healthyCount++;
+	        }
+	
+	        document.getElementById('healthStatus').innerText = `API ヘルス: ${Math.round((healthyCount / apiUrls.length) * 100)}%`;
+	        document.getElementById('advice').innerText = generateAdvice(healthyCount);
+	        document.getElementById('loading').style.display = 'none';
+	    }
+	
+	    checkAllApis();
+						</script>
+					</div>
+	</div><!-- スタイル（CSS） -->
+	<style>
+		.tool-panel {
+			position: fixed;
+			top: 0;
+			right: -350px;
+			width: 330px;
+			height: 100%;
+			background: #222;
+			color: #fff;
+			padding: 20px;
+			transition: right 0.3s ease;
+			box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+			z-index: 9999;
+			overflow-x: hidden;
+			overflow-y: auto;
+			box-sizing: border-box;
+		}
+
+		.tool-panel.open {
+			right: 0 !important;
+		}
+
+		.tool-content,
+		.tool-sub {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			transition: left 0.3s ease;
+			padding: 60px 20px 20px 20px;
+			box-sizing: border-box;
+		}
+
+		.tool-sub {
+			left: 100%;
+		}
+
+		.close-button {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background: transparent;
+			color: #fff;
+			border: none;
+			font-size: 20px;
+			cursor: pointer;
+			z-index: 10001;
+		}
+
+		.tool-panel a {
+			color: #4fc3f7;
+			text-decoration: none;
+		}
+
+		.tool-panel a:hover {
+			text-decoration: underline;
+		}
+
+
+		.button-31 {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			position: relative;
+			width: 110px;
+			margin: 0 auto;
+			padding: .9em 2em;
+			border: 1px solid #2589d0;
+			border-radius: 5px;
+			background-color: #fff;
+			color: #2589d0;
+			font-size: 0.7em;
+			transition: box-shadow .3s ease;
+		}
+
+		.button-31:hover {
+			box-shadow: inset #2589d0 0 0 0 2em;
+			color: #fff;
+		}
+	</style><!-- JavaScript -->
+	<script>
+		function openToolPanel() {
+    const panel = document.getElementById("tool-panel");
+    panel.classList.add("open");
+  }
+
+  function closeToolPanel() {
+    const panel = document.getElementById("tool-panel");
+    panel.classList.remove("open");
+    closeSubTool('embed');
+    closeSubTool('server');
+		closeSubTool('tool');
+  }
+
+  function openSubTool(id) {
+    document.getElementById("tool-main").style.left = "-100%";
+    document.getElementById(`tool-sub-${id}`).style.left = "0";
+  }
+
+  function closeSubTool(id) {
+    document.getElementById("tool-main").style.left = "0";
+    document.getElementById(`tool-sub-${id}`).style.left = "100%";
+  }
+	</script>
 	    
 		</body>
 </html>
