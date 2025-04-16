@@ -542,9 +542,11 @@ sendBtn.click();
 								<p>・軽量重視なので管理者機能作ってないです(管理者の人でも機能が使えない 主もだよ⸜(ˊᵕˋ)⸝)
 									<p id="online-count">今誰もいないよ~(君どうやってこのカウンターをすり抜けたんだい?): 0人</p>
 									<div id="chat-box"></div>
+<div id="charCount">0 / 100</div>
 
-									<!-- 入力部分を textarea に変更 -->
-									<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
+
+								<!-- 入力部分を textarea に変更 -->
+<textarea id="messageInput" placeholder="メッセージを入力" maxlength="100"></textarea>
 
 									<input type="checkbox" id="enterToggle" checked>
   Enterで送信（Shift+Enterで改行）
@@ -560,7 +562,12 @@ sendBtn.click();
 			        sessionStorage.setItem("reloaded", "true");
 			        setTimeout(function(){ location.reload(); }, 1000);
 			      }
-		
+
+document.getElementById("messageInput").addEventListener("input", function () {
+const len = this.value.length;
+document.getElementById("charCount").innerText = `${len} / 100`;
+});
+			
 		</script>
 	</div>
 </body>
