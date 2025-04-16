@@ -284,9 +284,20 @@ loginBtn.addEventListener("click", async () => {
   const email = generateEmail(name);
   try {
     await signInWithEmailAndPassword(auth, email, password);
-  } catch (err) {
-    alert("ログインエラー: " + err.message);
-  }
+
+
+// BANチェック
+const banRef = ref(db, `bannedUsers/${uid}`);
+const banSnap = await get(banRef);
+if (banSnap.exists()) {
+alert("あなたはBANされています。");
+await signOut(auth); // 一瞬ログイン状態になってるのでサインアウトさせる
+return;
+}
+// BANされていない場合は何もしない（ログイン続行）
+} catch (err) {
+alert("ログインエラー: " + err.message);
+}
 });
 
 logoutBtn.addEventListener("click", () => {
@@ -318,6 +329,44 @@ sendBtn.addEventListener("click", async () => {
       sendBtn.disabled = false;
       return;
     }
+
+
+// BAN機能
+if (text.startsWith("/ban ")) {
+const user = auth.currentUser;
+const targetUid = text.split(" ")[1];
+
+// 主 or 管理者のみ
+if (user.displayName === "Yuto-110") {
+await set(ref(db, `bannedUsers/${targetUid}`), true);
+// BANログを記録
+await push(ref(db, "logs"), {
+type: "ban",
+actorUid: user.uid,
+actorName: user.displayName,
+targetUid: targetUid,
+timestamp: Date.now()
+});
+alert(`ユーザー（UID: ${targetUid}）をBANしました。`);
+} else {
+alert("この操作は権限がありません。");
+}
+
+messageInput.value = "";
+sendBtn.disabled = false;
+return;
+}
+
+if (user) {
+const banRef = ref(db, `bannedUsers/${user.uid}`);
+get(banRef).then(snapshot => {
+if (snapshot.exists()) {
+alert("あなたはBANされています。");
+signOut(auth);
+}
+});
+}
+
 
     if (text.startsWith("/color ")) {
       const colorCode = text.split(" ")[1];
@@ -454,21 +503,21 @@ sendBtn.click();
 							<h3><a href="javascript:location.replace('/chat-web')">・WEBフィルター対策本部へ</a><br>
 
 
-<p>アカウントがない方は<a href="javascript:location.replace('/chat')">こちら</a>へ
-								<details>
-									<summary>■login / すでに登録されている方はこちら</summary>
-									<p>
-										<div id="login">
-											<h3>ログイン</h3>
-											<h5>・ここから再ログインできます。</h5>
-											<h5>・名前,パスワードの間違が無いか確認してください。</h5>
-											<h5>・なりすまし等の迷惑行為はおやめください。</h5>
-											<input type="text" id="loginName" placeholder="名前">
-											<input type="password" id="loginPassword" placeholder="パスワード">
-											<button id="loginButton">ログイン</button>
+								<p>アカウントがない方は<a href="javascript:location.replace('/chat')">こちら</a>へ
+									<details>
+										<summary>■login / すでに登録されている方はこちら</summary>
+										<p>
+											<div id="login">
+												<h3>ログイン</h3>
+												<h5>・ここから再ログインできます。</h5>
+												<h5>・名前,パスワードの間違が無いか確認してください。</h5>
+												<h5>・なりすまし等の迷惑行為はおやめください。</h5>
+												<input type="text" id="loginName" placeholder="名前">
+												<input type="password" id="loginPassword" placeholder="パスワード">
+												<button id="loginButton">ログイン</button>
 
-										</div>
-                   
+											</div>
+
 
 	</div>
 
@@ -482,27 +531,27 @@ sendBtn.click();
 		<body>
 			<div id="chat-section" style="display:none;">
 
-					<p><a href="/chat">通常版へ</a></li>
-				<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
-				<h2>Dieu Éviter Chat</h2>
-				<h3>~ 雑談部屋 (軽量版)~</h3>
+				<p><a href="/chat">通常版へ</a></li>
+					<button style="position: absolute; right: 10px;" id="logoutButton">ログアウト</button>
+					<h2>Dieu Éviter Chat</h2>
+					<h3>~ 雑談部屋 (軽量版)~</h3>
 
-				<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
-					<p>↑まずは見てね!!↑
-						<p>・まずは挨拶をしましょう!
-              <p>・軽量重視なので管理者機能作ってないです(管理者の人でも機能が使えない 主もだよ⸜(ˊᵕˋ)⸝)
-							<p id="online-count">今誰もいないよ~(君どうやってこのカウンターをすり抜けたんだい?): 0人</p>
-							<div id="chat-box"></div>
+					<p><a href="/chat-use">使い方 / ヘルプはこちら</a></li>
+						<p>↑まずは見てね!!↑
+							<p>・まずは挨拶をしましょう!
+								<p>・軽量重視なので管理者機能作ってないです(管理者の人でも機能が使えない 主もだよ⸜(ˊᵕˋ)⸝)
+									<p id="online-count">今誰もいないよ~(君どうやってこのカウンターをすり抜けたんだい?): 0人</p>
+									<div id="chat-box"></div>
 
-							<!-- 入力部分を textarea に変更 -->
-							<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
+									<!-- 入力部分を textarea に変更 -->
+									<textarea id="messageInput" placeholder="メッセージを入力"></textarea>
 
-<input type="checkbox" id="enterToggle" checked>
+									<input type="checkbox" id="enterToggle" checked>
   Enterで送信（Shift+Enterで改行）
 </label>
 
-							<button id="sendButton">送信</button>
-							<footer>©Dieu Éviter</footer>
+									<button id="sendButton">送信</button>
+									<footer>©Dieu Éviter</footer>
 			</div>
 		</body>
 		<!-- ページが一度だけ自動リロード -->
@@ -512,8 +561,8 @@ sendBtn.click();
 			        setTimeout(function(){ location.reload(); }, 1000);
 			      }
 		
-		</script>  
-  </div>
+		</script>
+	</div>
 </body>
 
 </html>
