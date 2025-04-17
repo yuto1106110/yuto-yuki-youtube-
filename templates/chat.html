@@ -773,6 +773,9 @@ onValue(chatRef, (snapshot) => {
     const container = document.createElement("div");
     container.className = "message-container";
 
+
+
+
 const nameSpan = document.createElement("div");
 nameSpan.className = "message-name";
 
@@ -824,6 +827,32 @@ return;
 }
 
 
+function addReportButton(container, msg, key) {
+const reportBtn = document.createElement("button");
+reportBtn.textContent = `🚨報告 (${msg.reports || 0})`;
+reportBtn.classList.add("white-button");
+
+reportBtn.style.position = "absolute";
+reportBtn.style.top = "6px";
+reportBtn.style.right = "6px";
+reportBtn.style.zIndex = "10";
+
+reportBtn.onclick = () => {
+const now = Date.now();
+const lastReported = localStorage.getItem(`lastReport-${key}`) || 0;
+if (now - lastReported < 60000) { alert("同じメッセージには1分に1回しか通報できません。"); return; } localStorage.setItem(`lastReport-${key}`,
+	now); const newReports=(msg.reports || 0) + 1; if (!msg.timestamp) { msg.timestamp=Date.now(); } update(ref(db,
+	`chat/${key}`), { reports: newReports }).then(()=> {
+	saveReportHistory(msg, newReports);
+	if (newReports >= 3) {
+	deleteMessage(key);
+	}
+	});
+	};
+
+	container.style.position = "relative";
+	container.appendChild(reportBtn);
+	}
 
 
 // --- いいね＆低評価ボタン ---
@@ -862,9 +891,11 @@ messageInput.value = `@${namePart} `;
 messageInput.focus();
 currentReplyKey = key;
 };
+
+
+
+
 buttonDiv.appendChild(replyBtn);
-
-
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
 
@@ -898,11 +929,11 @@ container.insertBefore(replyPreview, container.firstChild);
 });
 }
 
-
 // 組み立て
 messageWrapper.appendChild(textDiv);
 messageWrapper.appendChild(buttonDiv);
 container.appendChild(messageWrapper);
+
 
 const uidDiv = document.createElement("div");
 uidDiv.style.fontSize = "0.75em";
@@ -916,6 +947,8 @@ uidDiv.style.alignItems = "center";
     timeDiv.className = "message-time";
     timeDiv.textContent = new Date(msg.timestamp).toLocaleString();
     container.appendChild(timeDiv);
+
+addReportButton(container, msg, key);
 
     chatBox.appendChild(container);
 
@@ -1067,6 +1100,8 @@ document.getElementById(" updateColorBtn").addEventListener("click", async ()=> 
 
 let currentReplyKey = null;
 
+
+
   </script>
 	</head>
 
@@ -1196,6 +1231,7 @@ let currentReplyKey = null;
 ">
 			<button id="closeSettings" style="position: absolute; top: 10px; right: 70px;">✖ 閉じる</button>
 			<h2>設定ページ</h2>
+
 			<div style="margin-top: 20px;">
 				<h4>名前変更</h4>
 				<input type="text" id="newName" placeholder="新しい名前">
@@ -1359,9 +1395,140 @@ document.getElementById("charCount").innerText = `${len} / 100`;
 
 </script>
 
-
-
 	</div>
+
+
+<!-- 通報履歴表示ボタン -->
+<button onclick="toggleReportSection()">通報履歴を表示</button>
+<div id="report-section" style="display: none;"></div>
+
+<!-- Firebase + 通報処理 -->
+<script type="module">
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, onValue, set, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
+    authDomain: "eviter-chat.firebaseapp.com",
+    databaseURL: "https://eviter-chat-default-rtdb.firebaseio.com",
+    projectId: "eviter-chat",
+    storageBucket: "eviter-chat.appspot.com",
+    messagingSenderId: "838666832539",
+    appId: "1:838666832539:web:3471b7b5f83a140eda543e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  // 管理者リスト（必要に応じて追加）
+  const adminList = {
+    "admin-uid-1": true,
+    "admin-uid-2": true,
+  };
+
+  // 通報履歴表示・非表示
+  window.toggleReportSection = function () {
+    const section = document.getElementById("report-section");
+    if (section.style.display === "none") {
+      section.style.display = "block";
+      showReportHistory();
+    } else {
+      section.style.display = "none";
+    }
+  };
+
+// 通報履歴保存
+function saveReportHistory(msg, count) {
+const historyRef = ref(db, `reportHistory/${msg.timestamp}`);
+console.log("通報履歴を保存します", msg.text, count); // ← デバッグログ追加
+set(historyRef, {
+text: msg.text,
+name: msg.name,
+uid: msg.uid,
+reports: count,
+timestamp: msg.timestamp
+}).then(() => {
+console.log("通報履歴保存完了");
+}).catch((e) => {
+console.error("通報履歴保存失敗", e); // ← 失敗したらログ出す
+});
+}
+
+  // メッセージ削除
+  function deleteMessage(key) {
+    remove(ref(db, `chat/${key}`));
+  }
+
+  // BAN処理
+  function banUser(uid) {
+    update(ref(db, `bannedUsers/${uid}`), { banned: true });
+    alert("ユーザーをBANしました");
+  }
+
+  // 通報履歴表示
+function showReportHistory() {
+const user = auth.currentUser;
+if (!user) return;
+
+const isOwner = user.displayName === "Yuto-110";
+const isAdmin = adminList && Object.keys(adminList).includes(user.uid);
+if (!isOwner && !isAdmin) return;
+
+const historyRef = ref(db, "reportHistory");
+const section = document.getElementById("report-section");
+section.innerHTML = "<h3>通報履歴</h3>";
+
+onValue(historyRef, (snapshot) => {
+section.innerHTML = "<h3>通報履歴</h3>";
+
+const data = snapshot.val(); // ← .val()で中身を取り出す
+if (!data) {
+section.innerHTML += "<p>通報履歴はありません。</p>";
+return;
+}
+
+Object.entries(data).forEach(([key, item]) => {
+const div = document.createElement("div");
+div.innerHTML = `
+<strong>${item.name}</strong> (${item.uid})<br>
+      通報数: ${item.reports}<br>
+      内容: ${item.text}<br>
+    `;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "即削除";
+    deleteBtn.onclick = () => deleteMessage(key);
+
+    const banBtn = document.createElement("button");
+    banBtn.textContent = "BAN";
+    banBtn.onclick = () => banUser(item.uid);
+
+    const historyDeleteBtn = document.createElement("button");
+    historyDeleteBtn.textContent = "履歴を削除";
+    historyDeleteBtn.onclick = () => remove(ref(db, `reportHistory/${key}`));
+
+    div.appendChild(deleteBtn);
+    div.appendChild(banBtn);
+    div.appendChild(historyDeleteBtn);
+    div.appendChild(document.createElement("hr"));
+    section.appendChild(div);
+  });
+});
+  }
+
+
+
+  // 認証チェック（ログイン後に必要処理）
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("ログイン中: ", user.displayName);
+    } else {
+      console.log("ログアウト中");
+    }
+  });
+</script>
 	<script src="//accaii.com/yuto110/script.js" async></script>
 	<noscript><img src="//accaii.com/yuto110/script?guid=on"></noscript>
 
