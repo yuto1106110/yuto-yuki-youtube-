@@ -8,8 +8,6 @@ import os
 import subprocess
   from cache import cache
 import ast
-import requests
-import time
 
 # 3 => (3.0, 1.5) => (1.5, 1)
 max_api_wait_time = (3.0, 1.5)
@@ -33,13 +31,6 @@ user_agents = [
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15',
   'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1'
 ]
-
-def getRandomUserAgent():
-user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-print(user_agent)
-return {
-  'User-Agent': user_agent
-}
 
 
 def gettingVideoData(videoid):
@@ -105,32 +96,7 @@ return {
 
 class InvidiousAPI:
 def __init__(self):
-self.instances = [
-  "https://yewtu.be",
-  "https://inv.us.projectsegfau.lt",
-  "https://invidious.tiekoetter.com",
-  "https://vid.puffyan.us",
-  "https://invid-api.poketube.fun/",
-  "https://invidious.f5.si/",
-  "https://eu-proxy.poketube.fun/",
-  "https://lekker.gay/",
-  "https://invidious.nietzospannend.nl/",
-  "https://pol1.iv.ggtyler.dev/",
-  "https://youtube.mosesmang.com/",
-  "https://redirect.invidious.io/",
-  "https://invidious.0011.lt/",
-  "https://invidious.snopyta.org"
-]
-self.timeout = (1.0, 0.5)
-self.base_url = self._select_fast_instance()
-
-self.all = {
-  'video': f"{self.base_url}/api/v1/videos",
-  'playlist': f"{self.base_url}/api/v1/playlists",
-  'search': f"{self.base_url}/api/v1/search",
-  'channel': f"{self.base_url}/api/v1/channels",
-  'comments': f"{self.base_url}/api/v1/comments"
-        }
+self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers = getRandomUserAgent(), timeout = (1.0, 0.5)).text)
 
 self.video = self.all['video']
 self.playlist = self.all['playlist']
@@ -140,37 +106,13 @@ self.comments = self.all['comments']
 
 self.check_video = False
 
-def _select_fast_instance(self):
-print("Invidious API インスタンスをテスト中…")
-best_instance = None
-best_time = float("inf")
-
-for url in self.instances:
-  try:
-start = time.time()
-res = requests.get(f"{url}/api/v1/stats", headers = getRandomUserAgent(), timeout = self.timeout)
-duration = time.time() - start
-if res.ok and duration < best_time:
-best_instance = url
-best_time = duration
-print(f"✓ {url} - OK（{round(duration, 2)}秒）")
-except Exception as e:
-print(f"× {url} - エラー：{e}")
-
-if best_instance is None:
-raise Exception("使用可能な Invidious API が見つかりませんでした。")
-
-print(f"→ 選択されたインスタンス：{best_instance}")
-return best_instance
-
 def info(self):
 return {
   'API': self.all,
-  'base': self.base_url,
   'checkVideo': self.check_video
 }
 
-# 初期化（この行もそのままでOK）
+
 invidious_api = InvidiousAPI()
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers = getRandomUserAgent()).text.rstrip()
