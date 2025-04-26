@@ -34,7 +34,7 @@ user_agents = [
 
 
 def gettingVideoData(videoid):
-    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", video_api.video))
 
     if 'recommendedvideo' in t:
         recommended_videos = t["recommendedvideo"]
@@ -231,7 +231,7 @@ def requestAPI(path, api_urls):
             res = requests.get(api + 'api/v1' + path, headers=getRandomUserAgent(), timeout=max_api_wait_time)
             if res.status_code == requests.codes.ok and isJSON(res.text):
                 
-                if invidious_api.check_video and path.startswith('/video/'):
+                if video_api.check_video and path.startswith('/video/'):
                     # 動画の有無をチェックする場合
                     video_res = requests.get(json.loads(res.text)['formatStreams'][0]['url'], headers=getRandomUserAgent(), timeout=(3.0, 0.5))
                     if not 'video' in video_res.headers['Content-Type']:
@@ -244,7 +244,7 @@ def requestAPI(path, api_urls):
                     updateList(api_urls, api)
                     continue
 
-                print(f"Success({invidious_api.check_video})({path.split('/')[1].split('?')[0]}): {api}")
+                print(f"Success({video_api.check_video})({path.split('/')[1].split('?')[0]}): {api}")
                 return res.text
 
             elif isJSON(res.text):
@@ -269,7 +269,7 @@ def getInfo(request):
 failed = "Load Failed"
 
 def getVideoData(videoid):
-    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", video_api.video))
 
     if 'recommendedvideo' in t:
         recommended_videos = t["recommendedvideo"]
@@ -351,12 +351,12 @@ def getSearchData(q, page):
 
     # "datas"というのは気持ち悪いかもしれないが、複数のデータが入っていると明示できるという
     # メリットの方がコードを書く上では大きい
-    datas_dict = json.loads(requestAPI(f"/search?q={urllib.parse.quote(q)}&page={page}&hl=jp", invidious_api.search))
+    datas_dict = json.loads(requestAPI(f"/search?q={urllib.parse.quote(q)}&page={page}&hl=jp", video_api.search))
     return [formatSearchData(data_dict) for data_dict in datas_dict]
 
 
 def getChannelData(channelid):
-    t = json.loads(requestAPI(f"/channels/{urllib.parse.quote(channelid)}", invidious_api.channel))
+    t = json.loads(requestAPI(f"/channels/{urllib.parse.quote(channelid)}", video_api.channel))
     if 'latestvideo' in t:
         latest_videos = t['latestvideo']
     elif 'latestVideos' in t:
@@ -398,17 +398,17 @@ def getChannelData(channelid):
     ]
 
 def getPlaylistData(listid, page):
-    t = json.loads(requestAPI(f"/playlists/{urllib.parse.quote(listid)}?page={urllib.parse.quote(page)}", invidious_api.playlist))["videos"]
+    t = json.loads(requestAPI(f"/playlists/{urllib.parse.quote(listid)}?page={urllib.parse.quote(page)}", video_api.playlist))["videos"]
     return [{"title": i["title"], "id": i["videoId"], "authorId": i["authorId"], "author": i["author"], "type": "video"} for i in t]
 
 def getCommentsData(videoid):
-    t = json.loads(requestAPI(f"/comments/{urllib.parse.quote(videoid)}?hl=jp", invidious_api.comments))["comments"]
+    t = json.loads(requestAPI(f"/comments/{urllib.parse.quote(videoid)}?hl=jp", video_api.comments))["comments"]
     return [{"author": i["author"], "authoricon": i["authorThumbnails"][-1]["url"], "authorid": i["authorId"], "body": i["contentHtml"].replace("\n", "<br>")} for i in t]
 
 '''
 使われていないし戻り値も設定されていないためコメントアウト
 def get_replies(videoid, key):
-    t = json.loads(requestAPI(f"/comments/{videoid}?hmac_key={key}&hl=jp&format=html", invidious_api.comments))["contentHtml"]
+    t = json.loads(requestAPI(f"/comments/{videoid}?hmac_key={key}&hl=jp&format=html", video_api.comments))["contentHtml"]
 '''
 
 
@@ -783,13 +783,13 @@ def viewlist(response: Response, request: Request, yuki: Union[str] = Cookie(Non
         return redirect("/")
     response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
     
-    return template("info.html", {"request": request, "Youtube_API": invidious_api.video[0], "Channel_API": invidious_api.channel[0], "comments": invidious_api.comments[0]})
+    return template("info.html", {"request": request, "Youtube_API": video_api.video[0], "Channel_API": video_api.channel[0], "comments": video_api.comments[0]})
 
 @app.get("/reset", response_class=PlainTextResponse)
 def home():
-    global url, invidious_api
+    global url, video_api
     url = requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent()).text.rstrip()
-    invidious_api = InvidiousAPI()
+    video_api = VideoAPI()
     return 'Success'
 
 @app.get("/version", response_class=PlainTextResponse)
@@ -798,7 +798,7 @@ def displayVersion():
 
 @app.get("/api/update", response_class=PlainTextResponse)
 def updateAllAPI():
-  global invidious_api
+  global video_api
   return str((invidious_api := InvidiousAPI()).info())
 
 @app.get("/api/{api_name}", response_class=PlainTextResponse)
@@ -806,22 +806,22 @@ def displayAPI(api_name: str):
   
   match api_name:
     case 'all':
-      api_value = invidious_api.info()
+      api_value = video_api.info()
         
     case 'video':
-      api_value = invidious_api.video
+      api_value = video_api.video
   
     case 'search':
-      api_value = invidious_api.search
+      api_value = video_api.search
   
     case 'channel':
-      api_value = invidious_api.channel
+      api_value = video_api.channel
   
     case 'comments':
-      api_value = invidious_api.comments
+      api_value = video_api.comments
 
     case 'playlist':
-      api_value = invidious_api.playlist
+      api_value = video_api.playlist
       
     case _:
       api_value = f'API Name Error: {api_name}'
@@ -833,19 +833,19 @@ def displayAPI(api_name: str):
 def rotateAPI(api_name: str):
   match api_name:
     case 'video':
-      updateList(invidious_api.video, invidious_api.video[0])
+      updateList(video_api.video, video_api.video[0])
   
     case 'search':
-      updateList(invidious_api.search, invidious_api.search[0])
+      updateList(video_api.search, video_api.search[0])
   
     case 'channel':
-      updateList(invidious_api.channel, invidious_api.channel[0])
+      updateList(video_api.channel, video_api.channel[0])
   
     case 'comments':
-      updateList(invidious_api.comments, invidious_api.comments[0])
+      updateList(video_api.comments, video_api.comments[0])
 
     case 'playlist':
-      updateList(invidious_api.playlist, invidious_api.playlist[0])
+      updateList(video_api.playlist, video_api.playlist[0])
 
     case _:
       return f'API Name Error: {api_name}'
@@ -854,13 +854,13 @@ def rotateAPI(api_name: str):
     
 @app.get("/api/video/check", response_class=PlainTextResponse)
 def displayCheckVideo():
-    return str(invidious_api.check_video)
+    return str(video_api.check_video)
 
 @app.get("/api/video/check/toggle", response_class=PlainTextResponse)
 def toggleVideoCheck():
-    global invidious_api
-    invidious_api.check_video = not invidious_api.check_video
-    return f'{not invidious_api.check_video} to {invidious_api.check_video}'
+    global video_api
+    video_api.check_video = not invidious_api.check_video
+    return f'{not video_api.check_video} to {video_api.check_video}'
   
 @app.get("/shadow", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
