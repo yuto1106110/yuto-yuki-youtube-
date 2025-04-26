@@ -94,26 +94,103 @@ def getRandomUserAgent():
     'User-Agent': user_agent
   }
 
-class InvidiousAPI:
-    def __init__(self):
-        self.all = ast.literal_eval(requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent(), timeout=(1.0, 0.5)).text)
-      
-        self.video = self.all['video']
-        self.playlist = self.all['playlist']
-        self.search = self.all['search']
-        self.channel = self.all['channel']
-        self.comments = self.all['comments']
 
-        self.check_video = False
+
+import requests
+import random
+import concurrent.futures
+
+def getRandomUserAgent():
+    return {
+        'User-Agent': random.choice([
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+            'Mozilla/5.0 (X11; Linux x86_64)'
+        ])
+    }
+
+API_LIST = [
+    {
+        'name': 'Invidious JP',
+        'type': 'invidious',
+        'base': 'https://invidious.snopyta.org'
+    },
+    {
+        'name': 'Piped DE',
+        'type': 'piped',
+        'base': 'https://piped.kavin.rocks'
+    },
+    {
+        'name': 'Invidious US',
+        'type': 'invidious',
+        'base': 'https://invidious.osi.kr'
+    },
+    {
+        'name': 'Piped US',
+        'type': 'piped',
+        'base': 'https://piped.video.google.com'  # ダミー（適宜変更OK）
+    }
+]
+
+class VideoAPI:
+    def __init__(self):
+        self.api_info = self.select_fastest_api()
+        if not self.api_info:
+            raise Exception("すべてのAPIに接続失敗しました")
+
+        base = self.api_info['base']
+        typ = self.api_info['type']
+
+        if typ == 'invidious':
+            self.video = f"{base}/api/v1/videos/"
+            self.search = f"{base}/api/v1/search"
+            self.channel = f"{base}/api/v1/channels/"
+            self.comments = f"{base}/api/v1/comments/"
+            self.playlist = f"{base}/api/v1/playlists/"
+        elif typ == 'piped':
+            self.video = f"{base}/streams/"
+            self.search = f"{base}/search"
+            self.channel = f"{base}/channels/"
+            self.comments = f"{base}/comments/"
+            self.playlist = f"{base}/playlists/"  # pipedは無効な場合もあるから注意
+
+    def check_api(self, api):
+        try:
+            if api['type'] == 'invidious':
+                test_url = f"{api['base']}/api/v1/videos/dQw4w9WgXcQ"
+            elif api['type'] == 'piped':
+                test_url = f"{api['base']}/streams/dQw4w9WgXcQ"
+
+            res = requests.get(test_url, headers=getRandomUserAgent(), timeout=(2, 1))
+            if res.status_code == 200:
+                return api
+        except:
+            return None
+
+    def select_fastest_api(self):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = [executor.submit(self.check_api, api) for api in API_LIST]
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                if result:
+                    return result
+        return None
 
     def info(self):
         return {
-            'API': self.all,
-            'checkVideo': self.check_video
+            'type': self.api_info['type'],
+            'base': self.api_info['base'],
+            'video': self.video,
+            'search': self.search,
+            'channel': self.channel,
+            'comments': self.comments,
+            'playlist': self.playlist
         }
 
-        
-invidious_api = InvidiousAPI()
+# インスタンス化
+video_api = VideoAPI()
+
+
 
 url = requests.get('https://raw.githubusercontent.com/LunaKamituki/Yuki-BBS-Server-URL/refs/heads/main/server.txt', headers=getRandomUserAgent()).text.rstrip()
 
