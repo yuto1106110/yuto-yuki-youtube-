@@ -15,55 +15,60 @@ max_api_wait_time = (3.0, 1.5)
 max_time = 5
 
 user_agents = [
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3864.0 Safari/537.36',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) Gecko/20100101 Firefox/62.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:67.0) Gecko/20100101 Firefox/67.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:68.0) Gecko/20100101 Firefox/68.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15',
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1'
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.6 Safari/605.1.15',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100
+Safari/537.36',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3864.0
+Safari/537.36',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:62.0) Gecko/20100101 Firefox/62.0',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:67.0) Gecko/20100101 Firefox/67.0',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:68.0) Gecko/20100101 Firefox/68.0',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36
+Edge/17.17134',
+'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36
+Edg/94.0.992.31',
+'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Safari/605.1.15',
+'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0
+Mobile/15E148 Safari/604.1'
 ]
 
 
 def gettingVideoData(videoid):
-    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", video_api.video))
+t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
 
-    if 'recommendedvideo' in t:
-        recommended_videos = t["recommendedvideo"]
-    elif 'recommendedVideos' in t:
-        recommended_videos = t["recommendedVideos"]
-    else:
-        recommended_videos = {
-            "videoId": "failed",
-            "title": "failed",
-            "authorId": "failed",
-            "author": "failed",
-            "lengthSeconds": 0,
-            "viewCountText": "Load Failed"
-        }
+if 'recommendedvideo' in t:
+recommended_videos = t["recommendedvideo"]
+elif 'recommendedVideos' in t:
+recommended_videos = t["recommendedVideos"]
+else:
+recommended_videos = {
+"videoId": "failed",
+"title": "failed",
+"authorId": "failed",
+"author": "failed",
+"lengthSeconds": 0,
+"viewCountText": "Load Failed"
+}
 
-    adaptive = t.get('adaptiveFormats', [])
-    streamUrls = [
-        {
-            'url': stream['url'],
-            'resolution': stream['resolution']
-        }
-        for stream in adaptive
-        if stream.get('container') == 'webm' and stream.get('resolution')
-    ]
+adaptive = t.get('adaptiveFormats', [])
+streamUrls = [
+{
+'url': stream['url'],
+'resolution': stream['resolution']
+}
+for stream in adaptive
+if stream.get('container') == 'webm' and stream.get('resolution')
+]
 
-    return [
-        {
-            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
-            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
+return [
+{
+'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
+'description_html': t["descriptionHtml"].replace("\n", "<br>"),
             'title': t["title"],
             'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"])),
             'author_id': t["authorId"],
@@ -188,7 +193,7 @@ class VideoAPI:
         }
 
 # インスタンス化
-video_api = VideoAPI()
+invidious_api = InvidiousAPI()
 
 
 
@@ -221,17 +226,17 @@ def updateList(list, str):
 
 def requestAPI(path, api_urls):
     starttime = time.time()
-    
+
     for api in api_urls:
         if  time.time() - starttime >= max_time - 1:
             break
-            
+
         try:
             print(api + 'api/v1' + path)
             res = requests.get(api + 'api/v1' + path, headers=getRandomUserAgent(), timeout=max_api_wait_time)
             if res.status_code == requests.codes.ok and isJSON(res.text):
-                
-                if video_api.check_video and path.startswith('/video/'):
+
+                if invidious_api.check_video and path.startswith('/video/'):
                     # 動画の有無をチェックする場合
                     video_res = requests.get(json.loads(res.text)['formatStreams'][0]['url'], headers=getRandomUserAgent(), timeout=(3.0, 0.5))
                     if not 'video' in video_res.headers['Content-Type']:
@@ -244,7 +249,7 @@ def requestAPI(path, api_urls):
                     updateList(api_urls, api)
                     continue
 
-                print(f"Success({video_api.check_video})({path.split('/')[1].split('?')[0]}): {api}")
+                print(f"Success({invidious_api.check_video})({path.split('/')[1].split('?')[0]}): {api}")
                 return res.text
 
             elif isJSON(res.text):
@@ -259,7 +264,7 @@ def requestAPI(path, api_urls):
             # 例外等が発生した場合
             print(f"Err0r: {api}")
             updateList(api_urls, api)
-    
+
     raise APITimeoutError("APIがタイムアウトしました")
 
 
@@ -269,7 +274,7 @@ def getInfo(request):
 failed = "Load Failed"
 
 def getVideoData(videoid):
-    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", video_api.video))
+    t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
 
     if 'recommendedvideo' in t:
         recommended_videos = t["recommendedvideo"]
@@ -324,7 +329,7 @@ def getSearchData(q, page):
                 "length": str(datetime.timedelta(seconds=data_dict["lengthSeconds"])),
                 "view_count_text": data_dict["viewCountText"]
             }
-            
+
         elif data_dict["type"] == "playlist":
             return {
                     "type": "playlist",
@@ -333,7 +338,7 @@ def getSearchData(q, page):
                     "thumbnail": data_dict["playlistThumbnail"] if 'playlistThumbnail' in data_dict else failed,
                     "count": data_dict["videoCount"] if 'videoCount' in data_dict else failed
                 }
-            
+
         elif data_dict["authorThumbnails"][-1]["url"].startswith("https"):
             return {
                 "type": "channel",
@@ -351,12 +356,12 @@ def getSearchData(q, page):
 
     # "datas"というのは気持ち悪いかもしれないが、複数のデータが入っていると明示できるという
     # メリットの方がコードを書く上では大きい
-    datas_dict = json.loads(requestAPI(f"/search?q={urllib.parse.quote(q)}&page={page}&hl=jp", video_api.search))
+    datas_dict = json.loads(requestAPI(f"/search?q={urllib.parse.quote(q)}&page={page}&hl=jp", invidious_api.search))
     return [formatSearchData(data_dict) for data_dict in datas_dict]
 
 
 def getChannelData(channelid):
-    t = json.loads(requestAPI(f"/channels/{urllib.parse.quote(channelid)}", video_api.channel))
+    t = json.loads(requestAPI(f"/channels/{urllib.parse.quote(channelid)}", invidious_api.channel))
     if 'latestvideo' in t:
         latest_videos = t['latestvideo']
     elif 'latestVideos' in t:
@@ -371,8 +376,8 @@ def getChannelData(channelid):
             "viewCountText": "0",
             "lengthSeconds": "0"
         }
-    
-    
+
+
     return [
         [
             {
@@ -398,17 +403,17 @@ def getChannelData(channelid):
     ]
 
 def getPlaylistData(listid, page):
-    t = json.loads(requestAPI(f"/playlists/{urllib.parse.quote(listid)}?page={urllib.parse.quote(page)}", video_api.playlist))["videos"]
+    t = json.loads(requestAPI(f"/playlists/{urllib.parse.quote(listid)}?page={urllib.parse.quote(page)}", invidious_api.playlist))["videos"]
     return [{"title": i["title"], "id": i["videoId"], "authorId": i["authorId"], "author": i["author"], "type": "video"} for i in t]
 
 def getCommentsData(videoid):
-    t = json.loads(requestAPI(f"/comments/{urllib.parse.quote(videoid)}?hl=jp", video_api.comments))["comments"]
+    t = json.loads(requestAPI(f"/comments/{urllib.parse.quote(videoid)}?hl=jp", invidious_api.comments))["comments"]
     return [{"author": i["author"], "authoricon": i["authorThumbnails"][-1]["url"], "authorid": i["authorId"], "body": i["contentHtml"].replace("\n", "<br>")} for i in t]
 
 '''
 使われていないし戻り値も設定されていないためコメントアウト
 def get_replies(videoid, key):
-    t = json.loads(requestAPI(f"/comments/{videoid}?hmac_key={key}&hl=jp&format=html", video_api.comments))["contentHtml"]
+    t = json.loads(requestAPI(f"/comments/{videoid}?hmac_key={key}&hl=jp&format=html", invidious_api.comments))["contentHtml"]
 '''
 
 
@@ -449,15 +454,16 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 from fastapi.templating import Jinja2Templates
 template = Jinja2Templates(directory='templates').TemplateResponse
 
-no_robot_meta_tag = '<meta name="robots" content="noindex,nofollow">'
+no_robot_meta_tag = '
+<meta name="robots" content="noindex,nofollow">'
 
 @app.get("/", response_class=HTMLResponse)
 def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
-    if checkCookie(yuki):
-        response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
-        return template("home.html", {"request": request})
-    print(checkCookie(yuki))
-    return redirect("/genesis")
+if checkCookie(yuki):
+response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
+return template("home.html", {"request": request})
+print(checkCookie(yuki))
+return redirect("/genesis")
 
 
 
@@ -465,17 +471,18 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 @app.get('/watch', response_class=HTMLResponse)
-def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
-    if not(checkCookie(yuki)):
-        return redirect("/")
-    response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
-    video_data = getVideoData(v)
-    '''
-    return [
-        {
-            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
-            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
+def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] =
+Cookie(None)):
+# v: video_id
+if not(checkCookie(yuki)):
+return redirect("/")
+response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
+video_data = getVideoData(v)
+'''
+return [
+{
+'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
+'description_html': t["descriptionHtml"].replace("\n", "<br>"),
             'title': t["title"],
             'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"]))
             'author_id': t["authorId"],
@@ -741,7 +748,7 @@ def write_bbs(request: Request, name: str = "", message: str = "", seed:Union[st
         return redirect("/")
     if 'Google-Apps-Script' in str(request.scope["headers"][1][1]):
         raise UnallowedBot("GASのBotは許可されていません")
-      
+
     params = {
       'name': urllib.parse.quote(name),
       'message': urllib.parse.quote(message),
@@ -751,18 +758,18 @@ def write_bbs(request: Request, name: str = "", message: str = "", seed:Union[st
       'info': urllib.parse.quote(getInfo(request)),
       'serververify': getVerifyCode()
     }
-  
+
     url_querys = ''
     for key, value in params.items():
       url_querys += f'{key}={value}&'
 
     if url_querys != '':
       url_querys = '?' + url_querys[:-1]
-      
+
     t = requests.get(f"{url}bbs/result" + url_querys, cookies={"yuki": "True"}, allow_redirects=False)
     if t.status_code != 307:
         return HTMLResponse(no_robot_meta_tag + t.text.replace('AutoLink(xhr.responseText);', 'urlConvertToLink(xhr.responseText);') + getSource('bbs'))
-        
+
     return redirect(f"/bbs?name={urllib.parse.quote(name)}&seed={urllib.parse.quote(seed)}&channel={urllib.parse.quote(channel)}&verify={urllib.parse.quote(verify)}")
 
 @cache(seconds=120)
@@ -782,14 +789,14 @@ def viewlist(response: Response, request: Request, yuki: Union[str] = Cookie(Non
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
-    
-    return template("info.html", {"request": request, "Youtube_API": video_api.video[0], "Channel_API": video_api.channel[0], "comments": video_api.comments[0]})
+
+    return template("info.html", {"request": request, "Youtube_API": invidious_api.video[0], "Channel_API": invidious_api.channel[0], "comments": invidious_api.comments[0]})
 
 @app.get("/reset", response_class=PlainTextResponse)
 def home():
-    global url, video_api
+    global url, invidious_api
     url = requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati', headers=getRandomUserAgent()).text.rstrip()
-    video_api = VideoAPI()
+    invidious_api = InvidiousAPI()
     return 'Success'
 
 @app.get("/version", response_class=PlainTextResponse)
@@ -798,74 +805,74 @@ def displayVersion():
 
 @app.get("/api/update", response_class=PlainTextResponse)
 def updateAllAPI():
-  global video_api
+  global invidious_api
   return str((invidious_api := InvidiousAPI()).info())
 
 @app.get("/api/{api_name}", response_class=PlainTextResponse)
 def displayAPI(api_name: str):
-  
+
   match api_name:
     case 'all':
-      api_value = video_api.info()
-        
+      api_value = invidious_api.info()
+
     case 'video':
-      api_value = video_api.video
-  
+      api_value = invidious_api.video
+
     case 'search':
-      api_value = video_api.search
-  
+      api_value = invidious_api.search
+
     case 'channel':
-      api_value = video_api.channel
-  
+      api_value = invidious_api.channel
+
     case 'comments':
-      api_value = video_api.comments
+      api_value = invidious_api.comments
 
     case 'playlist':
-      api_value = video_api.playlist
-      
+      api_value = invidious_api.playlist
+
     case _:
       api_value = f'API Name Error: {api_name}'
-        
+
   return str(api_value)
-    
+
 
 @app.get("/api/{api_name}/next", response_class=PlainTextResponse)
 def rotateAPI(api_name: str):
   match api_name:
     case 'video':
-      updateList(video_api.video, video_api.video[0])
-  
+      updateList(invidious_api.video, invidious_api.video[0])
+
     case 'search':
-      updateList(video_api.search, video_api.search[0])
-  
+      updateList(invidious_api.search, invidious_api.search[0])
+
     case 'channel':
-      updateList(video_api.channel, video_api.channel[0])
-  
+      updateList(invidious_api.channel, invidious_api.channel[0])
+
     case 'comments':
-      updateList(video_api.comments, video_api.comments[0])
+      updateList(invidious_api.comments, invidious_api.comments[0])
 
     case 'playlist':
-      updateList(video_api.playlist, video_api.playlist[0])
+      updateList(invidious_api.playlist, invidious_api.playlist[0])
 
     case _:
       return f'API Name Error: {api_name}'
-        
+
   return 'Finish'
-    
+
 @app.get("/api/video/check", response_class=PlainTextResponse)
 def displayCheckVideo():
-    return str(video_api.check_video)
+    return str(invidious_api.check_video)
 
 @app.get("/api/video/check/toggle", response_class=PlainTextResponse)
 def toggleVideoCheck():
-    global video_api
-    video_api.check_video = not invidious_api.check_video
-    return f'{not video_api.check_video} to {video_api.check_video}'
-  
+    global invidious_api
+    invidious_api.check_video = not invidious_api.check_video
+    return f'{not invidious_api.check_video} to {invidious_api.check_video}'
+
 @app.get("/shadow", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("shadow.html", {"request": request})
-      
+
 @app.get("/rammerhead", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("rammerhead.html", {"request": request})
