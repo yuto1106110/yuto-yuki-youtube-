@@ -882,6 +882,9 @@ def list_page(response: Response, request: Request):
 @app.get("/chat-light", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("chat-light.html", {"request": request})
+@app.get("/api-send", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("api-send.html", {"request": request})
 
 
 
