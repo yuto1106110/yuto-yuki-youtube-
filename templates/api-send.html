@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>Dieu Éviter</title>
+	<script type="module">
+		import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBkGclQ7RnO_iXQ-VFmEjjYZdnAksZJx4g",
+      authDomain: "eviter-api.firebaseapp.com",
+      projectId: "eviter-api",
+      storageBucket: "eviter-api.firebasestorage.app",
+      messagingSenderId: "84558932123",
+      appId: "1:84558932123:web:4022e9f6c24ad3beeafe3e",
+      measurementId: "G-W63SK131CK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function submitURL() {
+      const input = document.getElementById("urlInput");
+      const rawUrl = input.value.trim();
+      const url = rawUrl.replace(/\/+$/, ''); // 末尾スラッシュ削除
+
+      if (!/^https?:\/\/.+/i.test(url)) {
+        alert("URLは http または https で始めてください");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "invidious_candidates"), {
+          url,
+          createdAt: serverTimestamp()
+        });
+        alert("(送信成功!)ご提供ありがとうございます！");
+        input.value = "";
+      } catch (e) {
+        console.error("送信エラー:", e);
+        alert("(送信失敗)もう一度お試しください");
+      }
+    }
+
+    window.submitURL = submitURL;
+  </script>
+</head>
+
+<body>
+	<h1>Invidious URL 登録フォーム</h1>
+	<input type="text" id="urlInput" placeholder="例) https://inv.nadeko.net/" style="width: 300px;">
+	<button onclick="submitURL()">送信</button>
+</body>
+
+<h3>⚠invidiousやpipedなどのYouTubeを取得できるAPI以外の送信はおやめください
+<p>処理落ちの原因になります。
+<p>みんなで環境を整えよう!
+</html>
