@@ -1,61 +1,60 @@
 <!DOCTYPE html><html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Eviter Chat</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>フォイチャット</title>
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+    body { margin: 0; font-family: sans-serif; overflow: hidden; }
+    #chat-container { display: flex; height: 100vh; }
+    #sidebar {
+      width: 250px; background: #222; color: white; transition: transform 0.3s ease;
+      transform: translateX(-100%); position: fixed; top: 0; left: 0; height: 100vh; z-index: 2;
+    }
+    #sidebar.open { transform: translateX(0); }
+    #hamburger { position: fixed; top: 10px; left: 10px; z-index: 3; }
+    #main {
+      margin-left: 0; flex: 1; display: flex; flex-direction: column;
+      height: 100vh; overflow: hidden;
     }
     #messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 1rem;
-      background: #f9f9f9;
+      flex: 1; overflow-y: scroll; padding: 1rem;
+      background: #f0f0f0;
     }
-    #inputArea {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      display: flex;
-      padding: 10px;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    #input-container {
+      position: sticky; bottom: 0; background: white; padding: 0.5rem;
+      display: flex; border-top: 1px solid #ccc;
     }
-    #messageInput {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-    }
-    #sendBtn {
-      padding: 10px 20px;
-    }
-    #scrollToBottom {
-      position: fixed;
-      bottom: 60px;
-      right: 20px;
+    #input-container input { flex: 1; padding: 0.5rem; }
+    #scroll-to-bottom {
+      position: absolute; right: 20px; bottom: 80px;
+      background: #333; color: white; border: none; padding: 5px 10px;
       display: none;
-      background: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 20px;
     }
   </style>
 </head>
-<body>  <div id="messages"></div><button id="scrollToBottom">最新メッセージへ</button>
-
-  <div id="inputArea">
-    <input id="messageInput" type="text" placeholder="メッセージを入力…">
-    <button id="sendBtn">送信</button>
+<body>
+  <button id="hamburger">☰</button>
+  <div id="sidebar">
+    <h2>メニュー</h2>
+    <ul>
+      <li><button onclick="showChat()">チャット</button></li>
+      <li><button onclick="showReports()">通報履歴</button></li>
+    </ul>
+  </div>
+  <div id="chat-container">
+    <div id="main">
+      <div id="messages"></div>
+      <button id="scroll-to-bottom">一番下へ</button>
+      <div id="input-container">
+        <input type="text" id="messageInput" placeholder="メッセージを入力..." />
+        <button onclick="sendMessage()">送信</button>
+      </div>
+    </div>
   </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, remove, get, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import {
+      getDatabase, ref, onChildAdded, push, set, remove, get, onValue
+    } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
@@ -65,60 +64,76 @@
       storageBucket: "eviter-chat.appspot.com",
       messagingSenderId: "838666832539",
       appId: "1:838666832539:web:3471b7b5f83a140eda543e",
-      measurementId: "G-R5X3J61343"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const messagesRef = ref(db, 'messages');
-    const messagesDiv = document.getElementById('messages');
-    const input = document.getElementById('messageInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const scrollToBottomBtn = document.getElementById('scrollToBottom');
+    const messagesRef = ref(db, "chatroom/messages");
 
-    let autoScroll = true;
+    const uid = localStorage.getItem("uid") || crypto.randomUUID();
+    const deviceId = localStorage.getItem("deviceId") || crypto.randomUUID();
+    localStorage.setItem("uid", uid);
+    localStorage.setItem("deviceId", deviceId);
 
-    function scrollToBottom() {
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+    const username = prompt("名前を入力してください（例: Yuto-110）");
+    const email = `${username}@dummy.com`;
+    localStorage.setItem("username", username);
 
-    messagesDiv.addEventListener('scroll', () => {
-      const atBottom = messagesDiv.scrollTop + messagesDiv.clientHeight >= messagesDiv.scrollHeight - 50;
-      autoScroll = atBottom;
-      scrollToBottomBtn.style.display = atBottom ? 'none' : 'block';
-    });
+    const messagesDiv = document.getElementById("messages");
+    const scrollButton = document.getElementById("scroll-to-bottom");
 
-    scrollToBottomBtn.addEventListener('click', () => {
-      scrollToBottom();
-    });
-
-    sendBtn.addEventListener('click', () => {
-      const text = input.value.trim();
-      if (!text) return;
-      const msg = {
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const text = input.value;
+      if (!text.trim()) return;
+      push(messagesRef, {
+        uid,
+        username,
+        deviceId,
         text,
-        createdAt: Date.now()
-      };
-      push(messagesRef, msg);
-      input.value = '';
-    });
+        timestamp: Date.now(),
+      });
+      input.value = "";
+    }
 
     onChildAdded(messagesRef, (snapshot) => {
       const msg = snapshot.val();
-      const div = document.createElement('div');
-      div.textContent = msg.text;
-      messagesDiv.appendChild(div);
-      if (autoScroll) scrollToBottom();
+      const msgEl = document.createElement("div");
+      msgEl.textContent = `${msg.username}: ${msg.text}`;
+      messagesDiv.appendChild(msgEl);
+      if (isAtBottom()) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      else scrollButton.style.display = "block";
     });
 
-    // 毎日0時にメッセージを全削除（クライアント側）
-    setInterval(() => {
+    function isAtBottom() {
+      return messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 10;
+    }
+
+    scrollButton.addEventListener("click", () => {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      scrollButton.style.display = "none";
+    });
+
+    document.getElementById("hamburger").onclick = () => {
+      document.getElementById("sidebar").classList.toggle("open");
+    };
+
+    function showChat() {
+      alert("チャット表示");
+      // ページ切替の処理など必要であればここに追加
+    }
+
+    function showReports() {
+      alert("通報履歴表示（未実装）");
+    }
+
+    // 毎日0時にメッセージ全削除（簡易版）
+    const midnightCheck = setInterval(() => {
       const now = new Date();
-      if (now.getHours() === 0 && now.getMinutes() === 0 && now.getSeconds() < 10) {
+      if (now.getHours() === 0 && now.getMinutes() === 0) {
         remove(messagesRef);
       }
-    }, 5000);
-
+    }, 60000);
   </script></body>
 </html>
