@@ -1,244 +1,255 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!DOCTYPE html><html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>オープンチャット</title>
-  <style>
-    body { font-family: sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-    #login, #chat { display: none; padding: 20px; }
-    #messages { max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
-    .message { padding: 5px; border-bottom: 1px solid #eee; position: relative; }
-    .report-btn { position: absolute; right: 5px; top: 5px; font-size: 12px; }
-    #adminPanel, #adminManager { display: none; }
-    .hidden { display: none; }
-  </style>
-</head>
-<body>
-
-<h1 style="text-align:center;">オープンチャット</h1>
-
-<div id="login">
-  <h3>ログイン / 登録</h3>
-  名前: <input id="name"><br>
-  パスワード: <input id="password" type="password"><br>
-  <button id="registerBtn">登録</button>
-  <button id="loginBtn">ログイン</button>
-</div>
-
-<div id="chat">
-  <div id="userInfo"></div>
-  <div id="messages"></div>
-  <input id="msgInput" placeholder="メッセージを入力"><button id="sendBtn">送信</button>
-
-  <div id="adminPanel">
-    <h4>通報履歴</h4>
-    <div id="reportList"></div>
-    <h4>BAN管理</h4>
-    <div id="banList"></div>
-  </div>
-
-  <div id="adminManager">
-    <h4>管理者追加/削除</h4>
-    UID: <input id="adminUid"><br>
-    <button id="addAdminBtn">追加</button>
-    <button id="removeAdminBtn">削除</button>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-import { getDatabase, ref, push, set, onChildAdded, remove, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-
-const firebaseConfig = {
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eviter Chat</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded, remove, get, set } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";const firebaseConfig = {
   apiKey: "AIzaSyC7m86dWHVcNF_rZBVSS15WWwRre2NAYlk",
   authDomain: "eviter-chat.firebaseapp.com",
   databaseURL: "https://eviter-chat-default-rtdb.firebaseio.com",
   projectId: "eviter-chat",
   storageBucket: "eviter-chat.appspot.com",
   messagingSenderId: "838666832539",
-  appId: "1:838666832539:web:3471b7b5f83a140eda543e",
-  measurementId: "G-R5X3J61343"
+  appId: "1:838666832539:web:3471b7b5f83a140eda543e"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-const loginDiv = document.getElementById("login");
-const chatDiv = document.getElementById("chat");
-const registerBtn = document.getElementById("registerBtn");
-const loginBtn = document.getElementById("loginBtn");
-const nameInput = document.getElementById("name");
-const passInput = document.getElementById("password");
+const uid = localStorage.getItem("deviceUid") || crypto.randomUUID();
+localStorage.setItem("deviceUid", uid);
 
-let currentUser, isOwner = false, isAdmin = false;
+function getIP() {
+  fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => localStorage.setItem("userIP", data.ip));
+}
+getIP();
 
-onAuthStateChanged(auth, async user => {
-  if (!user) {
-    loginDiv.style.display = "block";
-    return;
+let currentUser = null;
+let username = "";
+let isAdmin = false;
+let isOwner = false;
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    currentUser = user;
+    const name = user.email.split('@')[0];
+    username = name;
+    isOwner = name === 'Yuto-110';
+    checkAdmin(name);
+    loadMessages();
+    loadReports();
   }
-  currentUser = user;
-  await updateProfile(user, { displayName: nameInput.value || user.displayName });
-
-  isOwner = user.displayName === "Yuto-110";
-  const adminSnap = await get(ref(db, `admins/${user.uid}`));
-  isAdmin = adminSnap.exists();
-
-  if (isOwner || isAdmin) {
-    document.getElementById("adminPanel").style.display = "block";
-    loadReportList();
-    loadBanList();
-    if (isOwner) {
-      document.getElementById("adminManager").style.display = "block";
-    }
-  }
-
-  document.getElementById("userInfo").textContent = `ようこそ ${user.displayName}`;
-  loginDiv.style.display = "none";
-  chatDiv.style.display = "block";
-  checkBan();
-  loadMessages();
-  cleanOldReports();
-  registerDeviceInfo();
 });
 
-registerBtn.onclick = () => {
-  const name = nameInput.value.trim();
-  const pass = passInput.value.trim();
-  const email = name + "@chat.local";
-  createUserWithEmailAndPassword(auth, email, pass)
-    .then(cred => updateProfile(cred.user, { displayName: name }));
-};
+async function checkAdmin(name) {
+  const adminRef = ref(db, 'admins/' + name);
+  const snapshot = await get(adminRef);
+  isAdmin = snapshot.exists();
+}
 
-loginBtn.onclick = () => {
-  const email = nameInput.value.trim() + "@chat.local";
-  signInWithEmailAndPassword(auth, email, passInput.value.trim());
-};
+window.register = async function register() {
+  const name = prompt("名前を入力:");
+  const pass = prompt("パスワードを設定:");
+  const email = name + "@eviter.chat";
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    if (name === "Yuto-110") {
+      set(ref(db, 'admins/Yuto-110'), true);
+    }
+  } catch (e) {
+    alert(e.message);
+  }
+}
 
-document.getElementById("sendBtn").onclick = () => {
-  const text = document.getElementById("msgInput").value;
-  if (!text) return;
-  push(ref(db, "messages"), {
-    uid: currentUser.uid,
-    name: currentUser.displayName,
+window.login = async function login() {
+  const name = prompt("名前:");
+  const pass = prompt("パスワード:");
+  const email = name + "@eviter.chat";
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+window.sendMessage = function sendMessage() {
+  const input = document.getElementById('messageInput');
+  const text = input.value.trim();
+  if (!text || !currentUser) return;
+  const msgRef = ref(db, 'messages');
+  push(msgRef, {
+    name: username,
     text,
-    time: Date.now()
+    time: Date.now(),
+    uid,
+    ip: localStorage.getItem("userIP") || ""
   });
-  document.getElementById("msgInput").value = "";
-};
+  input.value = '';
+}
 
 function loadMessages() {
-  const msgRef = ref(db, "messages");
-  onChildAdded(msgRef, snap => {
-    const m = snap.val();
-    const div = document.createElement("div");
-    div.className = "message";
-    div.innerHTML = `<b>${m.name}</b>: ${m.text} <button class="report-btn" onclick="reportMessage('${snap.key}')">通報</button>`;
-    document.getElementById("messages").appendChild(div);
+  const msgRef = ref(db, 'messages');
+  onChildAdded(msgRef, snapshot => {
+    const data = snapshot.val();
+    if (bannedDevices.includes(data.uid)) return;
+    const box = document.createElement('div');
+    box.className = 'message-box';
+    const msg = document.createElement('div');
+    msg.className = 'message';
+    msg.textContent = `${data.name}: ${data.text}`;
+
+    const reportBtn = document.createElement('button');
+    reportBtn.textContent = '通報';
+    reportBtn.onclick = () => reportMessage(snapshot.key, data);
+
+    box.appendChild(msg);
+    box.appendChild(reportBtn);
+    document.getElementById('messages').appendChild(box);
   });
 }
 
-window.reportMessage = (msgId) => {
-  const now = Date.now();
-  const uid = currentUser.uid;
-  const reportRef = ref(db, `reports/${msgId}/${uid}`);
-  set(reportRef, { reportedAt: now });
+function reportMessage(id, data) {
+  const reportRef = ref(db, 'reports/' + id + '/' + uid);
+  set(reportRef, {
+    reporter: username,
+    time: Date.now(),
+    target: data
+  });
+}
 
-  get(ref(db, `reports/${msgId}`)).then(snap => {
-    const reports = snap.val();
-    if (reports && Object.keys(reports).length >= 3) {
-      remove(ref(db, `messages/${msgId}`));
-      remove(ref(db, `reports/${msgId}`));
+function loadReports() {
+  const reportView = document.getElementById('reports');
+  const reportRef = ref(db, 'reports');
+  onChildAdded(reportRef, snap => {
+    const msgReports = snap.val();
+    const keys = Object.keys(msgReports);
+    const box = document.createElement('div');
+    box.textContent = `通報対象: ${msgReports[keys[0]].target.text}`;
+
+    if (isAdmin || isOwner) {
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '削除';
+      delBtn.onclick = () => {
+        remove(ref(db, 'messages/' + snap.key));
+        remove(ref(db, 'reports/' + snap.key));
+      };
+
+      const banBtn = document.createElement('button');
+      banBtn.textContent = 'BAN';
+      banBtn.onclick = () => {
+        set(ref(db, 'banned/' + msgReports[keys[0]].target.uid), true);
+      };
+
+      box.appendChild(delBtn);
+      box.appendChild(banBtn);
     }
-  });
-};
-
-function cleanOldReports() {
-  get(ref(db, "reports")).then(snap => {
-    const now = Date.now();
-    snap.forEach(msgSnap => {
-      msgSnap.forEach(userSnap => {
-        const t = userSnap.val().reportedAt;
-        if (now - t > 3 * 86400000) {
-          remove(ref(db, `reports/${msgSnap.key}/${userSnap.key}`));
-        }
-      });
-    });
+    reportView.appendChild(box);
   });
 }
 
-function loadReportList() {
-  get(ref(db, "reports")).then(snap => {
-    const out = [];
-    snap.forEach(msgSnap => {
-      out.push(`<div>${msgSnap.key}: ${Object.keys(msgSnap.val()).length}件</div>`);
-    });
-    document.getElementById("reportList").innerHTML = out.join("");
-  });
-}
+let bannedDevices = [];
+const banRef = ref(db, 'banned');
+onChildAdded(banRef, snap => {
+  bannedDevices.push(snap.key);
+});
 
-function getDeviceId() {
-  let id = localStorage.getItem("device_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("device_id", id);
-  }
-  return id;
-}
-
-async function getIP() {
-  const res = await fetch("https://api.ipify.org?format=json");
-  const json = await res.json();
-  return json.ip;
-}
-
-async function registerDeviceInfo() {
-  const id = getDeviceId();
-  const ip = await getIP();
-  set(ref(db, `devices/${id}`), {
-    uid: currentUser.uid,
-    ip: ip
-  });
-}
-
-async function checkBan() {
-  const id = getDeviceId();
-  const banSnap = await get(ref(db, `bannedDevices/${id}`));
-  if (banSnap.exists()) {
-    alert("この端末はBANされています");
-    location.reload();
-  }
-}
-
-function loadBanList() {
-  get(ref(db, "devices")).then(snap => {
-    const out = [];
-    snap.forEach(d => {
-      const id = d.key;
-      const { uid, ip } = d.val();
-      out.push(`<div>${id} (IP: ${ip}) <button onclick="banDevice('${id}')">BAN</button></div>`);
-    });
-    document.getElementById("banList").innerHTML = out.join("");
-  });
-}
-
-window.banDevice = (id) => {
-  if (!isAdmin && !isOwner) return;
-  set(ref(db, `bannedDevices/${id}`), true);
-};
-
-document.getElementById("addAdminBtn").onclick = () => {
-  const uid = document.getElementById("adminUid").value.trim();
-  if (isOwner) set(ref(db, `admins/${uid}`), true);
-};
-
-document.getElementById("removeAdminBtn").onclick = () => {
-  const uid = document.getElementById("adminUid").value.trim();
-  if (isOwner) remove(ref(db, `admins/${uid}`));
-};
-</script>
-
-</body>
+  </script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 200px;
+      background: #2c3e50;
+      color: white;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar button {
+      background: none;
+      color: white;
+      border: none;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      background: #34495e;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .content {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+    .message-box {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+    .message {
+      background: #ecf0f1;
+      border-radius: 10px;
+      padding: 8px;
+      margin: 2px 0;
+      max-width: 70%;
+    }
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 8px;
+    }
+    .input-area button {
+      padding: 8px 12px;
+      margin-left: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <button onclick="showView('chat')">チャット</button>
+    <button onclick="showView('reports')">通報履歴</button>
+    <button onclick="register()">登録</button>
+    <button onclick="login()">ログイン</button>
+  </div>
+  <div class="main">
+    <div class="header">Eviter Chat</div>
+    <div id="chat" class="content">
+      <div id="messages"></div>
+      <div class="input-area">
+        <input type="text" id="messageInput" placeholder="メッセージを入力...">
+        <button onclick="sendMessage()">送信</button>
+      </div>
+    </div>
+    <div id="reports" class="content hidden">通報履歴エリア</div>
+  </div>  <script>
+    function showView(id) {
+      document.querySelectorAll('.content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  </script></body>
 </html>
