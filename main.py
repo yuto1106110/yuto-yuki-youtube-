@@ -194,44 +194,53 @@ failed = "Load Failed"
 def getVideoData(videoid):
     t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
 
-    if 'recommendedvideo' in t:
-        recommended_videos = t["recommendedvideo"]
-    elif 'recommendedVideos' in t:
-        recommended_videos = t["recommendedVideos"]
-    else:
-        recommended_videos = {
-            "videoId": failed,
-            "title": failed,
-            "authorId": failed,
-            "author": failed,
-            "lengthSeconds": 0,
-            "viewCountText": "Load Failed"
-        }
+    # 推奨動画の候補フィールドを柔軟に対応
+    recommended_videos = []
+    if 'recommendedVideos' in t:
+        recommended_videos = t['recommendedVideos']
+    elif 'recommendedvideo' in t:
+        recommended_videos = t['recommendedvideo']
+
+    # 柔軟に再生可能な動画URLを抽出
+    streams = []
+
+    if 'formatStreams' in t:
+        streams = [s["url"] for s in t["formatStreams"] if "url" in s]
+    elif 'adaptiveFormats' in t:
+        streams = [s["url"] for s in t["adaptiveFormats"] if "url" in s]
+    elif 'videoStreams' in t:
+        streams = [s["url"] for s in t["videoStreams"] if "url" in s]
+    elif 'hlsUrl' in t:
+        streams = [t["hlsUrl"]]
+
+    if not streams:
+        raise Exception("動画の再生URLが取得できませんでした。")
 
     return [
         {
-            'video_urls': list(reversed([i["url"] for i in t["formatStreams"]]))[:2],
-            'description_html': t["descriptionHtml"].replace("\n", "<br>"),
-            'title': t["title"],
-            'length_text': str(datetime.timedelta(seconds=t["lengthSeconds"])),
-            'author_id': t["authorId"],
-            'author': t["author"],
-            'author_thumbnails_url': t["authorThumbnails"][-1]["url"],
-            'view_count': t["viewCount"],
-            'like_count': t["likeCount"],
-            'subscribers_count': t["subCountText"]
+            'video_urls': list(reversed(streams))[:2],
+            'description_html': t.get("descriptionHtml", "").replace("\n", "<br>"),
+            'title': t.get("title", ""),
+            'length_text': str(datetime.timedelta(seconds=t.get("lengthSeconds", 0))),
+            'author_id': t.get("authorId", ""),
+            'author': t.get("author", ""),
+            'author_thumbnails_url': t.get("authorThumbnails", [{}])[-1].get("url", ""),
+            'view_count': t.get("viewCount", 0),
+            'like_count': t.get("likeCount", 0),
+            'subscribers_count': t.get("subCountText", "")
         },
         [
             {
-                "video_id": i["videoId"],
-                "title": i["title"],
-                "author_id": i["authorId"],
-                "author": i["author"],
-                "length_text": str(datetime.timedelta(seconds=i["lengthSeconds"])),
-                "view_count_text": i["viewCountText"]
+                "video_id": i.get("videoId", ""),
+                "title": i.get("title", ""),
+                "author_id": i.get("authorId", ""),
+                "author": i.get("author", ""),
+                "length_text": str(datetime.timedelta(seconds=i.get("lengthSeconds", 0))),
+                "view_count_text": i.get("viewCountText", "")
             } for i in recommended_videos
         ]
     ]
+
 
 def getSearchData(q, page):
 
