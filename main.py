@@ -144,25 +144,50 @@ def updateList(list, str):
 
 def requestAPI(path, api_urls):
     starttime = time.time()
-    
+
     for api in api_urls:
-        if  time.time() - starttime >= max_time - 1:
+        if time.time() - starttime >= max_time - 1:
             break
-            
+
         try:
-            print(api + 'api/v1' + path)
-            res = requests.get(api + 'api/v1' + path, headers=getRandomUserAgent(), timeout=max_api_wait_time)
+            full_url = api.rstrip("/") + "/api/v1" + path
+            print(full_url)
+
+            res = requests.get(full_url, headers=getRandomUserAgent(), timeout=max_api_wait_time)
+
             if res.status_code == requests.codes.ok and isJSON(res.text):
-                
-                if invidious_api.check_video and path.startswith('/video/'):
-                    # 動画の有無をチェックする場合
-                    video_res = requests.get(json.loads(res.text)['formatStreams'][0]['url'], headers=getRandomUserAgent(), timeout=(3.0, 0.5))
-                    if not 'video' in video_res.headers['Content-Type']:
-                        print(f"No Video(True)({video_res.headers['Content-Type']}): {api}")
+                parsed = json.loads(res.text)
+
+                # 動画の有無をチェックする場合（動画エンドポイントのみ）
+                if invidious_api.check_video and path.startswith('/videos/'):
+                    stream_url = None
+                    for key in ['formatStreams', 'adaptiveFormats', 'videoStreams']:
+                        if key in parsed and isinstance(parsed[key], list) and len(parsed[key]) > 0:
+                            if 'url' in parsed[key][0]:
+                                stream_url = parsed[key][0]['url']
+                                break
+                    if not stream_url and 'hlsUrl' in parsed:
+                        stream_url = parsed['hlsUrl']
+
+                    if not stream_url:
+                        print(f"No video streams found in: {api}")
                         updateList(api_urls, api)
                         continue
 
-                if path.startswith('/channel/') and json.loads(res.text)["latestvideo"] == []:
+                    try:
+                        video_res = requests.get(stream_url, headers=getRandomUserAgent(), timeout=(3.0, 0.5))
+                        content_type = video_res.headers.get('Content-Type', '')
+                        if 'video' not in content_type:
+                            print(f"No Video(True)({content_type}): {api}")
+                            updateList(api_urls, api)
+                            continue
+                    except Exception as e:
+                        print(f"Video URL fetch error ({api}):", e)
+                        updateList(api_urls, api)
+                        continue
+
+                # チャンネルが空（無効）な場合
+                if path.startswith('/channel/') and parsed.get("latestvideo") == []:
                     print(f"No Channel: {api}")
                     updateList(api_urls, api)
                     continue
@@ -171,19 +196,20 @@ def requestAPI(path, api_urls):
                 return res.text
 
             elif isJSON(res.text):
-                # ステータスコードが200ではないかつ内容がJSON形式の場合
-                print(f"Returned Err0r(JSON): {api} ('{json.loads(res.text)['error'].replace('error', 'err0r')}')")
+                err = json.loads(res.text).get('error', 'Unknown').replace('error', 'err0r')
+                print(f"Returned Err0r(JSON): {api} ('{err}')")
                 updateList(api_urls, api)
+
             else:
-                # ステータスコードが200ではないかつ内容がJSON形式ではない場合
                 print(f"Returned Err0r: {api} ('{res.text[:100]}')")
                 updateList(api_urls, api)
-        except:
-            # 例外等が発生した場合
-            print(f"Err0r: {api}")
+
+        except Exception as e:
+            print(f"Err0r: {api} ({e})")
             updateList(api_urls, api)
-    
+
     raise APITimeoutError("APIがタイムアウトしました")
+
 
 
 def getInfo(request):
