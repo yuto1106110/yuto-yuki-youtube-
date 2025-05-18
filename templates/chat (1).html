@@ -566,7 +566,7 @@ const user = auth.currentUser;
 const targetUid = text.split(" ")[1];
 
 // 主 or 管理者のみ
-if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+if (user.displayName === "Yuto-110" || adminList[user.uid]) {
 await set(ref(db, `bannedUsers/${targetUid}`), true);
 	// BANログを記録
 	await push(ref(db, "logs"), {
