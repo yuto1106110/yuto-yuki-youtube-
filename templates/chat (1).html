@@ -427,7 +427,7 @@ text = text.replace(/^@\\S+\\s*/, "");
 
   try {
 if (text.startsWith("/delete ")) {
-if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+if (user.displayName === "Yuto-110" || adminList[user.uid]) {
         const targetName = text.split(" ")[1];
         const snapshot = await get(ref(db, "chat"));
         snapshot.forEach(child => {
@@ -513,7 +513,7 @@ if (mutedSnap.exists() && now < mutedSnap.val()) { alert("現在コメントで�
 
 if (text.startsWith("/mute ")) {
   const targetUid = text.split(" ")[1];
-  if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+  if (user.displayName === "Yuto-110" || adminList[user.uid]) {
     const until = Date.now() + 60 * 1000; // 1分
     await set(ref(db, `mutedUsers/${targetUid}`), until);
     alert(`${targetUid} を1分間ミュートしました`);
@@ -527,7 +527,7 @@ if (text.startsWith("/mute ")) {
 
 if (text.startsWith("/ip ")) {
   const targetUid = text.split(" ")[1];
-  if (user.displayName === "Yuto-110" || user.displayName.startsWith("Admin")) {
+  if (user.displayName === "Yuto-110" || adminList[user.uid]) {
     const snap = await get(ref(db, `users/${targetUid}`));
     if (!snap.exists()) {
       alert("そのユーザーは存在しません。");
