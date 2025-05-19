@@ -944,12 +944,14 @@ addReportButton(container, msg, key);
   });
 
 
-  const isNearBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 30;
+// メッセージ描画が終わった後（chatBox.appendChild() が終わった直後）
 
-  if (isNearBottom) {
-    // ちょっと強引に最下部に移動
-    chatBox.scrollTop = chatBox.scrollHeight + 100;
+setTimeout(() => {
+  const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
+  if (isAtBottom) {
+    chatBox.scrollTop = chatBox.scrollHeight + 200;
   }
+}, 0);
 });
 
 
