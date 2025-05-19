@@ -1520,6 +1520,7 @@ div.innerHTML = `
   onAuthStateChanged(auth, (user) => {
     if (user) {
       console.log("ログイン中: ", user.displayName);
+	    tryDailyChatReset(); // ← 毎日0時に1回だけチャットを全削除
     } else {
       console.log("ログアウト中");
     }
