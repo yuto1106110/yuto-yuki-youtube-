@@ -935,28 +935,26 @@ uidDiv.style.alignItems = "center";
 
 addReportButton(container, msg, key);
 
-    chatBox.appendChild(container);
+chatBox.appendChild(container);
 
-    if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
-      const updated = [...(msg.readBy || []), user.uid];
-      update(ref(db, `chat/${key}`), { readBy: updated });
-    }
-  });
-
-const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
-
-// 一番下にいるときだけ自動スクロール
-if (isAtBottom) {
-  document.getElementById("chat-anchor").scrollIntoView({ behavior: "auto" });
+if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
+  const updated = [...(msg.readBy || []), user.uid];
+  update(ref(db, `chat/${key}`), { readBy: updated });
 }
+});
 
-// ボタン表示/非表示制御
-const scrollBtn = document.getElementById("scrollToBottomBtn");
-if (!isAtBottom) {
-  scrollBtn.style.display = "block";
-} else {
-  scrollBtn.style.display = "none";
-}
+// ★ ここからスクロール処理を追加 ★
+setTimeout(() => {
+  const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
+  const scrollBtn = document.getElementById("scrollToBottomBtn");
+
+  if (isAtBottom) {
+    document.getElementById("chat-anchor").scrollIntoView({ behavior: "auto" });
+    scrollBtn.style.display = "none";
+  } else {
+    scrollBtn.style.display = "block";
+  }
+}, 0);
 
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
