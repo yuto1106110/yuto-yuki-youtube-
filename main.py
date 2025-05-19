@@ -827,7 +827,7 @@ def list_page(response: Response, request: Request):
 @app.get("/rammerhead", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("rammerhead.html", {"request": request})
-@app.get("/chat", response_class=HTMLResponse)
+@app.get("/a", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("zyunbi.html", {"request": request})
 @app.get("/help", response_class=HTMLResponse)
@@ -920,7 +920,7 @@ def list_page(response: Response, request: Request):
 @app.get("/api-send", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("api-send.html", {"request": request})
-@app.get("/a", response_class=HTMLResponse)
+@app.get("/chat", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("chat.html", {"request": request})
 
