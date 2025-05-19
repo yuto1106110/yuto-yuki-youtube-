@@ -943,16 +943,15 @@ addReportButton(container, msg, key);
     }
   });
 
-
-// メッセージ描画が終わった後（chatBox.appendChild() が終わった直後）
-
+// メッセージを全部描画したあとに、スクロール処理を確実に行う
 setTimeout(() => {
-  const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
+  const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 100;
+
+  // 強制的にスクロール（少し余裕を持たせて200px下まで）
   if (isAtBottom) {
-    chatBox.scrollTop = chatBox.scrollHeight + 200;
+    chatBox.scrollTop = chatBox.scrollHeight;
   }
-}, 0);
-});
+}, 100); // ← 100ミリ秒待つことで確実に描画が終わる
 
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
