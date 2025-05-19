@@ -943,16 +943,17 @@ if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
 }
 });
 
-// ★ ここからスクロール処理を追加 ★
 setTimeout(() => {
   const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
+  const anchor = document.getElementById("chat-anchor");
   const scrollBtn = document.getElementById("scrollToBottomBtn");
 
-  if (isAtBottom) {
-    document.getElementById("chat-anchor").scrollIntoView({ behavior: "auto" });
-    scrollBtn.style.display = "none";
-  } else {
-    scrollBtn.style.display = "block";
+  if (anchor && isAtBottom) {
+    anchor.scrollIntoView({ behavior: "auto" });
+  }
+
+  if (scrollBtn) {
+    scrollBtn.style.display = isAtBottom ? "none" : "block";
   }
 }, 0);
 
