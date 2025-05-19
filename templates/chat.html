@@ -707,21 +707,6 @@ replyTo: currentReplyKey || null
 currentReplyKey = null; // 送信後はリセット
 
 
-// メッセージ数が30件を超えていたら古いものを削除
-const snapshot = await get(ref(db, "chat"));
-const messages = [];
-snapshot.forEach(child => {
-messages.push({ key: child.key, timestamp: child.val().timestamp });
-});
-
-// 古い順に並べて、30件を超えた分を削除
-if (messages.length > 30) {
-messages.sort((a, b) => a.timestamp - b.timestamp); // 古い順にソート
-const toDelete = messages.slice(0, messages.length - 30);
-toDelete.forEach(msg => {
-remove(ref(db, `chat/${msg.key}`));
-});
-}
 
 
     messageInput.value = "";
