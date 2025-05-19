@@ -759,83 +759,6 @@ onValue(chatRef, (snapshot) => {
     container.className = "message-container";
 
 
-// === 右上のメニューボタンを作成 ===
-const menuWrapper = document.createElement("div");
-menuWrapper.style.position = "relative";
-
-const menuButton = document.createElement("button");
-menuButton.textContent = "︙";
-menuButton.style.border = "none";
-menuButton.style.background = "transparent";
-menuButton.style.cursor = "pointer";
-
-const menuList = document.createElement("div");
-menuList.style.position = "absolute";
-menuList.style.top = "24px";
-menuList.style.right = "0";
-menuList.style.background = "#fff";
-menuList.style.border = "1px solid #ccc";
-menuList.style.padding = "6px";
-menuList.style.borderRadius = "6px";
-menuList.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
-menuList.style.display = "none";
-menuList.style.zIndex = "1000";
-menuList.style.minWidth = "80px";
-
-// クリックで開閉
-menuButton.onclick = () => {
-  menuList.style.display = menuList.style.display === "none" ? "block" : "none";
-};
-
-// === メニュー内にボタン追加 ===
-
-// 編集（自分のみ）
-if (msg.uid === user.uid) {
-  const editBtn = document.createElement("div");
-  editBtn.textContent = "編集";
-  editBtn.style.cursor = "pointer";
-  editBtn.onclick = () => {
-    const newText = prompt("新しいメッセージを入力", msg.text);
-    if (newText !== null && newText.trim() !== "") {
-      update(ref(db, `chat/${key}`), {
-        text: newText + " (編集済み)"
-      });
-    }
-    menuList.style.display = "none";
-  };
-  menuList.appendChild(editBtn);
-}
-
-// 削除（管理者または自分）
-if (user.uid === msg.uid || user.uid === "YutoのUID" || adminList?.[user.uid]) {
-  const deleteBtn = document.createElement("div");
-  deleteBtn.textContent = "削除";
-  deleteBtn.style.cursor = "pointer";
-  deleteBtn.onclick = () => {
-    if (confirm("削除しますか？")) {
-      remove(ref(db, `chat/${key}`));
-    }
-    menuList.style.display = "none";
-  };
-  menuList.appendChild(deleteBtn);
-}
-
-// 通報（他人のみ）
-if (user.uid !== msg.uid) {
-  const reportBtn = document.createElement("div");
-  reportBtn.textContent = "通報";
-  reportBtn.style.cursor = "pointer";
-  reportBtn.onclick = () => {
-    reportMessage(msg, key);
-    menuList.style.display = "none";
-  };
-  menuList.appendChild(reportBtn);
-}
-
-// ラップ
-menuWrapper.appendChild(menuButton);
-menuWrapper.appendChild(menuList);
-buttonDiv.appendChild(menuWrapper);
 
 
 const nameSpan = document.createElement("div");
@@ -960,6 +883,86 @@ currentReplyKey = key;
 buttonDiv.appendChild(replyBtn);
 buttonDiv.appendChild(goodBtn);
 buttonDiv.appendChild(badBtn);
+
+
+// === 右上のメニューボタンを作成 ===
+const menuWrapper = document.createElement("div");
+menuWrapper.style.position = "relative";
+
+const menuButton = document.createElement("button");
+menuButton.textContent = "︙";
+menuButton.style.border = "none";
+menuButton.style.background = "transparent";
+menuButton.style.cursor = "pointer";
+
+const menuList = document.createElement("div");
+menuList.style.position = "absolute";
+menuList.style.top = "24px";
+menuList.style.right = "0";
+menuList.style.background = "#fff";
+menuList.style.border = "1px solid #ccc";
+menuList.style.padding = "6px";
+menuList.style.borderRadius = "6px";
+menuList.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+menuList.style.display = "none";
+menuList.style.zIndex = "1000";
+menuList.style.minWidth = "80px";
+
+// クリックで開閉
+menuButton.onclick = () => {
+  menuList.style.display = menuList.style.display === "none" ? "block" : "none";
+};
+
+// === メニュー内にボタン追加 ===
+
+// 編集（自分のみ）
+if (msg.uid === user.uid) {
+  const editBtn = document.createElement("div");
+  editBtn.textContent = "編集";
+  editBtn.style.cursor = "pointer";
+  editBtn.onclick = () => {
+    const newText = prompt("新しいメッセージを入力", msg.text);
+    if (newText !== null && newText.trim() !== "") {
+      update(ref(db, `chat/${key}`), {
+        text: newText + " (編集済み)"
+      });
+    }
+    menuList.style.display = "none";
+  };
+  menuList.appendChild(editBtn);
+}
+
+// 削除（管理者または自分）
+if (user.uid === msg.uid || user.uid === "YutoのUID" || adminList?.[user.uid]) {
+  const deleteBtn = document.createElement("div");
+  deleteBtn.textContent = "削除";
+  deleteBtn.style.cursor = "pointer";
+  deleteBtn.onclick = () => {
+    if (confirm("削除しますか？")) {
+      remove(ref(db, `chat/${key}`));
+    }
+    menuList.style.display = "none";
+  };
+  menuList.appendChild(deleteBtn);
+}
+
+// 通報（他人のみ）
+if (user.uid !== msg.uid) {
+  const reportBtn = document.createElement("div");
+  reportBtn.textContent = "通報";
+  reportBtn.style.cursor = "pointer";
+  reportBtn.onclick = () => {
+    reportMessage(msg, key);
+    menuList.style.display = "none";
+  };
+  menuList.appendChild(reportBtn);
+}
+
+// ラップ
+menuWrapper.appendChild(menuButton);
+menuWrapper.appendChild(menuList);
+buttonDiv.appendChild(menuWrapper);
+	  
 
 // --- メッセージ本体と並べるようにflex化する ---
 const messageWrapper = document.createElement("div");
