@@ -942,11 +942,17 @@ addReportButton(container, msg, key);
       update(ref(db, `chat/${key}`), { readBy: updated });
     }
   });
-const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 5;
-if (isAtBottom) {
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
+
+
+requestAnimationFrame(() => {
+  const isNearBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 30;
+
+  if (isNearBottom) {
+    // ちょっと強引に最下部に移動
+    chatBox.scrollTop = chatBox.scrollHeight + 100;
+  }
 });
+
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
