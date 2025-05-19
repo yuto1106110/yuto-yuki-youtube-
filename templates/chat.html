@@ -943,12 +943,8 @@ if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
 }
 });
 
-setTimeout(() => {
-  const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 50;
-  if (isAtBottom) {
-    chatBox.scrollTop = chatBox.scrollHeight;
-  }
-}, 0);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
 
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
