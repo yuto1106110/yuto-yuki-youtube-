@@ -942,9 +942,10 @@ addReportButton(container, msg, key);
       update(ref(db, `chat/${key}`), { readBy: updated });
     }
   });
-const shouldScroll =
-chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100; if (shouldScroll) {
-	chatBox.scrollTop=chatBox.scrollHeight; }
+const isAtBottom = chatBox.scrollTop + chatBox.clientHeight >= chatBox.scrollHeight - 5;
+if (isAtBottom) {
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
 });
 
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
