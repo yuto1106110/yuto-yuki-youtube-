@@ -545,7 +545,6 @@ if (text.startsWith("/ip ")) {
 }
 
 
-// /help コマンド処理（メッセージ送信時に追加）
 if (text === "/help") {
   showHelpWindow();
   messageInput.value = "";
@@ -553,72 +552,72 @@ if (text === "/help") {
   return;
 }
 
-// ヘルプウィンドウを表示する関数（移動＆サイズ変更対応）
 function showHelpWindow() {
-  if (document.getElementById("helpWindow")) return; // 既に表示中
+  if (document.getElementById("helpWindow")) return;
 
   const help = document.createElement("div");
   help.id = "helpWindow";
   help.style.position = "fixed";
   help.style.top = "100px";
   help.style.left = "100px";
-  help.style.width = "300px";
+  help.style.width = "320px";
+  help.style.minHeight = "180px";
   help.style.background = "#fff";
   help.style.border = "2px solid #444";
-  help.style.borderRadius = "8px";
-  help.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-  help.style.padding = "12px";
+  help.style.borderRadius = "6px";
+  help.style.boxShadow = "0 4px 10px rgba(0,0,0,0.3)";
+  help.style.padding = "8px 12px 12px";
   help.style.zIndex = "9999";
   help.style.resize = "both";
   help.style.overflow = "auto";
-  help.style.cursor = "move";
 
-  // タイトルバー
-  const title = document.createElement("div");
-  title.textContent = "コマンド一覧";
-  title.style.fontWeight = "bold";
-  title.style.marginBottom = "8px";
-
-  // 閉じるボタン
-  const closeBtn = document.createElement("button");
+  // バツボタン
+  const closeBtn = document.createElement("div");
   closeBtn.textContent = "×";
   closeBtn.style.position = "absolute";
-  closeBtn.style.top = "6px";
+  closeBtn.style.top = "4px";
   closeBtn.style.right = "8px";
-  closeBtn.style.border = "none";
-  closeBtn.style.background = "transparent";
-  closeBtn.style.fontSize = "18px";
   closeBtn.style.cursor = "pointer";
+  closeBtn.style.fontWeight = "bold";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.userSelect = "none";
   closeBtn.onclick = () => help.remove();
 
-  // コマンドリスト
+  // タイトル
+  const titleBar = document.createElement("div");
+  titleBar.textContent = "コマンド一覧";
+  titleBar.style.fontWeight = "bold";
+  titleBar.style.marginBottom = "8px";
+  titleBar.style.cursor = "move";
+  titleBar.style.userSelect = "none";
+
+  // リスト
   const list = document.createElement("ul");
+  list.style.paddingLeft = "20px";
   list.style.margin = "0";
-  list.style.paddingLeft = "18px";
   list.innerHTML = `
     <li><b>/ban [uid]</b> - ユーザーをBAN</li>
     <li><b>/lock</b> - チャットをロック</li>
     <li><b>/lock 5</b> - 5分間ロック</li>
-    <li><b>/unlock</b> - チャットロック解除</li>
-    <li><b>/help</b> - このコマンド一覧を表示</li>
+    <li><b>/unlock</b> - ロック解除</li>
+    <li><b>/help</b> - この一覧を表示</li>
   `;
 
-  help.appendChild(title);
   help.appendChild(closeBtn);
+  help.appendChild(titleBar);
   help.appendChild(list);
   document.body.appendChild(help);
 
-  // ドラッグで移動機能
+  // === ドラッグで移動 ===
   let isDragging = false;
   let offsetX = 0, offsetY = 0;
 
-  help.addEventListener("mousedown", (e) => {
-    if (e.target === help || e.target === title) {
-      isDragging = true;
-      offsetX = e.clientX - help.offsetLeft;
-      offsetY = e.clientY - help.offsetTop;
-      e.preventDefault();
-    }
+  titleBar.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    offsetX = e.clientX - help.getBoundingClientRect().left;
+    offsetY = e.clientY - help.getBoundingClientRect().top;
+    help.style.cursor = "grabbing";
+    e.preventDefault();
   });
 
   document.addEventListener("mousemove", (e) => {
@@ -630,6 +629,7 @@ function showHelpWindow() {
 
   document.addEventListener("mouseup", () => {
     isDragging = false;
+    help.style.cursor = "default";
   });
 }
 
