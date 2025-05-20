@@ -707,6 +707,71 @@ replyTo: currentReplyKey || null
 currentReplyKey = null; // 送信後はリセット
 
 
+// ロック機能
+if (text.startsWith("/lock")) {
+  const user = auth.currentUser;
+  const isAdmin = adminList?.[user.uid];
+  const isOwner = user.displayName === "Yuto-110";
+
+  if (isOwner || isAdmin) {
+    const args = text.split(" ");
+    const minutes = parseInt(args[1]) || null;
+
+    await set(ref(db, "chatLock"), {
+      enabled: true,
+      by: user.uid,
+      timestamp: Date.now(),
+      duration: minutes ? minutes * 60 * 1000 : null // ミリ秒
+    });
+
+    // ログ記録
+    await push(ref(db, "logs"), {
+      type: "lock",
+      actorUid: user.uid,
+      actorName: user.displayName,
+      duration: minutes,
+      timestamp: Date.now()
+    });
+
+    alert(minutes ? `${minutes}分間チャットをロックしました。` : "チャットを無期限でロックしました。");
+  } else {
+    alert("この操作は権限がありません。");
+  }
+
+  messageInput.value = "";
+  sendBtn.disabled = false;
+  return;
+}
+
+// アンロック機能
+if (text.startsWith("/unlock")) {
+  const user = auth.currentUser;
+  const isAdmin = adminList?.[user.uid];
+  const isOwner = user.displayName === "Yuto-110";
+
+  if (isOwner || isAdmin) {
+    await set(ref(db, "chatLock"), {
+      enabled: false,
+      by: user.uid,
+      timestamp: Date.now()
+    });
+
+    await push(ref(db, "logs"), {
+      type: "unlock",
+      actorUid: user.uid,
+      actorName: user.displayName,
+      timestamp: Date.now()
+    });
+
+    alert("チャットロックを解除しました。");
+  } else {
+    alert("この操作は権限がありません。");
+  }
+
+  messageInput.value = "";
+  sendBtn.disabled = false;
+  return;
+}	  
 
 
     messageInput.value = "";
@@ -717,6 +782,33 @@ currentReplyKey = null; // 送信後はリセット
   sendBtn.disabled = false;
 });
 
+
+const chatLockRef = ref(db, "chatLock");
+
+onValue(chatLockRef, (snap) => {
+  const lock = snap.val();
+  const isLocked = lock?.enabled;
+  const currentUid = auth.currentUser?.uid;
+  const isAdmin = adminList?.[currentUid];
+  const isOwner = auth.currentUser?.displayName === "Yuto-110"; 
+
+  // ロック解除または管理者/主の場合は送信許可
+  const isAllowed = !isLocked || isAdmin || isOwner;
+
+  // メッセージ送信をロック状態に基づいて制御
+  messageInput.disabled = !isAllowed;
+  sendBtn.disabled = !isAllowed;
+
+  // ロックの有効期限が過ぎた場合は自動解除
+  if (isLocked && lock.duration && Date.now() - lock.timestamp > lock.duration) {
+    set(chatLockRef, { enabled: false });
+  }
+
+  // 通報や編集ボタンもロック状態で表示を制御
+  // 例えば: reportButton.disabled = !isAllowed;
+});			
+
+			
 onAuthStateChanged(auth, (user) => {
   document.getElementById("user-auth").style.display = user ? "none" : "block";
   document.getElementById("chat-section").style.display = user ? "block" : "none";
