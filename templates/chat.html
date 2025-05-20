@@ -759,7 +759,20 @@ onValue(chatRef, (snapshot) => {
     container.className = "message-container";
 
 
+// 50件超えたら古い順に削除
+const messages = [];
+snapshot.forEach((child) => {
+  messages.push({ key: child.key, timestamp: child.val().timestamp || 0 });
+});
 
+if (messages.length > 50) {
+  const sorted = messages.sort((a, b) => a.timestamp - b.timestamp); // 古い順
+  const toDelete = sorted.slice(0, messages.length - 50);
+  toDelete.forEach(({ key }) => {
+    remove(ref(db, `chat/${key}`));
+  });
+}
+	  
 
 const nameSpan = document.createElement("div");
 nameSpan.className = "message-name";
@@ -1115,20 +1128,6 @@ if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
 
   chatBox.scrollTop = chatBox.scrollHeight;
 });
-
-// 50件超えたら古い順に削除
-const messages = [];
-snapshot.forEach((child) => {
-  messages.push({ key: child.key, timestamp: child.val().timestamp || 0 });
-});
-
-if (messages.length > 50) {
-  const sorted = messages.sort((a, b) => a.timestamp - b.timestamp); // 古い順
-  const toDelete = sorted.slice(0, messages.length - 50);
-  toDelete.forEach(({ key }) => {
-    remove(ref(db, `chat/${key}`));
-  });
-}
 
 			
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
