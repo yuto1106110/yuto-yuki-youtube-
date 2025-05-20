@@ -278,7 +278,7 @@
 
 	<head>
 		<meta charset="UTF-8" />
-		<title>Realtime Chat</title>
+		<title>Google</title>
 		<script type="module">
 			import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import {
@@ -1116,7 +1116,21 @@ if (user && (!msg.readBy || !msg.readBy.includes(user.uid))) {
   chatBox.scrollTop = chatBox.scrollHeight;
 });
 
+// 50件超えたら古い順に削除
+const messages = [];
+snapshot.forEach((child) => {
+  messages.push({ key: child.key, timestamp: child.val().timestamp || 0 });
+});
 
+if (messages.length > 50) {
+  const sorted = messages.sort((a, b) => a.timestamp - b.timestamp); // 古い順
+  const toDelete = sorted.slice(0, messages.length - 50);
+  toDelete.forEach(({ key }) => {
+    remove(ref(db, `chat/${key}`));
+  });
+}
+
+			
 import { signInAnonymously } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 
 document.getElementById("guestLogin").addEventListener("click", async () => {
