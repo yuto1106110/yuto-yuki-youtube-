@@ -813,31 +813,121 @@ return;
 
 
 function addReportButton(container, msg, key) {
-const reportBtn = document.createElement("button");
-reportBtn.textContent = `🚨報告 (${msg.reports || 0})`;
-reportBtn.classList.add("white-button");
+  container.style.position = "relative";
 
-reportBtn.style.position = "absolute";
-reportBtn.style.top = "6px";
-reportBtn.style.right = "6px";
-reportBtn.style.zIndex = "10";
+  const currentUid = auth.currentUser?.uid;
+  if (!currentUid) return;
 
-reportBtn.onclick = () => {
-const now = Date.now();
-const lastReported = localStorage.getItem(`lastReport-${key}`) || 0;
-if (now - lastReported < 60000) { alert("同じメッセージには1分に1回しか通報できません。"); return; } localStorage.setItem(`lastReport-${key}`,
-	now); const newReports=(msg.reports || 0) + 1; if (!msg.timestamp) { msg.timestamp=Date.now(); } update(ref(db,
-	`chat/${key}`), { reports: newReports }).then(()=> {
-	saveReportHistory(msg, newReports);
-	if (newReports >= 3) {
-	deleteMessage(key);
-	}
-	});
-	};
+  const menuWrapper = document.createElement("div");
+  menuWrapper.style.position = "absolute";
+  menuWrapper.style.top = "6px";
+  menuWrapper.style.right = "6px";
+  menuWrapper.style.zIndex = "10";
 
-	container.style.position = "relative";
-	container.appendChild(reportBtn);
-	}
+  const menuButton = document.createElement("button");
+  menuButton.textContent = "︙";
+  menuButton.classList.add("white-button");
+  menuButton.style.padding = "4px 8px";
+  menuButton.style.fontSize = "16px";
+  menuButton.style.cursor = "pointer";
+
+  const menuList = document.createElement("div");
+  menuList.style.position = "absolute";
+  menuList.style.top = "100%";
+  menuList.style.right = "0";
+  menuList.style.background = "#fff";
+  menuList.style.border = "1px solid #ccc";
+  menuList.style.padding = "6px";
+  menuList.style.borderRadius = "6px";
+  menuList.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+  menuList.style.display = "none";
+  menuList.style.zIndex = "9999";
+  menuList.style.minWidth = "100px";
+
+  // メニュー開閉
+  menuButton.onclick = (e) => {
+    e.stopPropagation();
+    menuList.style.display = menuList.style.display === "none" ? "block" : "none";
+  };
+
+  // 外クリックで閉じる
+  document.addEventListener("click", () => {
+    menuList.style.display = "none";
+  });
+
+  // === 通報（他人のみ） ===
+  if (currentUid !== msg.uid) {
+    const reportBtn = document.createElement("div");
+    reportBtn.textContent = `🚨 通報 (${msg.reports || 0})`;
+    reportBtn.className = "menu-item";
+    reportBtn.onclick = () => {
+      const now = Date.now();
+      const lastReported = localStorage.getItem(`lastReport-${key}`) || 0;
+      if (now - lastReported < 60000) {
+        alert("同じメッセージには1分に1回しか通報できません。");
+        return;
+      }
+      localStorage.setItem(`lastReport-${key}`, now);
+
+      const newReports = (msg.reports || 0) + 1;
+      if (!msg.timestamp) msg.timestamp = Date.now();
+
+      update(ref(db, `chat/${key}`), { reports: newReports }).then(() => {
+        saveReportHistory(msg, newReports);
+        if (newReports >= 3) {
+          deleteMessage(key);
+        }
+      });
+
+      menuList.style.display = "none";
+    };
+    menuList.appendChild(reportBtn);
+  }
+
+  // === 編集（自分のみ） ===
+  if (currentUid === msg.uid) {
+    const editBtn = document.createElement("div");
+    editBtn.textContent = "✏️ 編集";
+    editBtn.className = "menu-item";
+    editBtn.onclick = () => {
+      const newText = prompt("新しいメッセージを入力", msg.text);
+      if (newText !== null && newText.trim() !== "") {
+        update(ref(db, `chat/${key}`), { text: newText + " (編集済み)" });
+      }
+      menuList.style.display = "none";
+    };
+    menuList.appendChild(editBtn);
+  }
+
+  // === 削除（自分、管理者、主） ===
+  const isAdmin = adminList?.[currentUid];
+  const isOwner = currentUid === "fyGR6L9DvfNgaxWlkJALog0IjqG3"; // 主のUID
+
+  if (currentUid === msg.uid || isAdmin || isOwner) {
+    const deleteBtn = document.createElement("div");
+    deleteBtn.textContent = "🗑️ 削除";
+    deleteBtn.className = "menu-item";
+    deleteBtn.onclick = () => {
+      if (confirm("このメッセージを削除しますか？")) {
+        remove(ref(db, `chat/${key}`));
+      }
+      menuList.style.display = "none";
+    };
+    menuList.appendChild(deleteBtn);
+  }
+
+  // 共通スタイル
+  menuList.querySelectorAll(".menu-item").forEach(el => {
+    el.style.cursor = "pointer";
+    el.style.padding = "6px 10px";
+    el.onmouseover = () => el.style.background = "#eee";
+    el.onmouseout = () => el.style.background = "transparent";
+  });
+
+  menuWrapper.appendChild(menuButton);
+  menuWrapper.appendChild(menuList);
+  container.appendChild(menuWrapper);
+}
 
 
 // --- いいね＆低評価ボタン ---
