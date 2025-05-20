@@ -545,19 +545,93 @@ if (text.startsWith("/ip ")) {
 }
 
 
+// /help コマンド処理（メッセージ送信時に追加）
+if (text === "/help") {
+  showHelpWindow();
+  messageInput.value = "";
+  sendBtn.disabled = false;
+  return;
+}
 
-// ✅ /help コマンドの追加 
-if (text === "/help")  {alert(`使用可能なコマンド一覧：
-/ban UID - 指定ユーザーをBAN
- /unban UID - BAN解除 
- /mute UID - 一時的に発言を停止（1分） 
- /delete UID - 指定ユーザーのコメントを全消し
- /help - このヘルプを表示 
-/addadmin UID - 管理者に任命
-/removeadmin UID - 管理者を剥奪
-※ /ban や /mute は主と管理者のみ実行可能です
-※ /addadminと/removeadminは主しか使えません()`); messageInput.value = ""; sendBtn.disabled = false; return; }
+// ヘルプウィンドウを表示する関数（移動＆サイズ変更対応）
+function showHelpWindow() {
+  if (document.getElementById("helpWindow")) return; // 既に表示中
 
+  const help = document.createElement("div");
+  help.id = "helpWindow";
+  help.style.position = "fixed";
+  help.style.top = "100px";
+  help.style.left = "100px";
+  help.style.width = "300px";
+  help.style.background = "#fff";
+  help.style.border = "2px solid #444";
+  help.style.borderRadius = "8px";
+  help.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+  help.style.padding = "12px";
+  help.style.zIndex = "9999";
+  help.style.resize = "both";
+  help.style.overflow = "auto";
+  help.style.cursor = "move";
+
+  // タイトルバー
+  const title = document.createElement("div");
+  title.textContent = "コマンド一覧";
+  title.style.fontWeight = "bold";
+  title.style.marginBottom = "8px";
+
+  // 閉じるボタン
+  const closeBtn = document.createElement("button");
+  closeBtn.textContent = "×";
+  closeBtn.style.position = "absolute";
+  closeBtn.style.top = "6px";
+  closeBtn.style.right = "8px";
+  closeBtn.style.border = "none";
+  closeBtn.style.background = "transparent";
+  closeBtn.style.fontSize = "18px";
+  closeBtn.style.cursor = "pointer";
+  closeBtn.onclick = () => help.remove();
+
+  // コマンドリスト
+  const list = document.createElement("ul");
+  list.style.margin = "0";
+  list.style.paddingLeft = "18px";
+  list.innerHTML = `
+    <li><b>/ban [uid]</b> - ユーザーをBAN</li>
+    <li><b>/lock</b> - チャットをロック</li>
+    <li><b>/lock 5</b> - 5分間ロック</li>
+    <li><b>/unlock</b> - チャットロック解除</li>
+    <li><b>/help</b> - このコマンド一覧を表示</li>
+  `;
+
+  help.appendChild(title);
+  help.appendChild(closeBtn);
+  help.appendChild(list);
+  document.body.appendChild(help);
+
+  // ドラッグで移動機能
+  let isDragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  help.addEventListener("mousedown", (e) => {
+    if (e.target === help || e.target === title) {
+      isDragging = true;
+      offsetX = e.clientX - help.offsetLeft;
+      offsetY = e.clientY - help.offsetTop;
+      e.preventDefault();
+    }
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      help.style.left = `${e.clientX - offsetX}px`;
+      help.style.top = `${e.clientY - offsetY}px`;
+    }
+  });
+
+  document.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
+}
 
 
 // BAN機能
