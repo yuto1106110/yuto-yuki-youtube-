@@ -596,11 +596,21 @@ function showHelpWindow() {
   list.style.paddingLeft = "20px";
   list.style.margin = "0";
   list.innerHTML = `
-    <li><b>/ban [uid]</b> - ユーザーをBAN</li>
-    <li><b>/lock</b> - チャットをロック</li>
-    <li><b>/lock 5</b> - 5分間ロック</li>
-    <li><b>/unlock</b> - ロック解除</li>
-    <li><b>/help</b> - この一覧を表示</li>
+  　〜 一般コマンド 〜
+<li><b>/help</b> - この一覧を表示</li>
+<li><b>/color [カラーコード]</b> - 色を変更　例) /color #808080</li>
+　〜 主,管理者専用コマンド 〜
+<li><b>/ban [uid]</b> - 指定したユーザーをBAN</li>
+<li><b>/mute [uid]</b> - 指定したユーザーを1分間ミュートにする</li>
+<li><b>/delete [display name]</b> - 指定したユーザーのコメントを全削除</li>
+<li><b>/ip [uid]</b> - 指定したユーザーのIPアドレス情報を表示</li>
+<li><b>/lock</b> - 主,管理者以外コメントを不可にする</li>
+<li><b>/lock [時間(分単位)]</b> - ~分間コメントを不可にする</li>
+<li><b>/unlock</b> - コメントを可能にする</li>
+　〜 主専用コマンド 〜
+<li><b>/addadmin [uid]</b> - 指定したユーザーを管理者に設定</li>
+<li><b>/removeadmin [uid]</b> - 指定したユーザーを管理者から外す</li>
+<li><b>/banuid [uid]</b> - 指定したユーザーを端末ごとBAN(あんまり効果なし...)</li>
   `;
 
   help.appendChild(closeBtn);
