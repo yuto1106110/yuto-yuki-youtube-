@@ -478,6 +478,8 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
+  if mode != "watch":
+        return RedirectResponse(f"/{mode}?v={v}")
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
@@ -529,7 +531,9 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 @app.get('/nocookie', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
-    if not(checkCookie(yuki)):
+    if mode != "nocookie":
+        return RedirectResponse(f"/{mode}?v={v}")
+  if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
     video_data = getVideoData(v)
@@ -580,6 +584,8 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 @app.get('/embed', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
+  if mode != "embed":
+        return RedirectResponse(f"/{mode}?v={v}")
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
@@ -631,6 +637,8 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 @app.get('/w', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
+  if mode != "w":
+        return RedirectResponse(f"/{mode}?v={v}")
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
