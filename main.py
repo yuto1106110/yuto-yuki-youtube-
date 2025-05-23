@@ -296,6 +296,7 @@ def parseYTDLPVideoData(info):
 
 
 def getVideoData(videoid):
+def getVideoData(videoid):
     try:
         # Invidious
         t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
