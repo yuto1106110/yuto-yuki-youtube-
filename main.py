@@ -8,6 +8,7 @@ import os
 import subprocess
 from cache import cache
 import ast
+from fastapi.responses import RedirectResponse
 
 # 3 => (3.0, 1.5) => (1.5, 1)
 max_api_wait_time = (3.0, 1.5)
@@ -477,7 +478,11 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
+   def watch_redirect(v: str, request: Request):
+    mode = request.cookies.get("play_mode", "watch")
+    if mode != "watch":
+        return RedirectResponse(f"/{mode}?v={v}")
+  # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
@@ -528,9 +533,11 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/nocookie', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
+    def watch_redirect(v: str, request: Request):
+    mode = request.cookies.get("play_mode", "nocookie")
     if mode != "nocookie":
         return RedirectResponse(f"/{mode}?v={v}")
+  # v: video_id
   if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
@@ -581,9 +588,11 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/embed', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
-  if mode != "embed":
+   def watch_redirect(v: str, request: Request):
+    mode = request.cookies.get("play_mode", "embed")
+    if mode != "embed":
         return RedirectResponse(f"/{mode}?v={v}")
+  # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
@@ -634,9 +643,11 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/w', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    # v: video_id
-  if mode != "w":
+    def watch_redirect(v: str, request: Request):
+    mode = request.cookies.get("play_mode", "w")
+    if mode != "w":
         return RedirectResponse(f"/{mode}?v={v}")
+  # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
     response.set_cookie(key="yuki", value="True", max_age=7*24*60*60)
