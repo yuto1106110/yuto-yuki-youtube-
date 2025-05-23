@@ -296,14 +296,7 @@ def parseYTDLPVideoData(info):
 
 
 def getVideoData(videoid):
-    try:
-        # Invidious
-        t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
-        return parseInvidiousVideoData(t)
-    except Exception as e:
-        print("[Invidious失敗]", e)
-
-    try:
+     try:
         # Piped
         r = requests.get(f"https://pipedapi.kavin.rocks/streams/{videoid}", timeout=5)
         if r.ok:
@@ -319,6 +312,13 @@ def getVideoData(videoid):
             return parseYTDLPVideoData(info)
     except Exception as e:
         print("[yt-dlp失敗]", e)
+
+         try:
+        # Invidious
+        t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+        return parseInvidiousVideoData(t)
+    except Exception as e:
+        print("[Invidious失敗]", e)
         raise Exception("すべての取得手段で失敗しました")
 
 
