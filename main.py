@@ -217,7 +217,23 @@ def getInfo(request):
 
 failed = "Load Failed"
 
-
+def parseYTDLPVideoData(info):
+    streams = [f["url"] for f in info.get("formats", []) if "url" in f]
+    return [
+        {
+            'video_urls': streams[:2],
+            'description_html': info.get("description", "").replace("\n", "<br>"),
+            'title': info.get("title", ""),
+            'length_text': str(datetime.timedelta(seconds=info.get("duration", 0))),
+            'author_id': info.get("channel_id", ""),
+            'author': info.get("uploader", ""),
+            'author_thumbnails_url': info.get("thumbnails", [{}])[-1].get("url", ""),
+            'view_count': info.get("view_count", 0),
+            'like_count': info.get("like_count", 0),
+            'subscribers_count': info.get("channel_follower_count", "")
+        },
+        []
+    ]
 
 def parseInvidiousVideoData(t):
     recommended_videos = t.get('recommendedVideos') or t.get('recommendedvideo', [])
@@ -276,23 +292,7 @@ def parsePipedVideoData(t):
         []
     ]
 
-def parseYTDLPVideoData(info):
-    streams = [f["url"] for f in info.get("formats", []) if "url" in f]
-    return [
-        {
-            'video_urls': streams[:2],
-            'description_html': info.get("description", "").replace("\n", "<br>"),
-            'title': info.get("title", ""),
-            'length_text': str(datetime.timedelta(seconds=info.get("duration", 0))),
-            'author_id': info.get("channel_id", ""),
-            'author': info.get("uploader", ""),
-            'author_thumbnails_url': info.get("thumbnails", [{}])[-1].get("url", ""),
-            'view_count': info.get("view_count", 0),
-            'like_count': info.get("like_count", 0),
-            'subscribers_count': info.get("channel_follower_count", "")
-        },
-        []
-    ]
+
 
 
 def getVideoData(videoid):
