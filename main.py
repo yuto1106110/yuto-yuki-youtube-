@@ -217,23 +217,6 @@ def getInfo(request):
 
 failed = "Load Failed"
 
-def parseYTDLPVideoData(info):
-    streams = [f["url"] for f in info.get("formats", []) if "url" in f]
-    return [
-        {
-            'video_urls': streams[:2],
-            'description_html': info.get("description", "").replace("\n", "<br>"),
-            'title': info.get("title", ""),
-            'length_text': str(datetime.timedelta(seconds=info.get("duration", 0))),
-            'author_id': info.get("channel_id", ""),
-            'author': info.get("uploader", ""),
-            'author_thumbnails_url': info.get("thumbnails", [{}])[-1].get("url", ""),
-            'view_count': info.get("view_count", 0),
-            'like_count': info.get("like_count", 0),
-            'subscribers_count': info.get("channel_follower_count", "")
-        },
-        []
-    ]
 
 def parseInvidiousVideoData(t):
     recommended_videos = t.get('recommendedVideos') or t.get('recommendedvideo', [])
@@ -292,11 +275,42 @@ def parsePipedVideoData(t):
         []
     ]
 
-
+def parseYTDLPVideoData(info):
+    streams = [f["url"] for f in info.get("formats", []) if "url" in f]
+    return [
+        {
+            'video_urls': streams[:2],
+            'description_html': info.get("description", "").replace("\n", "<br>"),
+            'title': info.get("title", ""),
+            'length_text': str(datetime.timedelta(seconds=info.get("duration", 0))),
+            'author_id': info.get("channel_id", ""),
+            'author': info.get("uploader", ""),
+            'author_thumbnails_url': info.get("thumbnails", [{}])[-1].get("url", ""),
+            'view_count': info.get("view_count", 0),
+            'like_count': info.get("like_count", 0),
+            'subscribers_count': info.get("channel_follower_count", "")
+        },
+        []
+    ]
 
 
 def getVideoData(videoid):
-      try:
+    try:
+        # Invidious
+        t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
+        return parseInvidiousVideoData(t)
+    except Exception as e:
+        print("[Invidious失敗]", e)
+
+    try:
+        # Piped
+        r = requests.get(f"https://pipedapi.kavin.rocks/streams/{videoid}", timeout=5)
+        if r.ok:
+            return parsePipedVideoData(r.json())
+    except Exception as e:
+        print("[Piped失敗]", e)
+
+    try:
         # yt-dlp
         import yt_dlp
         with yt_dlp.YoutubeDL({'quiet': True, 'skip_download': True}) as ydl:
@@ -304,23 +318,8 @@ def getVideoData(videoid):
             return parseYTDLPVideoData(info)
     except Exception as e:
         print("[yt-dlp失敗]", e)
-
-         try:
-        # Invidious
-        t = json.loads(requestAPI(f"/videos/{urllib.parse.quote(videoid)}", invidious_api.video))
-        return parseInvidiousVideoData(t)
-    except Exception as e:
-        print("[Invidious失敗]", e)
-
-         try:
-        # Piped
-        r = requests.get(f"https://pipedapi.kavin.rocks/streams/{videoid}", timeout=5)
-        if r.ok:
-            return parsePipedVideoData(r.json())
-    except Exception as e:
-        print("[Piped失敗]", e)
         raise Exception("すべての取得手段で失敗しました")
-
+      
 
 def getSearchData(q, page):
 
