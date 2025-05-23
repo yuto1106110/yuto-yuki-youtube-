@@ -296,15 +296,7 @@ def parseYTDLPVideoData(info):
 
 
 def getVideoData(videoid):
-     try:
-        # Piped
-        r = requests.get(f"https://pipedapi.kavin.rocks/streams/{videoid}", timeout=5)
-        if r.ok:
-            return parsePipedVideoData(r.json())
-    except Exception as e:
-        print("[Piped失敗]", e)
-
-    try:
+      try:
         # yt-dlp
         import yt_dlp
         with yt_dlp.YoutubeDL({'quiet': True, 'skip_download': True}) as ydl:
@@ -319,6 +311,14 @@ def getVideoData(videoid):
         return parseInvidiousVideoData(t)
     except Exception as e:
         print("[Invidious失敗]", e)
+
+         try:
+        # Piped
+        r = requests.get(f"https://pipedapi.kavin.rocks/streams/{videoid}", timeout=5)
+        if r.ok:
+            return parsePipedVideoData(r.json())
+    except Exception as e:
+        print("[Piped失敗]", e)
         raise Exception("すべての取得手段で失敗しました")
 
 
