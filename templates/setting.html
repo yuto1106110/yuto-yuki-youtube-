@@ -1,33 +1,32 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Google</title>
+    <title>Google</title>
 </head>
 <body>
-  <h2>再生方式の設定</h2>
-  <p>再生ページでどの方式を使うかを選択してください。</p>
+    <h1>再生モードを選択してください</h1>
+    <form action="/set-mode" method="post">
+        <label>
+            <input type="radio" name="play_mode" value="watch" {{ 'checked' if play_mode == 'watch' else '' }}>
+            通常再生
+        </label><br>
 
-  <label for="playModeSelect">再生モード:</label>
-  <select id="playModeSelect">
-    <option value="watch">通常再生モード</option>
-    <option value="embed">公式埋め込み　(Embed)</option>
-    <option value="nocookie">埋め込み（NoCookie）</option>
-    <option value="w">画質調整モード</option>
-  </select>
+        <label>
+            <input type="radio" name="play_mode" value="embed" {{ 'checked' if play_mode == 'embed' else '' }}>
+            埋め込み再生（公式）
+        </label><br>
 
-  <p>※選択はクッキーに保存され、1年間有効です。(同じurlのサイトのみ)</p>
+        <label>
+            <input type="radio" name="play_mode" value="nocookie" {{ 'checked' if play_mode == 'nocookie' else '' }}>
+            埋め込み再生（プライバシー）
+        </label><br>
 
-  <script>
-    const select = document.getElementById("playModeSelect");
+        <label>
+            <input type="radio" name="play_mode" value="w" {{ 'checked' if play_mode == 'w' else '' }}>
+            カスタム画質再生
+        </label><br><br>
 
-    const match = document.cookie.match(/(?:^|;) ?play_mode=([^;]*)/);
-    if (match) select.value = match[1];
-
-    select.addEventListener("change", () => {
-      document.cookie = `play_mode=${select.value}; path=/; max-age=31536000`;
-      alert("保存しました!");
-    });
-  </script>
+        <button type="submit">保存</button>
+    </form>
 </body>
 </html>
