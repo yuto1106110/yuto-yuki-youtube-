@@ -993,7 +993,7 @@ def list_page(response: Response, request: Request):
 def list_page(response: Response, request: Request):
     return template("chat.html", {"request": request})
 
-@app.get("/settings", response_class=HTMLResponse)
+@app.get("/setting", response_class=HTMLResponse)
 def settings_page(request: Request):
     current_mode = request.cookies.get("play_mode", "watch")
     return template("settings.html", {
