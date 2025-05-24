@@ -449,7 +449,6 @@ from typing import Union
 
 
 
-
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/js", StaticFiles(directory="./statics/js"), name="static")
 app.mount("/css", StaticFiles(directory="./statics/css"), name="static")
@@ -462,6 +461,16 @@ template = Jinja2Templates(directory='templates').TemplateResponse
 
 no_robot_meta_tag = '<meta name="robots" content="noindex,nofollow">'
 
+
+@app.post("/set-mode")
+async def set_play_mode(request: Request):
+    form = await request.form()
+    selected = form.get("play_mode", "watch")
+    response = RedirectResponse("/settings", status_code=303)
+    response.set_cookie("play_mode", selected, max_age=60*60*24*30)
+    return response
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
     if checkCookie(yuki):
@@ -472,10 +481,20 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 
 
+@app.get("/watch", response_class=HTMLResponse)
+def watch_redirect(v: str, request: Request):
+    mode = request.cookies.get("play_mode", "watch")
+    if mode == "embed":
+        return RedirectResponse(f"/embed?v={v}")
+    elif mode == "nocookie":
+        return RedirectResponse(f"/nocookie?v={v}")
+    elif mode == "w":
+        return RedirectResponse(f"/w?v={v}")
+    # 通常再生へ
+    return RedirectResponse(f"/watch_main?v={v}")
 
 
-
-@app.get('/watch', response_class=HTMLResponse)
+@app.get('/watch_main', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
     # v: video_id
     if not(checkCookie(yuki)):
@@ -937,9 +956,6 @@ def list_page(response: Response, request: Request):
 @app.get("/news", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("news.html", {"request": request})
-@app.get("/setting", response_class=HTMLResponse)
-def list_page(response: Response, request: Request):
-    return template("setting.html", {"request": request})
 @app.get("/umekomi", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("umekomi.html", {"request": request})
@@ -977,6 +993,13 @@ def list_page(response: Response, request: Request):
 def list_page(response: Response, request: Request):
     return template("chat.html", {"request": request})
 
+@app.get("/settings", response_class=HTMLResponse)
+def settings_page(request: Request):
+    current_mode = request.cookies.get("play_mode", "watch")
+    return template("settings.html", {
+        "request": request,
+        "play_mode": current_mode
+    })
 
 
 
