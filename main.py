@@ -478,14 +478,7 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    if mode != "watch":
-        return RedirectResponse(f"/{mode}?v={v}")
-    if mode != "nocookie":
-        return RedirectResponse(f"/{mode}?v={v}")
-    if mode != "embed":
-        return RedirectResponse(f"/{mode}?v={v}")
-    if mode != "w":
-        return RedirectResponse(f"/{mode}?v={v}")
+    
   # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
