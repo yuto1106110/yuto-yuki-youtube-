@@ -478,7 +478,6 @@ def home(response: Response, request: Request, yuki: Union[str] = Cookie(None)):
 
 @app.get('/watch', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-   def watch_redirect(v: str, request: Request):
     mode = request.cookies.get("play_mode", "watch")
     if mode != "watch":
         return RedirectResponse(f"/{mode}?v={v}")
