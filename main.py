@@ -996,7 +996,7 @@ def list_page(response: Response, request: Request):
 @app.get("/setting", response_class=HTMLResponse)
 def settings_page(request: Request):
     current_mode = request.cookies.get("play_mode", "watch")
-    return template("settings.html", {
+    return template("setting.html", {
         "request": request,
         "play_mode": current_mode
     })
