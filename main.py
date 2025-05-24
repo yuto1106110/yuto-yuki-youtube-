@@ -482,6 +482,12 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
     mode = request.cookies.get("play_mode", "watch")
     if mode != "watch":
         return RedirectResponse(f"/{mode}?v={v}")
+    if mode != "nocookie":
+        return RedirectResponse(f"/{mode}?v={v}")
+    if mode != "embed":
+        return RedirectResponse(f"/{mode}?v={v}")
+    if mode != "w":
+        return RedirectResponse(f"/{mode}?v={v}")
   # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
@@ -533,10 +539,6 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/nocookie', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    def watch_redirect(v: str, request: Request):
-    mode = request.cookies.get("play_mode", "nocookie")
-    if mode != "nocookie":
-        return RedirectResponse(f"/{mode}?v={v}")
   # v: video_id
   if not(checkCookie(yuki)):
         return redirect("/")
@@ -588,10 +590,6 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/embed', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-   def watch_redirect(v: str, request: Request):
-    mode = request.cookies.get("play_mode", "embed")
-    if mode != "embed":
-        return RedirectResponse(f"/{mode}?v={v}")
   # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
@@ -643,10 +641,6 @@ def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie
 
 @app.get('/w', response_class=HTMLResponse)
 def video(v:str, response: Response, request: Request, yuki: Union[str] = Cookie(None), proxy: Union[str] = Cookie(None)):
-    def watch_redirect(v: str, request: Request):
-    mode = request.cookies.get("play_mode", "w")
-    if mode != "w":
-        return RedirectResponse(f"/{mode}?v={v}")
   # v: video_id
     if not(checkCookie(yuki)):
         return redirect("/")
