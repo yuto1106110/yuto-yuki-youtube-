@@ -472,10 +472,7 @@ async def set_play_mode(request: Request):
 
     response = RedirectResponse(url="/setting", status_code=303)
     response.set_cookie("play_mode", mode, max_age=60*60*24*30)
-    return template("setting.html", {
-        "request": request,
-        "play_mode": current_mode
-    })
+    return redirect("/setting")
 
 
 @app.get("/", response_class=HTMLResponse)
