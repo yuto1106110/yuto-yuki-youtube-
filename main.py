@@ -466,7 +466,7 @@ no_robot_meta_tag = '<meta name="robots" content="noindex,nofollow">'
 async def set_play_mode(request: Request):
     form = await request.form()
     selected = form.get("play_mode", "watch")
-    response = RedirectResponse("/settings", status_code=303)
+    response = RedirectResponse("/setting", status_code=303)
     response.set_cookie("play_mode", selected, max_age=60*60*24*30)
     return response
 
