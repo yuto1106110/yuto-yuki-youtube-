@@ -6,28 +6,12 @@
 <body>
 <a href="javascript:location.replace('/')">ホーム</a><br>
     <h1>再生モードを選択してください</h1>
-    <form action="/set-mode" method="post">
-        <label>
-            <input type="radio" name="play_mode" value="watch" {{ 'checked' if play_mode == 'watch' else '' }}>
-            通常再生
-        </label><br>
-
-        <label>
-            <input type="radio" name="play_mode" value="embed" {{ 'checked' if play_mode == 'embed' else '' }}>
-            埋め込み再生（公式）
-        </label><br>
-
-        <label>
-            <input type="radio" name="play_mode" value="nocookie" {{ 'checked' if play_mode == 'nocookie' else '' }}>
-            埋め込み再生（プライバシー）
-        </label><br>
-
-        <label>
-            <input type="radio" name="play_mode" value="w" {{ 'checked' if play_mode == 'w' else '' }}>
-            カスタム画質再生
-        </label><br><br>
-
-        <button type="submit">保存</button>
-    </form>
+   <form action="/set-mode" method="post">
+  <label><input type="radio" name="play_mode" value="watch" {% if play_mode == 'watch' %}checked{% endif %}>デフォルトモード</label><br>
+  <label><input type="radio" name="play_mode" value="embed" {% if play_mode == 'embed' %}checked{% endif %}>埋め込みモード(公式)</label><br>
+  <label><input type="radio" name="play_mode" value="nocookie" {% if play_mode == 'nocookie' %}checked{% endif %}>埋め込みモード(NoCookie)</label><br>
+  <label><input type="radio" name="play_mode" value="w" {% if play_mode == 'w' %}checked{% endif %}>画質調整モード</label><br><br>
+  <button type="submit">保存</button>
+   </form>
 </body>
 </html>
