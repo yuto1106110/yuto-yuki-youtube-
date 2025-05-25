@@ -1000,6 +1000,9 @@ def list_page(response: Response, request: Request):
 @app.get("/chat", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("chat.html", {"request": request})
+@app.get("/rireki", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("rireki.html", {"request": request})
 
 @app.get("/setting", response_class=HTMLResponse)
 def settings_page(request: Request):
