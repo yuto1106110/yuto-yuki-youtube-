@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Google翻訳風 履歴スパマー</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #controller {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.9);
+      padding: 10px 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      z-index: 9999;
+    }
+    #startStopBtn {
+      font-size: 1em;
+      padding: 8px 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #startStopBtn:hover {
+      background: #0056b3;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="controller">
+  <button id="startStopBtn">Start</button>
+</div>
+
+<iframe src="https://translate.google.com/"></iframe>
+
+<script>
+  let spamTimer = null;
+
+  function randomText(length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
+  function pushFakeHistory() {
+    const text = randomText(6);
+    const url = `https://translate.google.com/?sl=ja&tl=en&text=${text}`;
+    history.pushState(null, '', url);
+  }
+
+  const button = document.getElementById('startStopBtn');
+
+  button.addEventListener('click', () => {
+    if (spamTimer === null) {
+      spamTimer = setInterval(pushFakeHistory, 200); // 0.2秒ごとに履歴追加
+      button.textContent = 'Stop';
+    } else {
+      clearInterval(spamTimer);
+      spamTimer = null;
+      button.textContent = 'Start';
+    }
+  });
+</script>
+
+</body>
+</html>
