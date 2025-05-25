@@ -73,6 +73,13 @@
     <button class="btn-secondary" onclick="openInBlank()">開く</button>
   </div>
 
+    <div class="card">
+    <h1>履歴を埋める</h1>
+    <p>1秒ごとにDeepl翻訳の履歴が残るようになるタブを、新しいタブで開きます。</p>
+    <button id="fillHistoryBtn">履歴を埋める</button>
+
+    </div>
+
   <script>
     function openInBlank() {
       const siteUrl = location.href;
@@ -100,6 +107,11 @@
       win.document.close();
     }
   </script>
-
+<script>
+document.getElementById("fillHistoryBtn").addEventListener("click", () => {
+    window.open("rireki.html", "_blank");
+  });  
+</script>
+  
 </body>
 </html>
