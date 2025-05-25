@@ -468,15 +468,14 @@ from fastapi import Request
 
 @app.post("/set-mode")
 async def set_play_mode(request: Request):
-    try:
-        form = await request.form()
-        mode = form.get("play_mode", "watch")
-        response = RedirectResponse("/setting", status_code=303)
-        response.set_cookie("play_mode", mode, max_age=60*60*24*30)
-        return response
-    except Exception as e:
-        print("設定保存エラー:", e)
-        return RedirectResponse("/setting", status_code=303)
+    form = await request.form()
+    selected_mode = form.get("play_mode", "default")
+    response = RedirectResponse("/setting", status_code=303)
+
+    # ここで1つのクッキーだけを管理
+    response.set_cookie("play_mode", selected_mode, max_age=60*60*24*30)
+
+    return response
 
 
 @app.get("/", response_class=HTMLResponse)
