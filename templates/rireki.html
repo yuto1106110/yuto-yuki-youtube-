@@ -2,79 +2,162 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Google翻訳風 履歴スパマー</title>
+  <title>デジタル時計「--:--:--」</title>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
-      overflow: hidden;
       font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f3f3f3;
     }
-    #controller {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      background: rgba(255,255,255,0.9);
-      padding: 10px 15px;
+    #currentId {
+      font-size: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    #updateCount {
+      font-size: 1.5em;
+      margin-bottom: 1em;
+    }
+    #toggle {
+      padding: 1em 2em;
+      font-size: 1.5em;
+      border: none;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      z-index: 9999;
-    }
-    #startStopBtn {
-      font-size: 1em;
-      padding: 8px 16px;
-      background: #007bff;
+      background: #007acc;
       color: white;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.3s;
+      margin: 1em 0;
     }
-    #startStopBtn:hover {
-      background: #0056b3;
+    #toggle:hover {
+      background: #005fa3;
     }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
+    #clockContainer {
+      text-align: center;
+      margin-top: 1em;
+    }
+    #clock {
+      font-size: 2.5em;
+      font-family: "Courier New", Courier, monospace;
+      margin-top: 0.5em;
+    }
+    #speedControl {
+      margin: 1em 0;
+      text-align: center;
+    }
+    #speedControl label {
+      font-size: 1.2em;
+      margin-right: 0.5em;
+    }
+    #speedValue {
+      font-weight: bold;
+      margin-left: 0.5em;
     }
   </style>
 </head>
 <body>
+  <div id="currentId">Current ID: -</div>
+  <div id="updateCount">更新回数: 0</div>
 
-<div id="controller">
-  <button id="startStopBtn">Start</button>
-</div>
+  <div id="speedControl">
+    <label for="speedRange">更新速度 (ms):</label>
+    <input type="range" id="speedRange" min="50" max="1000" step="50" value="100">
+    <span id="speedValue">100</span>
+  </div>
+  <h3>数字は小さい方が早く履歴を埋めます,その分遅くなりますが…</h3>
 
-<iframe src="https://translate.google.com/"></iframe>
+  <button id="toggle">Start</button>
 
-<script>
-  let spamTimer = null;
+  <div id="clockContainer">
+    <h2>デジタル時計(現在の時間)</h2>
+    <div id="clock">--:--:--</div>
+  </div>
 
-  function randomText(length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  }
+  <script>
+    let urlTimer = null;
+    let clockTimer = null;
+    let updateCount = 0;
 
-  function pushFakeHistory() {
-    const text = randomText(6);
-    const url = `https://translate.google.com/?sl=ja&tl=en&text=${text}`;
-    history.pushState(null, '', url);
-  }
+    const toggleButton = document.getElementById("toggle");
+    const currentIdDisplay = document.getElementById("currentId");
+    const updateCountDisplay = document.getElementById("updateCount");
+    const clockDisplay = document.getElementById("clock");
+    const speedRange = document.getElementById("speedRange");
+    const speedValue = document.getElementById("speedValue");
 
-  const button = document.getElementById('startStopBtn');
-
-  button.addEventListener('click', () => {
-    if (spamTimer === null) {
-      spamTimer = setInterval(pushFakeHistory, 200); // 0.2秒ごとに履歴追加
-      button.textContent = 'Stop';
-    } else {
-      clearInterval(spamTimer);
-      spamTimer = null;
-      button.textContent = 'Start';
+    function randomId(length) {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
     }
-  });
-</script>
 
+    function changeURL() {
+      const id = randomId(8);
+      const text = encodeURIComponent("履歴追加" + id);
+      const fakeTranslateURL = `https://translate.google.com/?sl=auto&tl=ja&text=${text}`;
+      history.pushState(null, "", fakeTranslateURL);
+
+      currentIdDisplay.textContent = "Current ID: " + id;
+      updateCount++;
+      updateCountDisplay.textContent = "更新回数: " + updateCount;
+
+      if (updateCount % 100 === 0) {
+        console.log("更新回数が " + updateCount + " に達しました。");
+      }
+    }
+
+    function startChangingURL() {
+      const interval = parseInt(speedRange.value);
+      urlTimer = setInterval(changeURL, interval);
+    }
+
+    function stopChangingURL() {
+      clearInterval(urlTimer);
+      urlTimer = null;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const timeString = hours + ":" + minutes + ":" + seconds;
+      clockDisplay.textContent = timeString;
+      document.title = "デジタル時計「" + timeString + "」";
+    }
+
+    function startClock() {
+      updateClock();
+      clockTimer = setInterval(updateClock, 1000);
+    }
+
+    startClock();
+
+    speedRange.addEventListener("input", () => {
+      speedValue.textContent = speedRange.value;
+      if (urlTimer !== null) {
+        stopChangingURL();
+        startChangingURL();
+      }
+    });
+
+    toggleButton.addEventListener("click", () => {
+      if (urlTimer === null) {
+        startChangingURL();
+        toggleButton.textContent = "Stop";
+      } else {
+        stopChangingURL();
+        toggleButton.textContent = "Start";
+      }
+    });
+  </script>
 </body>
 </html>
