@@ -462,17 +462,21 @@ template = Jinja2Templates(directory='templates').TemplateResponse
 no_robot_meta_tag = '<meta name="robots" content="noindex,nofollow">'
 
 
+
 from fastapi.responses import RedirectResponse
-from fastapi import Request, Form
+from fastapi import Request
 
 @app.post("/set-mode")
 async def set_play_mode(request: Request):
-    form = await request.form()
-    mode = form.get("play_mode", "watch")
-
-    response = RedirectResponse(url="/setting", status_code=303)
-    response.set_cookie("play_mode", mode, max_age=60*60*24*30)
-    return redirect("/setting")
+    try:
+        form = await request.form()
+        mode = form.get("play_mode", "watch")
+        response = RedirectResponse("/setting", status_code=303)
+        response.set_cookie("play_mode", mode, max_age=60*60*24*30)
+        return response
+    except Exception as e:
+        print("設定保存エラー:", e)
+        return RedirectResponse("/setting", status_code=303)
 
 
 @app.get("/", response_class=HTMLResponse)
