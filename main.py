@@ -466,7 +466,7 @@ no_robot_meta_tag = '<meta name="robots" content="noindex,nofollow">'
 from fastapi.responses import RedirectResponse
 from fastapi import Request
 
-@app.post("/set-mode")
+@app.get("/set-mode")
 async def set_play_mode(request: Request):
     form = await request.form()
     response = RedirectResponse("/setting", status_code=303)
