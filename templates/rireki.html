@@ -1,163 +1,53 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>デジタル時計「--:--:--」</title>
+  <meta charset="UTF-8" />
+  <title>Google翻訳 - 履歴埋め中</title>
+  <link rel="icon" href="https://translate.google.com/favicon.ico" />
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f3f3f3;
+    body, html {
+      margin:0; padding:0; height:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
     }
-    #currentId {
-      font-size: 1.5em;
-      margin-bottom: 0.5em;
-    }
-    #updateCount {
-      font-size: 1.5em;
-      margin-bottom: 1em;
-    }
-    #toggle {
-      padding: 1em 2em;
-      font-size: 1.5em;
-      border: none;
-      border-radius: 8px;
-      background: #007acc;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-      margin: 1em 0;
-    }
-    #toggle:hover {
-      background: #005fa3;
-    }
-    #clockContainer {
-      text-align: center;
-      margin-top: 1em;
-    }
-    #clock {
-      font-size: 2.5em;
-      font-family: "Courier New", Courier, monospace;
-      margin-top: 0.5em;
-    }
-    #speedControl {
-      margin: 1em 0;
-      text-align: center;
-    }
-    #speedControl label {
-      font-size: 1.2em;
-      margin-right: 0.5em;
-    }
-    #speedValue {
-      font-weight: bold;
-      margin-left: 0.5em;
+    iframe {
+      width: 100%; height: 90vh; border:none;
     }
   </style>
 </head>
 <body>
-  <div id="currentId">Current ID: -</div>
-  <div id="updateCount">更新回数: 0</div>
-
-  <div id="speedControl">
-    <label for="speedRange">更新速度 (ms):</label>
-    <input type="range" id="speedRange" min="50" max="1000" step="50" value="100">
-    <span id="speedValue">100</span>
-  </div>
-  <h3>数字は小さい方が早く履歴を埋めます,その分遅くなりますが…</h3>
-
-  <button id="toggle">Start</button>
-
-  <div id="clockContainer">
-    <h2>デジタル時計(現在の時間)</h2>
-    <div id="clock">--:--:--</div>
-  </div>
+  <h1>Google翻訳風 履歴埋めページ</h1>
+  <iframe id="translatorFrame" src="about:blank"></iframe>
 
   <script>
-    let urlTimer = null;
-    let clockTimer = null;
-    let updateCount = 0;
+    const iframe = document.getElementById("translatorFrame");
 
-    const toggleButton = document.getElementById("toggle");
-    const currentIdDisplay = document.getElementById("currentId");
-    const updateCountDisplay = document.getElementById("updateCount");
-    const clockDisplay = document.getElementById("clock");
-    const speedRange = document.getElementById("speedRange");
-    const speedValue = document.getElementById("speedValue");
+    // Google翻訳はiframe拒否なので、別の翻訳サイトを入れるか空白にします。
+    // 例：DeepL翻訳なら埋め込み可能（要確認）
+    // iframe.src = "https://www.deepl.com/translator";
 
-    function randomId(length) {
+    // ここでは空白ページにし、履歴埋めのURLだけ変えていきます。
+
+    let count = 0;
+
+    function randomId(len) {
       const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
-      for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      let res = '';
+      for(let i=0; i<len; i++){
+        res += chars.charAt(Math.floor(Math.random()*chars.length));
       }
-      return result;
+      return res;
     }
 
-    function changeURL() {
+    function changeUrlAndHistory() {
       const id = randomId(8);
-      const text = encodeURIComponent("履歴追加" + id);
-      const fakeTranslateURL = `https://translate.google.com/?sl=auto&tl=ja&text=${text}`;
-      history.pushState(null, "", fakeTranslateURL);
-
-      currentIdDisplay.textContent = "Current ID: " + id;
-      updateCount++;
-      updateCountDisplay.textContent = "更新回数: " + updateCount;
-
-      if (updateCount % 100 === 0) {
-        console.log("更新回数が " + updateCount + " に達しました。");
-      }
+      // 履歴に積むためにpushStateでURL変える
+      history.pushState(null, "", "/"+id);
+      count++;
+      console.log("履歴追加数: "+count);
     }
 
-    function startChangingURL() {
-      const interval = parseInt(speedRange.value);
-      urlTimer = setInterval(changeURL, interval);
-    }
-
-    function stopChangingURL() {
-      clearInterval(urlTimer);
-      urlTimer = null;
-    }
-
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      const timeString = hours + ":" + minutes + ":" + seconds;
-      clockDisplay.textContent = timeString;
-      document.title = "デジタル時計「" + timeString + "」";
-    }
-
-    function startClock() {
-      updateClock();
-      clockTimer = setInterval(updateClock, 1000);
-    }
-
-    startClock();
-
-    speedRange.addEventListener("input", () => {
-      speedValue.textContent = speedRange.value;
-      if (urlTimer !== null) {
-        stopChangingURL();
-        startChangingURL();
-      }
-    });
-
-    toggleButton.addEventListener("click", () => {
-      if (urlTimer === null) {
-        startChangingURL();
-        toggleButton.textContent = "Stop";
-      } else {
-        stopChangingURL();
-        toggleButton.textContent = "Start";
-      }
-    });
+    setInterval(changeUrlAndHistory, 1000); // 1秒ごとに履歴を増やす
   </script>
 </body>
 </html>
