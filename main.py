@@ -469,12 +469,13 @@ from fastapi import Request
 @app.post("/set-mode")
 async def set_play_mode(request: Request):
     form = await request.form()
-    selected_mode = form.get("play_mode", "default")
     response = RedirectResponse("/setting", status_code=303)
-
-    # ここで1つのクッキーだけを管理
-    response.set_cookie("play_mode", selected_mode, max_age=60*60*24*30)
-
+    
+    # ここでは yuki は触らない
+    selected_mode = form.get("play_mode")  # 値: 'watch', 'w', 'nocookie', 'embed'
+    if selected_mode in {"watch", "w", "nocookie", "embed"}:
+        response.set_cookie("play_mode", selected_mode, max_age=60*60*24*30)
+    
     return response
 
 
