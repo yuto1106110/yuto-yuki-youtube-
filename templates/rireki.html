@@ -2,52 +2,42 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>Google翻訳 - 履歴埋め中</title>
-  <link rel="icon" href="https://translate.google.com/favicon.ico" />
+  <title>DeepL翻訳</title>
+  <link rel="icon" href="https://www.deepl.com/favicon.ico" />
   <style>
-    body, html {
-      margin:0; padding:0; height:100%;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
     }
     iframe {
-      width: 100%; height: 90vh; border:none;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
   </style>
 </head>
 <body>
-  <h1>Google翻訳風 履歴埋めページ</h1>
-  <iframe id="translatorFrame" src="about:blank"></iframe>
+  <iframe src="https://www.deepl.com/translator"></iframe>
 
   <script>
-    const iframe = document.getElementById("translatorFrame");
-
-    // Google翻訳はiframe拒否なので、別の翻訳サイトを入れるか空白にします。
-    // 例：DeepL翻訳なら埋め込み可能（要確認）
-    // iframe.src = "https://www.deepl.com/translator";
-
-    // ここでは空白ページにし、履歴埋めのURLだけ変えていきます。
-
-    let count = 0;
-
     function randomId(len) {
       const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
       let res = '';
-      for(let i=0; i<len; i++){
-        res += chars.charAt(Math.floor(Math.random()*chars.length));
+      for (let i = 0; i < len; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
       }
       return res;
     }
 
-    function changeUrlAndHistory() {
-      const id = randomId(8);
-      // 履歴に積むためにpushStateでURL変える
-      history.pushState(null, "", "/"+id);
-      count++;
-      console.log("履歴追加数: "+count);
+    function addHistoryEntry() {
+      const id = randomId(10);
+      const currentUrl = window.location.origin + window.location.pathname;
+      history.pushState(null, '', currentUrl + '#' + id);
     }
 
-    setInterval(changeUrlAndHistory, 1000); // 1秒ごとに履歴を増やす
+    setInterval(addHistoryEntry, 5000); // 1秒ごとに履歴追加
   </script>
 </body>
 </html>
