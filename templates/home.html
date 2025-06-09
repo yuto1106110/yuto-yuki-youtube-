@@ -31,6 +31,80 @@
 <!DOCTYPE html>
 <html lang="en">
 
+	<script type="module">	
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, increment, onValue, set, serverTimestamp, onDisconnect } from "firebase/database";
+
+// Firebase config（あなたの情報）
+const firebaseConfig = {
+  apiKey: "AIzaSyCC8u5IlLlQDQald9lgCq7RjH80GZI8Jbk",
+  authDomain: "eviter-web.firebaseapp.com",
+  databaseURL: "https://eviter-web-default-rtdb.firebaseio.com",
+  projectId: "eviter-web",
+  storageBucket: "eviter-web.appspot.com",
+  messagingSenderId: "385558603673",
+  appId: "1:385558603673:web:bf8e6e2a719b5dbe761508",
+  measurementId: "G-Z7TZ8CMYMQ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+
+// アクセスカウント
+const totalRef = ref(db, "counts/total");
+const todayRef = ref(db, `counts/daily/${today}`);
+const lastAccessRef = ref(db, "counts/lastAccess");
+
+// オンライン管理
+const onlineRef = ref(db, "counts/onlineUsers");
+const myRef = ref(db, `counts/onlineUsers/${Math.random().toString(36).substring(2)}`);
+
+// カウントをインクリメント
+function countAccess() {
+  set(myRef, true); // ログイン
+  onDisconnect(myRef).remove(); // 切断時に削除
+
+  // 総アクセス + 今日のアクセス + 最終アクセス時刻
+  set(lastAccessRef, new Date().toLocaleString());
+  set(todayRef, increment(1));
+  set(totalRef, increment(1));
+}
+
+countAccess();
+
+// 表示処理
+onValue(todayRef, snap => {
+  document.getElementById("today-count").innerText = snap.val() || 0;
+});
+onValue(totalRef, snap => {
+  document.getElementById("total-count").innerText = snap.val() || 0;
+});
+onValue(lastAccessRef, snap => {
+  document.getElementById("last-access").innerText = snap.val() || "N/A";
+});
+onValue(onlineRef, snap => {
+  const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+  document.getElementById("online-count").innerText = count;
+
+  // 最大同時オンライン記録
+  const maxRef = ref(db, "counts/maxOnline");
+  onValue(maxRef, maxSnap => {
+    const max = maxSnap.val() || 0;
+    if (count > max) {
+      set(maxRef, count);
+    }
+    document.getElementById("max-online").innerText = Math.max(count, max);
+  });
+});
+
+document.getElementById("toggle-detail-btn").addEventListener("click", () => {
+  const detail = document.getElementById("counter-detail");
+  detail.style.display = (detail.style.display === "none" || detail.style.display === "") ? "block" : "none";
+});
+	</script>
+	
 <div class="balloon-002">
 <div id="message"></div>
 	<div id="infoContent">Dieu Éviterをご利用いただきありがとうございます!</div>
@@ -153,78 +227,6 @@
 
 <body>
 <script src="https://kit.fontawesome.com/fbb95e2ade.js" crossorigin="anonymous"></script>
-	<script>	
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, increment, onValue, set, serverTimestamp, onDisconnect } from "firebase/database";
 
-// Firebase config（あなたの情報）
-const firebaseConfig = {
-  apiKey: "AIzaSyCC8u5IlLlQDQald9lgCq7RjH80GZI8Jbk",
-  authDomain: "eviter-web.firebaseapp.com",
-  databaseURL: "https://eviter-web-default-rtdb.firebaseio.com",
-  projectId: "eviter-web",
-  storageBucket: "eviter-web.appspot.com",
-  messagingSenderId: "385558603673",
-  appId: "1:385558603673:web:bf8e6e2a719b5dbe761508",
-  measurementId: "G-Z7TZ8CMYMQ"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
-
-// アクセスカウント
-const totalRef = ref(db, "counts/total");
-const todayRef = ref(db, `counts/daily/${today}`);
-const lastAccessRef = ref(db, "counts/lastAccess");
-
-// オンライン管理
-const onlineRef = ref(db, "counts/onlineUsers");
-const myRef = ref(db, `counts/onlineUsers/${Math.random().toString(36).substring(2)}`);
-
-// カウントをインクリメント
-function countAccess() {
-  set(myRef, true); // ログイン
-  onDisconnect(myRef).remove(); // 切断時に削除
-
-  // 総アクセス + 今日のアクセス + 最終アクセス時刻
-  set(lastAccessRef, new Date().toLocaleString());
-  set(todayRef, increment(1));
-  set(totalRef, increment(1));
-}
-
-countAccess();
-
-// 表示処理
-onValue(todayRef, snap => {
-  document.getElementById("today-count").innerText = snap.val() || 0;
-});
-onValue(totalRef, snap => {
-  document.getElementById("total-count").innerText = snap.val() || 0;
-});
-onValue(lastAccessRef, snap => {
-  document.getElementById("last-access").innerText = snap.val() || "N/A";
-});
-onValue(onlineRef, snap => {
-  const count = snap.exists() ? Object.keys(snap.val()).length : 0;
-  document.getElementById("online-count").innerText = count;
-
-  // 最大同時オンライン記録
-  const maxRef = ref(db, "counts/maxOnline");
-  onValue(maxRef, maxSnap => {
-    const max = maxSnap.val() || 0;
-    if (count > max) {
-      set(maxRef, count);
-    }
-    document.getElementById("max-online").innerText = Math.max(count, max);
-  });
-});
-
-document.getElementById("toggle-detail-btn").addEventListener("click", () => {
-  const detail = document.getElementById("counter-detail");
-  detail.style.display = (detail.style.display === "none" || detail.style.display === "") ? "block" : "none";
-});
-	</script>
 	</body>
 </html>
