@@ -1032,6 +1032,9 @@ def list_page(response: Response, request: Request):
 @app.get("/among-1", response_class=HTMLResponse)
 def list_page(response: Response, request: Request):
     return template("among-1.html", {"request": request})
+@app.get("/among-2", response_class=HTMLResponse)
+def list_page(response: Response, request: Request):
+    return template("among-2.html", {"request": request})
 
 @app.exception_handler(500)
 def error500(request: Request, __):
