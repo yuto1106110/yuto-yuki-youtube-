@@ -830,6 +830,13 @@ def home():
     invidious_api = InvidiousAPI()
     return 'Success'
 
+@app.get("/wakame", response_class=PlainTextResponse)
+def home():
+    global url, invidious_api
+    url = requests.get('https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/refs/heads/main/wakame-1', headers=getRandomUserAgent()).text.rstrip()
+    invidious_api = InvidiousAPI()
+    return 'Success'
+
 @app.get("/version", response_class=PlainTextResponse)
 def displayVersion():
     return str({'version': version, 'new_instance_version': new_instance_version})
