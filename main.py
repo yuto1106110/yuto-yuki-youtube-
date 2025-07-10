@@ -821,7 +821,7 @@ def viewlist(response: Response, request: Request, yuki: Union[str] = Cookie(Non
         return redirect("/")
     response.set_cookie("yuki", "True", max_age=60 * 60 * 24 * 7)
     
-    return template("info.html", {"request": request, "Youtube_API": invidious_api.video[0], "Channel_API": invidious_api.channel[0], "comments": invidious_api.comments[0]})
+    return template("video.html", {"request": request, "Youtube_API": invidious_api.video[0], "Channel_API": invidious_api.channel[0], "comments": invidious_api.comments[0]})
 
 @app.get("/reset", response_class=PlainTextResponse)
 def home():
