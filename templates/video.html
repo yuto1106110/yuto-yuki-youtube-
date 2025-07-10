@@ -115,11 +115,6 @@
 	<p>{{ rec_video["view_count_text"] }}回視聴</p>
 	<a href="/channel/{{ rec_video['authorId'] }}">{{ rec_video["author"] }}</a>
 	{% endfor %}
-
-        現在のAPIサーバー<br>
-        Youtube-API:{{ Youtube_API }}<br>
-        Channel-API:{{ Channel_API }}<br>
-        Comments-API:{{ Comments_API }}<br>
 	
 </div>
 </div>
@@ -343,6 +338,12 @@
 		<p><a href="javascript:closeSubTool('server')">← 戻る</a></p>
 		<h3>サーバー切り替え</h3>
 <form id="api-selector-form">
+
+        現在のAPIサーバー<br>
+        Youtube-API:{{ Youtube_API }}<br>
+        Channel-API:{{ Channel_API }}<br>
+        Comments-API:{{ Comments_API }}<br>
+	
 	<label for="api-source">APIソースを選択:</label>
 	<select id="api-source" name="api_source">
 <option value="https://raw.githubusercontent.com/yuto1106110/yuto-yuki-youtube-1/main/APItati">Default server(推奨)
